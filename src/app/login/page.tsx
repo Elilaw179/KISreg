@@ -1,13 +1,15 @@
+
 "use client";
 
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Lock, User, GraduationCap } from 'lucide-react';
+import { ShieldCheck, Lock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,8 +23,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="p-4 bg-primary rounded-full shadow-lg mb-2">
-          <GraduationCap className="w-12 h-12 text-white" />
+        <div className="relative w-32 h-32 mb-4">
+          <Image 
+            src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
+            alt="Kourrklys International School Logo"
+            fill
+            className="object-contain"
+            priority
+            data-ai-hint="school logo"
+          />
         </div>
         <h1 className="text-3xl font-headline font-extrabold text-primary tracking-tight">KOURRKLYS</h1>
         <p className="text-muted-foreground text-center font-medium">

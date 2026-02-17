@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -10,8 +11,7 @@ import {
   LogOut, 
   Settings, 
   Search,
-  Bell,
-  GraduationCap
+  Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import Image from 'next/image';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -47,12 +48,18 @@ export function DashboardShell({ children }: DashboardShellProps) {
     <SidebarProvider>
       <Sidebar collapsible="icon" className="border-r-0 shadow-2xl">
         <SidebarHeader className="p-4 flex flex-row items-center gap-3">
-          <div className="bg-white rounded-full p-2 shrink-0 shadow-inner">
-             <GraduationCap className="w-6 h-6 text-primary" />
+          <div className="bg-white rounded-full p-1 shrink-0 shadow-inner w-10 h-10 relative overflow-hidden">
+             <Image 
+                src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
+                alt="KIS Logo"
+                fill
+                className="object-contain p-0.5"
+                data-ai-hint="school logo"
+             />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden">
-            <span className="font-headline font-black text-lg text-white leading-tight">KOURRKLYS</span>
-            <span className="text-[10px] text-white/70 font-medium tracking-widest uppercase">International School</span>
+            <span className="font-headline font-black text-lg text-white leading-tight tracking-tight">KOURRKLYS</span>
+            <span className="text-[10px] text-white/70 font-medium tracking-widest uppercase">Int. School</span>
           </div>
         </SidebarHeader>
         <SidebarContent className="px-2 pt-6">

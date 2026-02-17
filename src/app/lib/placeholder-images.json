@@ -2,6 +2,12 @@
 {
   "placeholderImages": [
     {
+      "id": "school-logo",
+      "description": "Official Kourrklys International School Logo",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2",
+      "imageHint": "school logo"
+    },
+    {
       "id": "admin-avatar",
       "description": "Admin user profile picture",
       "imageUrl": "https://picsum.photos/seed/admin/200/200",
@@ -18,12 +24,6 @@
       "description": "Student portrait placeholder",
       "imageUrl": "https://picsum.photos/seed/student2/400/400",
       "imageHint": "student portrait"
-    },
-    {
-      "id": "logo-placeholder",
-      "description": "School logo placeholder",
-      "imageUrl": "https://picsum.photos/seed/school/100/100",
-      "imageHint": "school logo"
     }
   ]
 }
