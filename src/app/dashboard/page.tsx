@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -8,7 +7,6 @@ import {
   UserCheck, 
   UserX, 
   School,
-  ArrowUpRight,
   TrendingUp,
   Calendar
 } from 'lucide-react';
@@ -35,9 +33,9 @@ export default function DashboardPage() {
     { name: 'JSS 1', count: 12 },
     { name: 'JSS 2', count: 15 },
     { name: 'JSS 3', count: 10 },
-    { name: 'SSS 1', count: 18 },
-    { name: 'SSS 2', count: 14 },
-    { name: 'SSS 3', count: 12 },
+    { name: 'SS 1', count: 18 },
+    { name: 'SS 2', count: 14 },
+    { name: 'SS 3', count: 12 },
   ];
 
   const recentStudents = MOCK_STUDENTS.slice(0, 3);
@@ -52,7 +50,7 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="hover:shadow-md transition-shadow">
+          <Card className="hover:shadow-md transition-shadow border-none shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Students</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -66,10 +64,10 @@ export default function DashboardPage() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-md transition-shadow">
+          <Card className="hover:shadow-md transition-shadow border-none shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-              <UserCheck className="h-4 w-4 text-green-500" />
+              <UserCheck className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{activeStudents}</div>
@@ -78,7 +76,7 @@ export default function DashboardPage() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-md transition-shadow">
+          <Card className="hover:shadow-md transition-shadow border-none shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Withdrawn</CardTitle>
               <UserX className="h-4 w-4 text-destructive" />
@@ -90,10 +88,10 @@ export default function DashboardPage() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-md transition-shadow">
+          <Card className="hover:shadow-md transition-shadow border-none shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Class Attendance</CardTitle>
-              <School className="h-4 w-4 text-accent" />
+              <School className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">94%</div>
@@ -105,7 +103,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4">
+          <Card className="col-span-4 border-none shadow-sm">
             <CardHeader>
               <CardTitle className="font-headline">Student Distribution</CardTitle>
               <CardDescription>Number of students per class level</CardDescription>
@@ -134,7 +132,7 @@ export default function DashboardPage() {
                     />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                       {classData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#225C9E' : '#7C7CEF'} />
+                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3c599b' : '#5a78bd'} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -143,12 +141,12 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="col-span-3">
+          <Card className="col-span-3 border-none shadow-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="font-headline">Recent Admissions</CardTitle>
-                  <CardDescription>Latest students added to the system</CardDescription>
+                  <CardDescription>Latest students added</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" asChild>
                   <Link href="/dashboard/students">View All</Link>
@@ -159,7 +157,7 @@ export default function DashboardPage() {
               <div className="space-y-6">
                 {recentStudents.map((student) => (
                   <div key={student.id} className="flex items-center gap-4 group">
-                    <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden shrink-0 border">
+                    <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden shrink-0 border border-muted">
                       <img src={student.photoUrl || 'https://placehold.co/100'} alt="" className="h-full w-full object-cover" />
                     </div>
                     <div className="flex-1 space-y-1">

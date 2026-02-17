@@ -14,7 +14,7 @@ export interface Student {
   previousSchool: string;
   status: StudentStatus;
   photoUrl?: string;
-  // New "Reg Book" Fields
+  // Registration Book Fields
   nationality: string;
   bloodGroup?: string;
   medicalInfo?: string;
@@ -23,7 +23,7 @@ export interface Student {
 export const CLASSES = [
   'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6',
   'JSS 1', 'JSS 2', 'JSS 3',
-  'SSS 1', 'SSS 2', 'SSS 3'
+  'SS 1', 'SS 2', 'SS 3'
 ];
 
 export const MOCK_STUDENTS: Student[] = [
@@ -34,7 +34,7 @@ export const MOCK_STUDENTS: Student[] = [
     dateOfBirth: '2008-05-14',
     dateOfAdmission: '2023-09-01',
     gender: 'Male',
-    class: 'SSS 1',
+    class: 'SS 1',
     parentName: 'Mr. & Mrs. Thompson',
     parentContact: '08012345678',
     address: '12 Victoria Island, Lagos',
@@ -70,7 +70,7 @@ export const MOCK_STUDENTS: Student[] = [
     dateOfBirth: '2009-02-10',
     dateOfAdmission: '2022-09-10',
     gender: 'Male',
-    class: 'SSS 2',
+    class: 'SS 2',
     parentName: 'Alhaji Ibrahim',
     parentContact: '07011223344',
     address: '8 Ikeja GRA, Lagos',
