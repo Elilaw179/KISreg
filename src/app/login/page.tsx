@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -22,20 +21,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="p-3 bg-primary rounded-2xl shadow-lg mb-2">
-          <GraduationCap className="w-10 h-10 text-white" />
+        <div className="p-4 bg-primary rounded-full shadow-lg mb-2">
+          <GraduationCap className="w-12 h-12 text-white" />
         </div>
-        <h1 className="text-3xl font-headline font-bold text-primary">StudentFlow</h1>
-        <p className="text-muted-foreground text-center max-w-xs">
-          School Information Management System
+        <h1 className="text-3xl font-headline font-extrabold text-primary tracking-tight">KOURRKLYS</h1>
+        <p className="text-muted-foreground text-center font-medium">
+          INTERNATIONAL SCHOOL
         </p>
       </div>
 
       <Card className="w-full max-w-md shadow-2xl border-none">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center font-headline">Admin Login</CardTitle>
+          <CardTitle className="text-2xl text-center font-headline font-bold">Admin Portal</CardTitle>
           <CardDescription className="text-center">
-            Enter your credentials to access the portal
+            Sign in to manage student records
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
@@ -46,8 +45,8 @@ export default function LoginPage() {
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
                   id="username" 
-                  placeholder="admin@school.edu" 
-                  className="pl-10" 
+                  placeholder="admin@kourrklys.edu" 
+                  className="pl-10 h-11" 
                   required 
                 />
               </div>
@@ -64,26 +63,26 @@ export default function LoginPage() {
                 <Input 
                   id="password" 
                   type="password" 
-                  className="pl-10" 
+                  className="pl-10 h-11" 
                   required 
                 />
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full h-11 text-base font-semibold">
+            <Button type="submit" className="w-full h-12 text-base font-semibold shadow-md">
               <ShieldCheck className="mr-2 h-5 w-5" />
-              Sign In
+              Access System
             </Button>
             <p className="text-xs text-center text-muted-foreground">
-              By logging in, you agree to our Terms of Service and Privacy Policy.
+              Secure access for authorized staff only.
             </p>
           </CardFooter>
         </form>
       </Card>
 
-      <footer className="mt-8 text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} StudentFlow System. All rights reserved.
+      <footer className="mt-12 text-sm text-muted-foreground">
+        &copy; {new Date().getFullYear()} Kourrklys International School.
       </footer>
     </div>
   );

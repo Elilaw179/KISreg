@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -14,7 +13,11 @@ import {
   BookOpen,
   User,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  Globe,
+  Stethoscope,
+  Droplet,
+  School
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -32,9 +35,9 @@ export default function StudentDetailPage() {
       <DashboardShell>
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
           <AlertTriangle className="h-12 w-12 text-destructive" />
-          <h2 className="text-2xl font-bold">Student Not Found</h2>
+          <h2 className="text-2xl font-bold">Student Record Not Found</h2>
           <Button asChild>
-            <Link href="/dashboard/students">Back to Directory</Link>
+            <Link href="/dashboard/students">Return to Directory</Link>
           </Button>
         </div>
       </DashboardShell>
@@ -54,13 +57,13 @@ export default function StudentDetailPage() {
             <h2 className="text-3xl font-headline font-bold text-primary">Student Profile</h2>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" className="shadow-sm" asChild>
               <Link href={`/dashboard/students/${student.id}/edit`}>
                 <Edit className="mr-2 h-4 w-4" />
-                Edit Record
+                Update Record
               </Link>
             </Button>
-            <Button variant="destructive" size="sm">
+            <Button variant="destructive" size="sm" className="shadow-sm">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </Button>
@@ -69,108 +72,146 @@ export default function StudentDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Info Card */}
-          <Card className="lg:col-span-1 shadow-sm border overflow-hidden">
-            <div className="bg-primary h-24 relative">
-              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 h-24 w-24 rounded-2xl border-4 border-white overflow-hidden bg-white shadow-lg">
-                <img 
-                  src={student.photoUrl || 'https://placehold.co/100'} 
-                  alt={student.fullName} 
-                  className="w-full h-full object-cover" 
-                />
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="shadow-md border overflow-hidden">
+              <div className="bg-primary h-24 relative">
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 h-28 w-28 rounded-2xl border-4 border-white overflow-hidden bg-white shadow-xl">
+                  <img 
+                    src={student.photoUrl || 'https://placehold.co/200'} 
+                    alt={student.fullName} 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
               </div>
-            </div>
-            <CardHeader className="pt-16 text-center space-y-2">
-              <CardTitle className="text-2xl font-bold">{student.fullName}</CardTitle>
-              <div className="flex items-center justify-center gap-2">
-                <Badge variant={student.status === 'Active' ? 'default' : 'secondary'}>
-                  {student.status}
-                </Badge>
-                <span className="text-sm font-medium px-2 py-0.5 bg-muted rounded text-muted-foreground">
-                  {student.admissionNumber}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-4 border-t">
-              <div className="flex items-center gap-3 text-sm">
-                <div className="p-2 bg-muted rounded-lg shrink-0">
-                  <BookOpen className="h-4 w-4 text-primary" />
+              <CardHeader className="pt-16 text-center space-y-2">
+                <CardTitle className="text-2xl font-bold">{student.fullName}</CardTitle>
+                <div className="flex items-center justify-center gap-2">
+                  <Badge variant={student.status === 'Active' ? 'default' : 'secondary'} className="px-3">
+                    {student.status}
+                  </Badge>
+                  <span className="text-sm font-bold px-2 py-0.5 bg-muted rounded text-primary">
+                    {student.admissionNumber}
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-4 border-t px-6 pb-8">
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Current Class</p>
+                    <p className="font-bold text-lg">{student.class}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
+                    <Globe className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Nationality</p>
+                    <p className="font-semibold">{student.nationality}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Joined On</p>
+                    <p className="font-semibold">{new Date(student.dateOfAdmission).toLocaleDateString(undefined, { dateStyle: 'medium' })}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Birth Date</p>
+                    <p className="font-semibold">{new Date(student.dateOfBirth).toLocaleDateString(undefined, { dateStyle: 'medium' })}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm border overflow-hidden">
+              <CardHeader className="bg-red-50 border-b">
+                <CardTitle className="text-sm font-bold flex items-center gap-2 text-red-900">
+                  <Stethoscope className="h-4 w-4" />
+                  Medical Brief
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-muted-foreground">Blood Group</span>
+                  <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50">
+                    <Droplet className="h-3 w-3 mr-1" />
+                    {student.bloodGroup || 'N/A'}
+                  </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Current Class</p>
-                  <p className="font-medium">{student.class}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Alerts / Notes</p>
+                  <p className="text-sm font-medium leading-relaxed bg-muted p-3 rounded-lg border border-dashed">
+                    {student.medicalInfo || 'No medical conditions reported.'}
+                  </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="p-2 bg-muted rounded-lg shrink-0">
-                  <Clock className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Admission Date</p>
-                  <p className="font-medium">{new Date(student.dateOfAdmission).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="p-2 bg-muted rounded-lg shrink-0">
-                  <Calendar className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Date of Birth</p>
-                  <p className="font-medium">{new Date(student.dateOfBirth).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Detailed Info Tabs/Section */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="shadow-sm border">
-              <CardHeader className="border-b bg-muted/30">
-                <CardTitle className="text-lg">Detailed Information</CardTitle>
+            <Card className="shadow-md border">
+              <CardHeader className="border-b bg-muted/20">
+                <CardTitle className="text-lg">Detailed Registration Data</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 border-b">
-                  <div className="p-6 border-b md:border-b-0 md:border-r">
-                    <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 text-primary">
+                  <div className="p-8 border-b md:border-b-0 md:border-r">
+                    <h3 className="text-xs font-black flex items-center gap-2 mb-6 text-primary uppercase tracking-widest">
                       <User className="h-4 w-4" />
-                      Guardian Details
+                      Guardian Contact
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase font-semibold">Guardian Name</p>
-                        <p className="font-medium text-lg">{student.parentName}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Full Name</p>
+                        <p className="font-bold text-xl text-primary/90">{student.parentName}</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
-                          <Phone className="h-4 w-4" />
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                          <Phone className="h-5 w-5" />
                         </div>
-                        <p className="font-medium">{student.parentContact}</p>
+                        <div>
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold">Mobile Number</p>
+                          <p className="font-bold text-lg">{student.parentContact}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 text-primary">
+                  <div className="p-8">
+                    <h3 className="text-xs font-black flex items-center gap-2 mb-6 text-primary uppercase tracking-widest">
                       <MapPin className="h-4 w-4" />
-                      Address Information
+                      Home Address
                     </h3>
                     <div className="space-y-4">
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase font-semibold">Full Address</p>
-                        <p className="font-medium leading-relaxed">{student.address}</p>
+                      <div className="bg-muted/30 p-4 rounded-xl border border-dashed">
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold mb-2">Residential Area</p>
+                        <p className="font-medium leading-relaxed text-sm">{student.address}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 text-primary">
+                <div className="p-8">
+                  <h3 className="text-xs font-black flex items-center gap-2 mb-6 text-primary uppercase tracking-widest">
                     <School className="h-4 w-4" />
-                    Academic History
+                    Academic Foundation
                   </h3>
-                  <div className="bg-muted/30 p-4 rounded-xl border border-dashed flex justify-between items-center">
+                  <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 flex justify-between items-center group">
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Previous School</p>
-                      <p className="font-medium">{student.previousSchool}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Previous Institution</p>
+                      <p className="font-bold text-lg group-hover:text-primary transition-colors">{student.previousSchool || 'First Enrollment'}</p>
                     </div>
-                    <Badge variant="outline" className="bg-white">Transferred</Badge>
+                    <Badge variant="outline" className="bg-white px-4 py-1 text-primary border-primary/20">Record Confirmed</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -178,23 +219,22 @@ export default function StudentDetailPage() {
 
             <Card className="shadow-sm border">
               <CardHeader>
-                <CardTitle className="text-lg">Recent Activities</CardTitle>
-                <CardDescription>Administrative actions related to this student.</CardDescription>
+                <CardTitle className="text-lg">Recent System Logs</CardTitle>
+                <CardDescription>Chronological history of record modifications.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="flex gap-4">
-                    <div className="w-1 bg-primary rounded-full" />
+                    <div className="w-1 bg-primary/20 rounded-full shrink-0" />
                     <div>
-                      <p className="text-sm font-medium">Record Created</p>
-                      <p className="text-xs text-muted-foreground">Admin updated basic information • 2 months ago</p>
+                      <p className="text-sm font-bold">Initial Registration</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Record established by Registrar Office • {new Date(student.dateOfAdmission).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <div className="flex gap-4">
-                    <div className="w-1 bg-accent rounded-full" />
+                  <div className="flex gap-4 opacity-60">
+                    <div className="w-1 bg-muted rounded-full shrink-0" />
                     <div>
-                      <p className="text-sm font-medium">Passport Photo Uploaded</p>
-                      <p className="text-xs text-muted-foreground">Admission processing complete • 2 months ago</p>
+                      <p className="text-sm font-medium italic">No further updates found</p>
                     </div>
                   </div>
                 </div>

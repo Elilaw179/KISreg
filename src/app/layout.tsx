@@ -1,10 +1,9 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'StudentFlow | SIMS',
-  description: 'Student Information Management System',
+  title: 'Kourrklys International School | Admin Portal',
+  description: 'Management System for Kourrklys International School (KIS)',
 };
 
 export default function RootLayout({

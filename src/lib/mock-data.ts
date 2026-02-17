@@ -1,4 +1,3 @@
-
 export type StudentStatus = 'Active' | 'Withdrawn';
 
 export interface Student {
@@ -15,9 +14,14 @@ export interface Student {
   previousSchool: string;
   status: StudentStatus;
   photoUrl?: string;
+  // New "Reg Book" Fields
+  nationality: string;
+  bloodGroup?: string;
+  medicalInfo?: string;
 }
 
 export const CLASSES = [
+  'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6',
   'JSS 1', 'JSS 2', 'JSS 3',
   'SSS 1', 'SSS 2', 'SSS 3'
 ];
@@ -25,7 +29,7 @@ export const CLASSES = [
 export const MOCK_STUDENTS: Student[] = [
   {
     id: '1',
-    admissionNumber: 'SF/2023/001',
+    admissionNumber: 'KIS/2024/001',
     fullName: 'Adewale Thompson',
     dateOfBirth: '2008-05-14',
     dateOfAdmission: '2023-09-01',
@@ -36,11 +40,14 @@ export const MOCK_STUDENTS: Student[] = [
     address: '12 Victoria Island, Lagos',
     previousSchool: 'Grace Garden International',
     status: 'Active',
-    photoUrl: 'https://picsum.photos/seed/student1/400/400'
+    photoUrl: 'https://picsum.photos/seed/student1/400/400',
+    nationality: 'Nigerian',
+    bloodGroup: 'O+',
+    medicalInfo: 'None'
   },
   {
     id: '2',
-    admissionNumber: 'SF/2023/002',
+    admissionNumber: 'KIS/2024/002',
     fullName: 'Chioma Okeke',
     dateOfBirth: '2010-11-20',
     dateOfAdmission: '2023-09-01',
@@ -51,11 +58,14 @@ export const MOCK_STUDENTS: Student[] = [
     address: '45 Lekki Phase 1, Lagos',
     previousSchool: 'Bright Minds Academy',
     status: 'Active',
-    photoUrl: 'https://picsum.photos/seed/student2/400/400'
+    photoUrl: 'https://picsum.photos/seed/student2/400/400',
+    nationality: 'Nigerian',
+    bloodGroup: 'A+',
+    medicalInfo: 'Peanut allergy'
   },
   {
     id: '3',
-    admissionNumber: 'SF/2022/045',
+    admissionNumber: 'KIS/2023/045',
     fullName: 'Musa Ibrahim',
     dateOfBirth: '2009-02-10',
     dateOfAdmission: '2022-09-10',
@@ -66,6 +76,9 @@ export const MOCK_STUDENTS: Student[] = [
     address: '8 Ikeja GRA, Lagos',
     previousSchool: 'Northern Star College',
     status: 'Withdrawn',
-    photoUrl: 'https://picsum.photos/seed/student3/400/400'
+    photoUrl: 'https://picsum.photos/seed/student3/400/400',
+    nationality: 'Nigerian',
+    bloodGroup: 'B+',
+    medicalInfo: 'Asthmatic'
   }
 ];
