@@ -1,0 +1,29 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "admin-avatar",
+      "description": "Admin user profile picture",
+      "imageUrl": "https://picsum.photos/seed/admin/200/200",
+      "imageHint": "profile portrait"
+    },
+    {
+      "id": "student-1",
+      "description": "Student portrait placeholder",
+      "imageUrl": "https://picsum.photos/seed/student1/400/400",
+      "imageHint": "student portrait"
+    },
+    {
+      "id": "student-2",
+      "description": "Student portrait placeholder",
+      "imageUrl": "https://picsum.photos/seed/student2/400/400",
+      "imageHint": "student portrait"
+    },
+    {
+      "id": "logo-placeholder",
+      "description": "School logo placeholder",
+      "imageUrl": "https://picsum.photos/seed/school/100/100",
+      "imageHint": "school logo"
+    }
+  ]
+}
