@@ -10,14 +10,39 @@ export interface Student {
   class: string;
   parentName: string;
   parentContact: string;
+  parentEmail: string;
+  parentOccupation: string;
   address: string;
   previousSchool: string;
   status: StudentStatus;
   photoUrl?: string;
-  // Registration Book Fields
   nationality: string;
   bloodGroup?: string;
   medicalInfo?: string;
+}
+
+export interface Teacher {
+  id: string;
+  staffId: string;
+  fullName: string;
+  dateOfBirth: string;
+  gender: 'Male' | 'Female' | 'Other';
+  nationality: string;
+  maritalStatus: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  phone: string;
+  email: string;
+  address: string;
+  designation: string;
+  department: string;
+  qualification: string;
+  dateOfJoining: string;
+  photoUrl?: string;
+  nextOfKin: {
+    name: string;
+    relationship: string;
+    phone: string;
+    address: string;
+  };
 }
 
 export const CLASSES = [
@@ -37,6 +62,8 @@ export const MOCK_STUDENTS: Student[] = [
     class: 'SS 1',
     parentName: 'Mr. & Mrs. Thompson',
     parentContact: '08012345678',
+    parentEmail: 'thompson@example.com',
+    parentOccupation: 'Engineer',
     address: '12 Victoria Island, Lagos',
     previousSchool: 'Grace Garden International',
     status: 'Active',
@@ -55,6 +82,8 @@ export const MOCK_STUDENTS: Student[] = [
     class: 'JSS 3',
     parentName: 'Dr. Okeke',
     parentContact: '08098765432',
+    parentEmail: 'okeke.chioma@gmail.com',
+    parentOccupation: 'Medical Doctor',
     address: '45 Lekki Phase 1, Lagos',
     previousSchool: 'Bright Minds Academy',
     status: 'Active',
@@ -62,23 +91,54 @@ export const MOCK_STUDENTS: Student[] = [
     nationality: 'Nigerian',
     bloodGroup: 'A+',
     medicalInfo: 'Peanut allergy'
+  }
+];
+
+export const MOCK_TEACHERS: Teacher[] = [
+  {
+    id: '1',
+    staffId: 'KIS/STAFF/001',
+    fullName: 'Mr. Olumide Bakare',
+    dateOfBirth: '1985-04-12',
+    gender: 'Male',
+    nationality: 'Nigerian',
+    maritalStatus: 'Married',
+    phone: '08022334455',
+    email: 'olumide.bakare@kourrklys.edu.ng',
+    address: '22 Gbagada Estate, Lagos',
+    designation: 'Mathematics Teacher',
+    department: 'Sciences',
+    qualification: 'B.Sc (Ed) Mathematics',
+    dateOfJoining: '2020-01-15',
+    photoUrl: 'https://picsum.photos/seed/teacher1/400/400',
+    nextOfKin: {
+      name: 'Mrs. Funmi Bakare',
+      relationship: 'Spouse',
+      phone: '08033445566',
+      address: '22 Gbagada Estate, Lagos'
+    }
   },
   {
-    id: '3',
-    admissionNumber: 'KIS/2023/045',
-    fullName: 'Musa Ibrahim',
-    dateOfBirth: '2009-02-10',
-    dateOfAdmission: '2022-09-10',
-    gender: 'Male',
-    class: 'SS 2',
-    parentName: 'Alhaji Ibrahim',
-    parentContact: '07011223344',
-    address: '8 Ikeja GRA, Lagos',
-    previousSchool: 'Northern Star College',
-    status: 'Withdrawn',
-    photoUrl: 'https://picsum.photos/seed/student3/400/400',
+    id: '2',
+    staffId: 'KIS/STAFF/002',
+    fullName: 'Ms. Sarah Okoro',
+    dateOfBirth: '1992-07-25',
+    gender: 'Female',
     nationality: 'Nigerian',
-    bloodGroup: 'B+',
-    medicalInfo: 'Asthmatic'
+    maritalStatus: 'Single',
+    phone: '09011223344',
+    email: 'sarah.okoro@kourrklys.edu.ng',
+    address: '15 Ikeja Along, Lagos',
+    designation: 'English Language Teacher',
+    department: 'Languages',
+    qualification: 'B.A (Ed) English',
+    dateOfJoining: '2022-09-01',
+    photoUrl: 'https://picsum.photos/seed/teacher2/400/400',
+    nextOfKin: {
+      name: 'Mr. Jude Okoro',
+      relationship: 'Brother',
+      phone: '08122334455',
+      address: '8 Owerri Road, Enugu'
+    }
   }
 ];

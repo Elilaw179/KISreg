@@ -15,7 +15,9 @@ import {
   Home,
   Globe,
   Stethoscope,
-  Droplet
+  Droplet,
+  Mail,
+  Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -237,8 +239,25 @@ export default function NewStudentPage() {
                     <Input id="parentName" placeholder="e.g., Mr. & Mrs. Okeke" required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="parentContact">Emergency Contact</Label>
-                    <Input id="parentContact" placeholder="+234 ..." required />
+                    <Label htmlFor="parentContact">Emergency Contact (Phone)</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input id="parentContact" className="pl-10" placeholder="+234 ..." required />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="parentEmail">Guardian's Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input id="parentEmail" type="email" className="pl-10" placeholder="parent@example.com" required />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="parentOccupation">Guardian's Occupation</Label>
+                    <div className="relative">
+                      <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input id="parentOccupation" className="pl-10" placeholder="e.g. Civil Servant" required />
+                    </div>
                   </div>
                   <div className="md:col-span-2 space-y-2">
                     <Label htmlFor="address">Residential Address</Label>

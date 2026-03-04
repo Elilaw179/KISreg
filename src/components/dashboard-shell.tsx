@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -11,7 +10,9 @@ import {
   LogOut, 
   Settings, 
   Search,
-  Bell
+  Bell,
+  GraduationCap,
+  ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -40,8 +41,9 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Student Records', href: '/dashboard/students', icon: Users },
-    { name: 'New Admission', href: '/dashboard/students/new', icon: UserPlus },
+    { name: 'Student Directory', href: '/dashboard/students', icon: Users },
+    { name: 'Staff Management', href: '/dashboard/teachers', icon: GraduationCap },
+    { name: 'Admission Center', href: '/dashboard/students/new', icon: ClipboardList },
   ];
 
   return (
@@ -84,7 +86,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <SidebarFooter className="p-4">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton className="hover:bg-sidebar-accent h-10" asChild tooltip="Settings">
+              <SidebarMenuButton className="hover:bg-sidebar-accent h-10" asChild tooltip="Settings" isActive={pathname === '/dashboard/settings'}>
                 <Link href="/dashboard/settings">
                   <Settings className="w-5 h-5" />
                   <span>Admin Settings</span>
