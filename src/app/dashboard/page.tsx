@@ -11,7 +11,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MOCK_STUDENTS } from '@/lib/mock-data';
+import { MOCK_STUDENTS, CLASSES } from '@/lib/mock-data';
 import { 
   Bar, 
   BarChart, 
@@ -29,23 +29,22 @@ export default function DashboardPage() {
   const activeStudents = MOCK_STUDENTS.filter(s => s.status === 'Active').length;
   const withdrawnStudents = MOCK_STUDENTS.filter(s => s.status === 'Withdrawn').length;
 
-  const classData = [
-    { name: 'JSS 1', count: 12 },
-    { name: 'JSS 2', count: 15 },
-    { name: 'JSS 3', count: 10 },
-    { name: 'SS 1', count: 18 },
-    { name: 'SS 2', count: 14 },
-    { name: 'SS 3', count: 12 },
-  ];
+  // Dynamically generate class distribution based on mock data
+  const classData = CLASSES.map(className => {
+    return {
+      name: className,
+      count: MOCK_STUDENTS.filter(s => s.class === className).length
+    };
+  }).filter(c => c.count > 0 || ['SS 1', 'SS 2', 'SS 3', 'JSS 3'].includes(c.name));
 
-  const recentStudents = MOCK_STUDENTS.slice(0, 3);
+  const recentStudents = MOCK_STUDENTS.slice(-3).reverse();
 
   return (
     <DashboardShell>
       <div className="space-y-8">
         <div>
           <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">Overview</h2>
-          <p className="text-muted-foreground">Welcome back, Admin. Here is what's happening today.</p>
+          <p className="text-muted-foreground">Welcome back, Admin. Here is what's happening at Kourrklys today.</p>
         </div>
 
         {/* Stats Grid */}

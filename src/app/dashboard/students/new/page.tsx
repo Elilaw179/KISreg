@@ -68,30 +68,33 @@ export default function NewStudentPage() {
 
         <form onSubmit={handleSubmit} className="grid gap-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Column: Photo Upload */}
+            {/* Left Column: Photo & Medical */}
             <div className="lg:col-span-4 space-y-6">
               <Card className="shadow-sm border">
                 <CardHeader>
                   <CardTitle className="text-lg">Passport Photo</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-4">
-                  <div className="w-full aspect-square max-w-[240px] rounded-2xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center bg-muted/30 overflow-hidden relative">
+                  <div className="w-full aspect-square max-w-[240px] rounded-2xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center bg-muted/30 overflow-hidden relative group">
                     {photoPreview ? (
                       <>
                         <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
                         <button 
                           type="button" 
-                          onClick={() => setPhotoPreview(null)}
-                          className="absolute top-2 right-2 p-1 bg-destructive text-white rounded-full hover:scale-110 transition-transform"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPhotoPreview(null);
+                          }}
+                          className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full hover:scale-110 transition-transform shadow-lg z-10"
                         >
                           <X className="h-4 w-4" />
                         </button>
                       </>
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-muted-foreground p-6 text-center">
-                        <Upload className="h-10 w-10 opacity-50 mb-2" />
+                        <Upload className="h-10 w-10 opacity-50 mb-2 group-hover:scale-110 transition-transform" />
                         <span className="text-sm font-medium">Click to upload photo</span>
-                        <span className="text-xs opacity-60">or drag & drop here</span>
+                        <span className="text-xs opacity-60">Required for Student ID</span>
                       </div>
                     )}
                     <input 
@@ -101,9 +104,6 @@ export default function NewStudentPage() {
                       onChange={handlePhotoChange}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Required for student ID card generation.
-                  </p>
                 </CardContent>
               </Card>
 
@@ -132,10 +132,10 @@ export default function NewStudentPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="medicalInfo">Allergies / Special Conditions</Label>
+                    <Label htmlFor="medicalInfo">Medical Conditions / Allergies</Label>
                     <Textarea 
                       id="medicalInfo" 
-                      placeholder="e.g., Peanut allergy, Asthmatic, etc." 
+                      placeholder="e.g., Peanut allergy, Asthmatic, Sickle Cell, etc." 
                       className="min-h-[100px]"
                     />
                   </div>
@@ -143,29 +143,30 @@ export default function NewStudentPage() {
               </Card>
             </div>
 
-            {/* Right Column: Main Info */}
+            {/* Right Column: Main Form */}
             <div className="lg:col-span-8 space-y-6">
+              {/* Personal Details */}
               <Card className="shadow-sm border">
                 <CardHeader className="bg-muted/30 border-b">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <User className="h-5 w-5 text-primary" />
-                    Personal Details
+                    Student Personal Details
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
                   <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="fullName">Full Name (as in Birth Certificate)</Label>
-                    <Input id="fullName" placeholder="Surname First, Middle Name, First Name" required />
+                    <Label htmlFor="fullName">Full Name (Surname First)</Label>
+                    <Input id="fullName" placeholder="e.g., Thompson, Adewale" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="admNo">Admission Number</Label>
-                    <Input id="admNo" placeholder="KIS/2024/..." required />
+                    <Input id="admNo" placeholder="KIS/2024/001" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="nationality">Nationality</Label>
                     <div className="relative">
                       <Globe className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="nationality" className="pl-10" placeholder="e.g. Nigerian" required />
+                      <Input id="nationality" className="pl-10" defaultValue="Nigerian" required />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -191,16 +192,17 @@ export default function NewStudentPage() {
                 </CardContent>
               </Card>
 
+              {/* Academic Details */}
               <Card className="shadow-sm border">
                 <CardHeader className="bg-muted/30 border-b">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <School className="h-5 w-5 text-primary" />
-                    Academic Details
+                    Academic Foundation
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
                   <div className="space-y-2">
-                    <Label htmlFor="class">Assigned Class/Grade</Label>
+                    <Label htmlFor="class">Assigned Class</Label>
                     <Select required>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Class" />
@@ -213,19 +215,20 @@ export default function NewStudentPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="admDate">Admission Date</Label>
+                    <Label htmlFor="admDate">Date of Admission</Label>
                     <div className="relative">
                       <CalendarIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input id="admDate" type="date" className="pl-10" required />
                     </div>
                   </div>
                   <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="prevSchool">Former School Attended</Label>
+                    <Label htmlFor="prevSchool">Previous School (if any)</Label>
                     <Input id="prevSchool" placeholder="Name and address of former school" />
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Guardian / Home Details */}
               <Card className="shadow-sm border">
                 <CardHeader className="bg-muted/30 border-b">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -239,7 +242,7 @@ export default function NewStudentPage() {
                     <Input id="parentName" placeholder="e.g., Mr. & Mrs. Okeke" required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="parentContact">Emergency Contact (Phone)</Label>
+                    <Label htmlFor="parentContact">Emergency Phone</Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input id="parentContact" className="pl-10" placeholder="+234 ..." required />
@@ -249,21 +252,21 @@ export default function NewStudentPage() {
                     <Label htmlFor="parentEmail">Guardian's Email Address</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="parentEmail" type="email" className="pl-10" placeholder="parent@example.com" required />
+                      <Input id="parentEmail" type="email" className="pl-10" placeholder="guardian@example.com" required />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="parentOccupation">Guardian's Occupation</Label>
                     <div className="relative">
                       <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="parentOccupation" className="pl-10" placeholder="e.g. Civil Servant" required />
+                      <Input id="parentOccupation" className="pl-10" placeholder="e.g. Civil Servant, Pilot" required />
                     </div>
                   </div>
                   <div className="md:col-span-2 space-y-2">
                     <Label htmlFor="address">Residential Address</Label>
                     <div className="relative">
                       <Home className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="address" className="pl-10" placeholder="Flat, Street, Area, City" required />
+                      <Input id="address" className="pl-10" placeholder="Full residential address" required />
                     </div>
                   </div>
                 </CardContent>
@@ -271,13 +274,14 @@ export default function NewStudentPage() {
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-6 border-t bg-background/80 backdrop-blur sticky bottom-0 z-10 p-4 rounded-xl shadow-lg border">
             <Button variant="outline" type="button" className="px-8" asChild>
-              <Link href="/dashboard/students">Discard</Link>
+              <Link href="/dashboard/students">Discard Changes</Link>
             </Button>
             <Button type="submit" className="h-10 px-10 font-bold shadow-md">
               <Save className="mr-2 h-4 w-4" />
-              Finalize Record
+              Finalize Admission
             </Button>
           </div>
         </form>

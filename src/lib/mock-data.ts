@@ -63,14 +63,14 @@ export const MOCK_STUDENTS: Student[] = [
     parentName: 'Mr. & Mrs. Thompson',
     parentContact: '08012345678',
     parentEmail: 'thompson@example.com',
-    parentOccupation: 'Engineer',
+    parentOccupation: 'Mechanical Engineer',
     address: '12 Victoria Island, Lagos',
     previousSchool: 'Grace Garden International',
     status: 'Active',
     photoUrl: 'https://picsum.photos/seed/student1/400/400',
     nationality: 'Nigerian',
     bloodGroup: 'O+',
-    medicalInfo: 'None'
+    medicalInfo: 'No known allergies'
   },
   {
     id: '2',
@@ -80,17 +80,37 @@ export const MOCK_STUDENTS: Student[] = [
     dateOfAdmission: '2023-09-01',
     gender: 'Female',
     class: 'JSS 3',
-    parentName: 'Dr. Okeke',
+    parentName: 'Dr. & Dr. (Mrs) Okeke',
     parentContact: '08098765432',
-    parentEmail: 'okeke.chioma@gmail.com',
-    parentOccupation: 'Medical Doctor',
+    parentEmail: 'okeke.family@gmail.com',
+    parentOccupation: 'Medical Consultants',
     address: '45 Lekki Phase 1, Lagos',
     previousSchool: 'Bright Minds Academy',
     status: 'Active',
     photoUrl: 'https://picsum.photos/seed/student2/400/400',
     nationality: 'Nigerian',
     bloodGroup: 'A+',
-    medicalInfo: 'Peanut allergy'
+    medicalInfo: 'Severe Peanut allergy'
+  },
+  {
+    id: '3',
+    admissionNumber: 'KIS/2024/003',
+    fullName: 'Ibrahim Musa',
+    dateOfBirth: '2009-03-12',
+    dateOfAdmission: '2024-01-10',
+    gender: 'Male',
+    class: 'SS 2',
+    parentName: 'Alhaji Musa',
+    parentContact: '07033445566',
+    parentEmail: 'musa.i@yahoo.com',
+    parentOccupation: 'Business Executive',
+    address: '88 Ikeja GRA, Lagos',
+    previousSchool: 'First Enrollment',
+    status: 'Active',
+    photoUrl: 'https://picsum.photos/seed/student3/400/400',
+    nationality: 'Nigerian',
+    bloodGroup: 'B+',
+    medicalInfo: 'None'
   }
 ];
 
