@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -29,13 +30,13 @@ export default function DashboardPage() {
   const activeStudents = MOCK_STUDENTS.filter(s => s.status === 'Active').length;
   const withdrawnStudents = MOCK_STUDENTS.filter(s => s.status === 'Withdrawn').length;
 
-  // Dynamically generate class distribution based on mock data
+  // Generate distribution for all major classes to ensure the diagram is full
   const classData = CLASSES.map(className => {
     return {
       name: className,
       count: MOCK_STUDENTS.filter(s => s.class === className).length
     };
-  }).filter(c => c.count > 0 || ['SS 1', 'SS 2', 'SS 3', 'JSS 3'].includes(c.name));
+  });
 
   const recentStudents = MOCK_STUDENTS.slice(-3).reverse();
 
@@ -105,16 +106,16 @@ export default function DashboardPage() {
           <Card className="col-span-4 border-none shadow-sm">
             <CardHeader>
               <CardTitle className="font-headline">Student Distribution</CardTitle>
-              <CardDescription>Number of students per class level</CardDescription>
+              <CardDescription>Number of students per class level (All Grades & Secondary)</CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
-              <div className="h-[300px] w-full">
+              <div className="h-[350px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={classData}>
                     <XAxis 
                       dataKey="name" 
                       stroke="#888888" 
-                      fontSize={12} 
+                      fontSize={10} 
                       tickLine={false} 
                       axisLine={false} 
                     />

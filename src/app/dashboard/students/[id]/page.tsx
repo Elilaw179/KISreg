@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -19,7 +20,9 @@ import {
   Droplet,
   School,
   Mail,
-  Briefcase
+  Briefcase,
+  History,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -48,7 +51,7 @@ export default function StudentDetailPage() {
 
   return (
     <DashboardShell>
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" asChild>
@@ -117,6 +120,15 @@ export default function StudentDetailPage() {
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Date of Birth</p>
+                    <p className="font-semibold">{new Date(student.dateOfBirth).toLocaleDateString(undefined, { dateStyle: 'medium' })}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="p-2.5 bg-primary/10 rounded-xl shrink-0">
                     <Clock className="h-5 w-5 text-primary" />
                   </div>
                   <div>
@@ -131,7 +143,7 @@ export default function StudentDetailPage() {
               <CardHeader className="bg-red-50 border-b">
                 <CardTitle className="text-sm font-bold flex items-center gap-2 text-red-900">
                   <Stethoscope className="h-4 w-4" />
-                  Medical Brief
+                  Medical & Health Brief
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
@@ -143,7 +155,7 @@ export default function StudentDetailPage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Health Notes</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Health Notes / Allergies</p>
                   <p className="text-sm font-medium leading-relaxed bg-muted p-3 rounded-lg border border-dashed">
                     {student.medicalInfo || 'No special conditions reported.'}
                   </p>
@@ -156,7 +168,10 @@ export default function StudentDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             <Card className="shadow-md border">
               <CardHeader className="border-b bg-muted/20">
-                <CardTitle className="text-lg">Guardian & Home Details</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                   <Phone className="h-5 w-5 text-primary" />
+                   Guardian & Home Details
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="grid grid-cols-1 md:grid-cols-2">
@@ -167,7 +182,7 @@ export default function StudentDetailPage() {
                     </h3>
                     <div className="space-y-6">
                       <div>
-                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Full Name</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Guardian Name</p>
                         <p className="font-bold text-xl text-primary/90">{student.parentName}</p>
                       </div>
                       <div className="flex items-center gap-3">
@@ -219,18 +234,51 @@ export default function StudentDetailPage() {
               <CardHeader className="bg-muted/10 border-b">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <School className="h-5 w-5 text-primary" />
-                  Academic History
+                  Academic History & Foundation
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 flex justify-between items-center group">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Previous Institution</p>
-                    <p className="font-bold text-lg group-hover:text-primary transition-colors">{student.previousSchool || 'First Enrollment'}</p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 flex justify-between items-center group">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Previous Institution</p>
+                      <p className="font-bold text-lg group-hover:text-primary transition-colors">{student.previousSchool || 'First Enrollment'}</p>
+                    </div>
+                    <Badge variant="outline" className="bg-white px-4 py-1 text-primary border-primary/20">Verified</Badge>
                   </div>
-                  <Badge variant="outline" className="bg-white px-4 py-1 text-primary border-primary/20">Verified Record</Badge>
+                  <div className="bg-muted/30 p-6 rounded-2xl border border-dashed flex flex-col justify-center">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Enrollment Basis</p>
+                    <p className="text-sm font-medium">Standard school registration book entry confirmed for {new Date(student.dateOfAdmission).getFullYear()} session.</p>
+                  </div>
                 </div>
               </CardContent>
+            </Card>
+
+            <Card className="shadow-sm border">
+               <CardHeader className="bg-muted/5 border-b py-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Info className="h-4 w-4" />
+                    Additional Metadata
+                  </CardTitle>
+               </CardHeader>
+               <CardContent className="pt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Gender</p>
+                    <p className="text-sm font-semibold">{student.gender}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">System ID</p>
+                    <p className="text-sm font-semibold">#{student.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Nationality</p>
+                    <p className="text-sm font-semibold">{student.nationality}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Admission Date</p>
+                    <p className="text-sm font-semibold">{new Date(student.dateOfAdmission).toLocaleDateString()}</p>
+                  </div>
+               </CardContent>
             </Card>
           </div>
         </div>

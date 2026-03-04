@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -17,7 +18,10 @@ import {
   Globe,
   User,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  GraduationCap,
+  CalendarCheck,
+  Award
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +47,7 @@ export default function TeacherDetailPage() {
 
   return (
     <DashboardShell>
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" asChild>
@@ -54,9 +58,11 @@ export default function TeacherDetailPage() {
             <h2 className="text-3xl font-headline font-bold text-primary">Staff Profile</h2>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="shadow-sm">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Record
+            <Button variant="outline" size="sm" className="shadow-sm" asChild>
+              <Link href={`/dashboard/teachers/${teacher.id}/edit`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Record
+              </Link>
             </Button>
             <Button variant="destructive" size="sm" className="shadow-sm">
               <Trash2 className="mr-2 h-4 w-4" />
@@ -92,25 +98,29 @@ export default function TeacherDetailPage() {
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <MapPin className="h-4 w-4 text-primary shrink-0" />
-                  <span className="font-medium text-xs">{teacher.address}</span>
+                  <span className="font-medium text-xs leading-relaxed">{teacher.address}</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="border-none shadow-sm bg-primary/5">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 border-b bg-white/50">
                 <CardTitle className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4" />
-                  Academic History
+                  <Award className="h-4 w-4" />
+                  Professional Profile
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold">Qualification</p>
-                  <p className="font-bold text-sm">{teacher.qualification}</p>
+                  <p className="font-bold text-sm leading-tight">{teacher.qualification}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Joined On</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Department</p>
+                  <Badge variant="secondary" className="mt-1">{teacher.department}</Badge>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Joined KIS On</p>
                   <p className="font-bold text-sm">{new Date(teacher.dateOfJoining).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
                 </div>
               </CardContent>
@@ -136,15 +146,19 @@ export default function TeacherDetailPage() {
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Gender</p>
                     <p className="font-bold">{teacher.gender}</p>
                   </div>
-                </div>
-                <div className="space-y-6">
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Nationality</p>
                     <p className="font-bold flex items-center gap-2"><Globe className="h-4 w-4 text-primary/40" /> {teacher.nationality}</p>
                   </div>
+                </div>
+                <div className="space-y-6">
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Marital Status</p>
                     <p className="font-bold">{teacher.maritalStatus}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Residential Address</p>
+                    <p className="text-sm font-medium leading-relaxed bg-muted/50 p-3 rounded-lg border border-dashed">{teacher.address}</p>
                   </div>
                 </div>
               </CardContent>
@@ -164,10 +178,10 @@ export default function TeacherDetailPage() {
                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Full Name</p>
                       <p className="font-bold text-xl">{teacher.nextOfKin.name}</p>
                     </div>
-                    <Badge className="bg-primary/10 text-primary border-none">{teacher.nextOfKin.relationship}</Badge>
+                    <Badge className="bg-primary/10 text-primary border-none text-xs px-3">{teacher.nextOfKin.relationship}</Badge>
                   </div>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-xl">
+                    <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-xl border border-primary/10">
                       <Phone className="h-6 w-6 text-primary" />
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase font-bold">Contact Number</p>
@@ -181,6 +195,33 @@ export default function TeacherDetailPage() {
                   </div>
                 </div>
               </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-sm">
+               <CardHeader className="bg-muted/10 border-b py-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <CalendarCheck className="h-4 w-4" />
+                    Employment Details Summary
+                  </CardTitle>
+               </CardHeader>
+               <CardContent className="pt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Designation</p>
+                    <p className="text-xs font-semibold">{teacher.designation}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Department</p>
+                    <p className="text-xs font-semibold">{teacher.department}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Staff ID</p>
+                    <p className="text-xs font-semibold">{teacher.staffId}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Joining Date</p>
+                    <p className="text-xs font-semibold">{new Date(teacher.dateOfJoining).toLocaleDateString()}</p>
+                  </div>
+               </CardContent>
             </Card>
           </div>
         </div>
