@@ -5,13 +5,13 @@ import React, { useState, useMemo } from 'react';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
   Search, 
-  Filter, 
   MoreHorizontal, 
   UserPlus, 
   Eye, 
   Edit, 
   Trash2,
-  FileDown
+  FileDown,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,26 +39,51 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { MOCK_STUDENTS, CLASSES, StudentStatus } from '@/lib/mock-data';
+import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, deleteDoc, doc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [classFilter, setClassFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const db = useFirestore();
+
+  const studentsQuery = useMemo(() => {
+    if (!db) return null;
+    return collection(db, 'students');
+  }, [db]);
+
+  const { data: students, loading } = useCollection(studentsQuery);
 
   const filteredStudents = useMemo(() => {
-    return MOCK_STUDENTS.filter(student => {
+    if (!students) return [];
+    return students.filter(student => {
       const matchesSearch = 
-        student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.admissionNumber.toLowerCase().includes(searchTerm.toLowerCase());
+        student.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.admissionNumber?.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesClass = classFilter === 'all' || student.class === classFilter;
       const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
 
       return matchesSearch && matchesClass && matchesStatus;
     });
-  }, [searchTerm, classFilter, statusFilter]);
+  }, [students, searchTerm, classFilter, statusFilter]);
+
+  const handleDelete = (id: string) => {
+    if (!db || !confirm('Are you sure you want to delete this student?')) return;
+    const docRef = doc(db, 'students', id);
+    deleteDoc(docRef).catch(async (error) => {
+      const permissionError = new FirestorePermissionError({
+        path: docRef.path,
+        operation: 'delete',
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    });
+  };
 
   return (
     <DashboardShell>
@@ -119,83 +144,92 @@ export default function StudentsPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <Table>
-            <TableHeader className="bg-muted/30">
-              <TableRow>
-                <TableHead className="w-[80px]">Photo</TableHead>
-                <TableHead>Full Name</TableHead>
-                <TableHead>Adm. Number</TableHead>
-                <TableHead>Class</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Adm. Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredStudents.length > 0 ? (
-                filteredStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell>
-                      <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border">
-                        <img 
-                          src={student.photoUrl || 'https://placehold.co/100'} 
-                          alt="" 
-                          className="h-full w-full object-cover" 
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">{student.fullName}</TableCell>
-                    <TableCell className="text-muted-foreground">{student.admissionNumber}</TableCell>
-                    <TableCell>{student.class}</TableCell>
-                    <TableCell>
-                      <Badge variant={student.status === 'Active' ? 'default' : 'secondary'} className={student.status === 'Active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none' : ''}>
-                        {student.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(student.dateOfAdmission).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/students/${student.id}`}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Profile
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/students/${student.id}/edit`}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Record
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader className="bg-muted/30">
+                <TableRow>
+                  <TableHead className="w-[80px]">Photo</TableHead>
+                  <TableHead>Full Name</TableHead>
+                  <TableHead>Adm. Number</TableHead>
+                  <TableHead>Class</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Adm. Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.length > 0 ? (
+                  filteredStudents.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell>
+                        <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border">
+                          <img 
+                            src={student.photoUrl || 'https://placehold.co/100'} 
+                            alt="" 
+                            className="h-full w-full object-cover" 
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{student.fullName}</TableCell>
+                      <TableCell className="text-muted-foreground">{student.admissionNumber}</TableCell>
+                      <TableCell>{student.class}</TableCell>
+                      <TableCell>
+                        <Badge variant={student.status === 'Active' ? 'default' : 'secondary'} className={student.status === 'Active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none' : ''}>
+                          {student.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {student.dateOfAdmission ? new Date(student.dateOfAdmission).toLocaleDateString() : 'N/A'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/students/${student.id}`}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Profile
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/students/${student.id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Record
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleDelete(student.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                      No students found matching your criteria.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                    No students found matching your criteria.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </div>
     </DashboardShell>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
@@ -11,29 +11,66 @@ import {
   MapPin, 
   Calendar, 
   Clock, 
-  BookOpen,
-  User,
-  Trash2,
-  AlertTriangle,
-  Globe,
-  Stethoscope,
-  Droplet,
-  School,
-  Mail,
-  Briefcase,
-  History,
-  Info
+  BookOpen, 
+  User, 
+  Trash2, 
+  AlertTriangle, 
+  Globe, 
+  Stethoscope, 
+  Droplet, 
+  School, 
+  Mail, 
+  Briefcase, 
+  Info,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MOCK_STUDENTS } from '@/lib/mock-data';
 import Link from 'next/link';
+import { useFirestore, useDoc } from '@/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function StudentDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const student = MOCK_STUDENTS.find(s => s.id === params.id);
+  const db = useFirestore();
+  const studentId = params.id as string;
+
+  const studentRef = useMemo(() => {
+    if (!db || !studentId) return null;
+    return doc(db, 'students', studentId);
+  }, [db, studentId]);
+
+  const { data: student, loading } = useDoc(studentRef);
+
+  const handleDelete = () => {
+    if (!studentRef || !confirm('Are you sure you want to delete this student record?')) return;
+    
+    deleteDoc(studentRef)
+      .then(() => {
+        router.push('/dashboard/students');
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: studentRef.path,
+          operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
+  };
+
+  if (loading) {
+    return (
+      <DashboardShell>
+        <div className="flex items-center justify-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardShell>
+    );
+  }
 
   if (!student) {
     return (
@@ -68,7 +105,7 @@ export default function StudentDetailPage() {
                 Update Record
               </Link>
             </Button>
-            <Button variant="destructive" size="sm" className="shadow-sm">
+            <Button variant="destructive" size="sm" className="shadow-sm" onClick={handleDelete}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </Button>
@@ -76,7 +113,6 @@ export default function StudentDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Info Card */}
           <div className="lg:col-span-1 space-y-6">
             <Card className="shadow-md border overflow-hidden">
               <div className="bg-primary h-24 relative">
@@ -124,7 +160,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Date of Birth</p>
-                    <p className="font-semibold">{new Date(student.dateOfBirth).toLocaleDateString(undefined, { dateStyle: 'medium' })}</p>
+                    <p className="font-semibold">{student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'N/A'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
@@ -133,7 +169,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Joined On</p>
-                    <p className="font-semibold">{new Date(student.dateOfAdmission).toLocaleDateString(undefined, { dateStyle: 'medium' })}</p>
+                    <p className="font-semibold">{student.dateOfAdmission ? new Date(student.dateOfAdmission).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'N/A'}</p>
                   </div>
                 </div>
               </CardContent>
@@ -164,7 +200,6 @@ export default function StudentDetailPage() {
             </Card>
           </div>
 
-          {/* Detailed Info Section */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="shadow-md border">
               <CardHeader className="border-b bg-muted/20">
@@ -248,7 +283,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div className="bg-muted/30 p-6 rounded-2xl border border-dashed flex flex-col justify-center">
                     <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Enrollment Basis</p>
-                    <p className="text-sm font-medium">Standard school registration book entry confirmed for {new Date(student.dateOfAdmission).getFullYear()} session.</p>
+                    <p className="text-sm font-medium">Standard school registration book entry confirmed for {student.dateOfAdmission ? new Date(student.dateOfAdmission).getFullYear() : 'N/A'} session.</p>
                   </div>
                 </div>
               </CardContent>
@@ -268,7 +303,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold">System ID</p>
-                    <p className="text-sm font-semibold">#{student.id}</p>
+                    <p className="text-sm font-semibold text-xs truncate">#{student.id}</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold">Nationality</p>
@@ -276,7 +311,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold">Admission Date</p>
-                    <p className="text-sm font-semibold">{new Date(student.dateOfAdmission).toLocaleDateString()}</p>
+                    <p className="text-sm font-semibold">{student.dateOfAdmission ? new Date(student.dateOfAdmission).toLocaleDateString() : 'N/A'}</p>
                   </div>
                </CardContent>
             </Card>

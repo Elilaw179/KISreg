@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { useForm } from 'react-hook-form';
@@ -18,7 +18,8 @@ import {
   Mail, 
   Briefcase,
   Home,
-  Check
+  Check,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,8 +40,12 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { MOCK_STUDENTS, CLASSES } from '@/lib/mock-data';
+import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
+import { useFirestore, useDoc } from '@/firebase';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const studentFormSchema = z.object({
   fullName: z.string().min(3, "Full name is required"),
@@ -64,7 +69,15 @@ const studentFormSchema = z.object({
 export default function EditStudentPage() {
   const params = useParams();
   const router = useRouter();
-  const student = MOCK_STUDENTS.find(s => s.id === params.id);
+  const db = useFirestore();
+  const studentId = params.id as string;
+
+  const studentRef = useMemo(() => {
+    if (!db || !studentId) return null;
+    return doc(db, 'students', studentId);
+  }, [db, studentId]);
+
+  const { data: student, loading } = useDoc(studentRef);
 
   const form = useForm<z.infer<typeof studentFormSchema>>({
     resolver: zodResolver(studentFormSchema),
@@ -102,19 +115,54 @@ export default function EditStudentPage() {
   }, [student, form]);
 
   const onSubmit = (values: z.infer<typeof studentFormSchema>) => {
-    console.log("Updated Values:", values);
-    // In a real app, update Firestore here
-    router.push(`/dashboard/students/${params.id}`);
+    if (!studentRef) return;
+
+    const updateData = {
+      ...values,
+      updatedAt: serverTimestamp(),
+    };
+
+    updateDoc(studentRef, updateData)
+      .then(() => {
+        router.push(`/dashboard/students/${studentId}`);
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: studentRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
-  if (!student) return null;
+  if (loading) {
+    return (
+      <DashboardShell>
+        <div className="flex items-center justify-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  if (!student) {
+    return (
+      <DashboardShell>
+        <div className="text-center py-20">
+          <h2 className="text-xl font-bold">Student not found</h2>
+          <Button variant="link" asChild><Link href="/dashboard/students">Back to Directory</Link></Button>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell>
       <div className="max-w-5xl mx-auto space-y-6 pb-20">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href={`/dashboard/students/${params.id}`}>
+            <Link href={`/dashboard/students/${studentId}`}>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
@@ -189,7 +237,7 @@ export default function EditStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                             <FormControl>
                               <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
                             </FormControl>
@@ -361,7 +409,7 @@ export default function EditStudentPage() {
             </div>
 
             <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-background/80 backdrop-blur p-4 rounded-xl border shadow-lg">
-               <Button type="button" variant="outline" asChild><Link href={`/dashboard/students/${params.id}`}>Cancel</Link></Button>
+               <Button type="button" variant="outline" asChild><Link href={`/dashboard/students/${studentId}`}>Cancel</Link></Button>
                <Button type="submit" className="px-8 font-bold"><Save className="mr-2 h-4 w-4" /> Save Changes</Button>
             </div>
           </form>

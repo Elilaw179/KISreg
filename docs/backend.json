@@ -1,0 +1,63 @@
+
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Information about a student registered at Kourrklys International School.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "admissionNumber": { "type": "string" },
+        "fullName": { "type": "string" },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "dateOfAdmission": { "type": "string", "format": "date" },
+        "gender": { "type": "string", "enum": ["Male", "Female", "Other"] },
+        "class": { "type": "string" },
+        "parentName": { "type": "string" },
+        "parentContact": { "type": "string" },
+        "parentEmail": { "type": "string" },
+        "parentOccupation": { "type": "string" },
+        "address": { "type": "string" },
+        "previousSchool": { "type": "string" },
+        "status": { "type": "string", "enum": ["Active", "Withdrawn"] },
+        "photoUrl": { "type": "string" },
+        "nationality": { "type": "string" },
+        "bloodGroup": { "type": "string" },
+        "medicalInfo": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "admissionNumber", "class", "status"]
+    },
+    "Teacher": {
+      "title": "Teacher",
+      "description": "Information about a staff member at Kourrklys International School.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "staffId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "designation": { "type": "string" },
+        "department": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "dateOfJoining": { "type": "string", "format": "date" },
+        "qualification": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "staffId", "designation"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Collection of student records."
+    },
+    "/teachers/{teacherId}": {
+      "schema": "Teacher",
+      "description": "Collection of staff records."
+    }
+  }
+}

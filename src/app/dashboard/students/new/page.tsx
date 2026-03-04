@@ -44,6 +44,10 @@ import {
 } from '@/components/ui/select';
 import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const studentFormSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
@@ -65,6 +69,7 @@ const studentFormSchema = z.object({
 
 export default function NewStudentPage() {
   const router = useRouter();
+  const db = useFirestore();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof studentFormSchema>>({
@@ -98,9 +103,28 @@ export default function NewStudentPage() {
   };
 
   const onSubmit = (values: z.infer<typeof studentFormSchema>) => {
-    console.log("Form Values:", values);
-    // Add logic to save to database here
-    router.push('/dashboard/students');
+    if (!db) return;
+
+    const studentData = {
+      ...values,
+      status: 'Active',
+      photoUrl: photoPreview || '',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    addDoc(collection(db, 'students'), studentData)
+      .then(() => {
+        router.push('/dashboard/students');
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: 'students',
+          operation: 'create',
+          requestResourceData: studentData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
   return (
