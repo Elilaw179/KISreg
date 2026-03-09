@@ -1,8 +1,8 @@
 
 "use client";
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
   ArrowLeft, 
@@ -11,27 +11,62 @@ import {
   Mail, 
   MapPin, 
   Calendar, 
-  Briefcase, 
-  BookOpen, 
-  ShieldCheck, 
   Heart, 
   Globe,
   User,
   Trash2,
   AlertCircle,
-  GraduationCap,
+  Award,
   CalendarCheck,
-  Award
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MOCK_TEACHERS } from '@/lib/mock-data';
 import Link from 'next/link';
+import { useFirestore, useDoc } from '@/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function TeacherDetailPage() {
   const params = useParams();
-  const teacher = MOCK_TEACHERS.find(t => t.id === params.id);
+  const router = useRouter();
+  const db = useFirestore();
+  const teacherId = params.id as string;
+
+  const teacherRef = useMemo(() => {
+    if (!db || !teacherId) return null;
+    return doc(db, 'teachers', teacherId);
+  }, [db, teacherId]);
+
+  const { data: teacher, loading } = useDoc(teacherRef);
+
+  const handleDelete = () => {
+    if (!teacherRef || !confirm('Are you sure you want to delete this staff record?')) return;
+    
+    deleteDoc(teacherRef)
+      .then(() => {
+        router.push('/dashboard/teachers');
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: teacherRef.path,
+          operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
+  };
+
+  if (loading) {
+    return (
+      <DashboardShell>
+        <div className="flex items-center justify-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardShell>
+    );
+  }
 
   if (!teacher) {
     return (
@@ -64,7 +99,7 @@ export default function TeacherDetailPage() {
                 Edit Record
               </Link>
             </Button>
-            <Button variant="destructive" size="sm" className="shadow-sm">
+            <Button variant="destructive" size="sm" className="shadow-sm" onClick={handleDelete}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </Button>
@@ -121,7 +156,7 @@ export default function TeacherDetailPage() {
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold">Joined KIS On</p>
-                  <p className="font-bold text-sm">{new Date(teacher.dateOfJoining).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                  <p className="font-bold text-sm">{teacher.dateOfJoining ? new Date(teacher.dateOfJoining).toLocaleDateString(undefined, { dateStyle: 'long' }) : 'N/A'}</p>
                 </div>
               </CardContent>
             </Card>
@@ -140,7 +175,7 @@ export default function TeacherDetailPage() {
                 <div className="space-y-6">
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Date of Birth</p>
-                    <p className="font-bold flex items-center gap-2"><Calendar className="h-4 w-4 text-primary/40" /> {new Date(teacher.dateOfBirth).toLocaleDateString()}</p>
+                    <p className="font-bold flex items-center gap-2"><Calendar className="h-4 w-4 text-primary/40" /> {teacher.dateOfBirth ? new Date(teacher.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Gender</p>
@@ -176,22 +211,22 @@ export default function TeacherDetailPage() {
                   <div className="space-y-4">
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Full Name</p>
-                      <p className="font-bold text-xl">{teacher.nextOfKin.name}</p>
+                      <p className="font-bold text-xl">{teacher.nextOfKin?.name}</p>
                     </div>
-                    <Badge className="bg-primary/10 text-primary border-none text-xs px-3">{teacher.nextOfKin.relationship}</Badge>
+                    <Badge className="bg-primary/10 text-primary border-none text-xs px-3">{teacher.nextOfKin?.relationship}</Badge>
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-xl border border-primary/10">
                       <Phone className="h-6 w-6 text-primary" />
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase font-bold">Contact Number</p>
-                        <p className="font-bold text-lg">{teacher.nextOfKin.phone}</p>
+                        <p className="font-bold text-lg">{teacher.nextOfKin?.phone}</p>
                       </div>
                     </div>
                   </div>
                   <div className="md:col-span-2 bg-muted/30 p-4 rounded-xl border border-dashed border-muted-foreground/20">
                     <p className="text-[10px] text-muted-foreground uppercase font-bold mb-2">Residential Address</p>
-                    <p className="text-sm font-medium leading-relaxed">{teacher.nextOfKin.address}</p>
+                    <p className="text-sm font-medium leading-relaxed">{teacher.nextOfKin?.address}</p>
                   </div>
                 </div>
               </CardContent>
@@ -219,7 +254,7 @@ export default function TeacherDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold">Joining Date</p>
-                    <p className="text-xs font-semibold">{new Date(teacher.dateOfJoining).toLocaleDateString()}</p>
+                    <p className="text-xs font-semibold">{teacher.dateOfJoining ? new Date(teacher.dateOfJoining).toLocaleDateString() : 'N/A'}</p>
                   </div>
                </CardContent>
             </Card>

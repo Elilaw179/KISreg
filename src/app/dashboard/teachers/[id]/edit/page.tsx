@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { useForm } from 'react-hook-form';
@@ -14,16 +14,13 @@ import {
   Briefcase, 
   Phone, 
   Mail, 
-  Home, 
   Calendar,
-  Globe,
   Heart,
   BadgeCheck,
-  Award
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -41,8 +38,11 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { MOCK_TEACHERS } from '@/lib/mock-data';
 import Link from 'next/link';
+import { useFirestore, useDoc } from '@/firebase';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const teacherFormSchema = z.object({
   fullName: z.string().min(3, "Full name is required"),
@@ -69,7 +69,15 @@ const teacherFormSchema = z.object({
 export default function EditTeacherPage() {
   const params = useParams();
   const router = useRouter();
-  const teacher = MOCK_TEACHERS.find(t => t.id === params.id);
+  const db = useFirestore();
+  const teacherId = params.id as string;
+
+  const teacherRef = useMemo(() => {
+    if (!db || !teacherId) return null;
+    return doc(db, 'teachers', teacherId);
+  }, [db, teacherId]);
+
+  const { data: teacher, loading } = useDoc(teacherRef);
 
   const form = useForm<z.infer<typeof teacherFormSchema>>({
     resolver: zodResolver(teacherFormSchema),
@@ -98,23 +106,63 @@ export default function EditTeacherPage() {
 
   useEffect(() => {
     if (teacher) {
-      form.reset(teacher);
+      form.reset({
+        ...teacher,
+        maritalStatus: teacher.maritalStatus || 'Single',
+        nextOfKin: teacher.nextOfKin || { name: '', relationship: '', phone: '', address: '' }
+      });
     }
   }, [teacher, form]);
 
   const onSubmit = (values: z.infer<typeof teacherFormSchema>) => {
-    console.log("Updated Staff:", values);
-    router.push(`/dashboard/teachers/${params.id}`);
+    if (!teacherRef) return;
+
+    const updateData = {
+      ...values,
+      updatedAt: serverTimestamp(),
+    };
+
+    updateDoc(teacherRef, updateData)
+      .then(() => {
+        router.push(`/dashboard/teachers/${teacherId}`);
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: teacherRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
-  if (!teacher) return null;
+  if (loading) {
+    return (
+      <DashboardShell>
+        <div className="flex items-center justify-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  if (!teacher) {
+    return (
+      <DashboardShell>
+        <div className="text-center py-20">
+          <h2 className="text-xl font-bold">Staff member not found</h2>
+          <Button variant="link" asChild><Link href="/dashboard/teachers">Back to Registry</Link></Button>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell>
       <div className="max-w-5xl mx-auto space-y-6 pb-20">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href={`/dashboard/teachers/${params.id}`}>
+            <Link href={`/dashboard/teachers/${teacherId}`}>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
@@ -125,7 +173,6 @@ export default function EditTeacherPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid lg:grid-cols-12 gap-6">
               <div className="lg:col-span-8 space-y-6">
-                {/* Bio Data */}
                 <Card className="border-none shadow-sm">
                   <CardHeader className="bg-muted/30 border-b">
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -157,15 +204,29 @@ export default function EditTeacherPage() {
                       name="gender"
                       render={({ field }) => (
                         <FormItem><FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem></SelectContent>
                           </Select><FormMessage /></FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                       )}
                     />
                   </CardContent>
                 </Card>
 
-                {/* NOK */}
                 <Card className="border-none shadow-sm">
                   <CardHeader className="bg-primary/5 border-b text-primary">
                     <CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Next of Kin</CardTitle>
@@ -185,6 +246,13 @@ export default function EditTeacherPage() {
                         <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                       )}
                     />
+                     <FormField
+                      control={form.control}
+                      name="nextOfKin.relationship"
+                      render={({ field }) => (
+                        <FormItem><FormLabel>Relationship</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )}
+                    />
                   </CardContent>
                 </Card>
               </div>
@@ -192,7 +260,7 @@ export default function EditTeacherPage() {
               <div className="lg:col-span-4 space-y-6">
                  <Card className="border-none shadow-sm bg-primary/5">
                     <CardHeader className="border-b bg-white/50">
-                       <CardTitle className="text-sm font-bold flex items-center gap-2"><BadgeCheck className="h-4 w-4" /> Admin Controls</CardTitle>
+                       <CardTitle className="text-sm font-bold flex items-center gap-2"><BadgeCheck className="h-4 w-4" /> Employment Controls</CardTitle>
                     </CardHeader>
                     <CardContent className="pt-4 space-y-4">
                        <FormField
@@ -200,6 +268,13 @@ export default function EditTeacherPage() {
                          name="staffId"
                          render={({ field }) => (
                            <FormItem><FormLabel>Staff ID</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                         )}
+                       />
+                       <FormField
+                         control={form.control}
+                         name="designation"
+                         render={({ field }) => (
+                           <FormItem><FormLabel>Designation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                          )}
                        />
                        <FormField
@@ -215,7 +290,7 @@ export default function EditTeacherPage() {
             </div>
 
             <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-background/80 backdrop-blur p-4 rounded-xl border shadow-lg">
-               <Button type="button" variant="outline" asChild><Link href={`/dashboard/teachers/${params.id}`}>Discard</Link></Button>
+               <Button type="button" variant="outline" asChild><Link href={`/dashboard/teachers/${teacherId}`}>Discard</Link></Button>
                <Button type="submit" className="px-10 font-bold"><Save className="mr-2 h-4 w-4" /> Save Record</Button>
             </div>
           </form>

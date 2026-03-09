@@ -15,11 +15,10 @@ import {
   Briefcase, 
   Phone, 
   Mail, 
-  Home, 
   Calendar,
-  Globe,
   Heart,
-  BadgeCheck
+  BadgeCheck,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +41,10 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const teacherFormSchema = z.object({
   fullName: z.string().min(3, "Full name is required"),
@@ -67,6 +70,7 @@ const teacherFormSchema = z.object({
 
 export default function NewTeacherPage() {
   const router = useRouter();
+  const db = useFirestore();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof teacherFormSchema>>({
@@ -104,8 +108,27 @@ export default function NewTeacherPage() {
   };
 
   const onSubmit = (values: z.infer<typeof teacherFormSchema>) => {
-    console.log("Staff Registered:", values);
-    router.push('/dashboard/teachers');
+    if (!db) return;
+
+    const teacherData = {
+      ...values,
+      photoUrl: photoPreview || '',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    addDoc(collection(db, 'teachers'), teacherData)
+      .then(() => {
+        router.push('/dashboard/teachers');
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: 'teachers',
+          operation: 'create',
+          requestResourceData: teacherData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
   return (
@@ -133,7 +156,11 @@ export default function NewTeacherPage() {
                       control={form.control}
                       name="fullName"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2"><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl><Input placeholder="Surname First" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
@@ -156,33 +183,68 @@ export default function NewTeacherPage() {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="nationality"
+                      render={({ field }) => (
+                        <FormItem><FormLabel>Nationality</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem className="md:col-span-2"><FormLabel>Residential Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                      )}
+                    />
                   </CardContent>
                 </Card>
 
                 <Card className="border-none shadow-sm">
                    <CardHeader className="bg-primary/5 border-b text-primary">
-                     <CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Next of Kin</CardTitle>
+                     <CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Next of Kin (Emergency Contact)</CardTitle>
                    </CardHeader>
                    <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
                       <FormField
                         control={form.control}
                         name="nextOfKin.name"
                         render={({ field }) => (
-                          <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormItem><FormLabel>NOK Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="nextOfKin.relationship"
+                        render={({ field }) => (
+                          <FormItem><FormLabel>Relationship</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}
                       />
                       <FormField
                         control={form.control}
                         name="nextOfKin.phone"
                         render={({ field }) => (
-                          <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormItem><FormLabel>NOK Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}
                       />
                       <FormField
                         control={form.control}
                         name="nextOfKin.address"
                         render={({ field }) => (
-                          <FormItem className="md:col-span-2"><FormLabel>Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormItem className="md:col-span-2"><FormLabel>NOK Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                         )}
                       />
                    </CardContent>
@@ -191,7 +253,27 @@ export default function NewTeacherPage() {
 
               <div className="lg:col-span-4 space-y-6">
                  <Card className="border-none shadow-sm">
-                    <CardHeader className="border-b"><CardTitle className="text-sm font-bold">Employment</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-sm font-bold">Passport Photo</CardTitle></CardHeader>
+                  <CardContent className="flex flex-col items-center gap-4">
+                    <div className="w-full aspect-square max-w-[200px] rounded-2xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center bg-muted/30 overflow-hidden relative group">
+                      {photoPreview ? (
+                        <>
+                          <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => setPhotoPreview(null)} className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full hover:scale-110 transition-transform shadow-lg z-10"><X className="h-4 w-4" /></button>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 text-center">
+                          <Upload className="h-8 w-8 opacity-50" />
+                          <span className="text-xs">Click to upload staff photo</span>
+                        </div>
+                      )}
+                      <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handlePhotoChange} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                 <Card className="border-none shadow-sm">
+                    <CardHeader className="border-b"><CardTitle className="text-sm font-bold">Employment Details</CardTitle></CardHeader>
                     <CardContent className="pt-4 space-y-4">
                        <FormField
                          control={form.control}
@@ -204,14 +286,28 @@ export default function NewTeacherPage() {
                          control={form.control}
                          name="designation"
                          render={({ field }) => (
-                           <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Teacher" {...field} /></FormControl><FormMessage /></FormItem>
+                           <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="e.g., Senior Teacher" {...field} /></FormControl><FormMessage /></FormItem>
                          )}
                        />
                        <FormField
                          control={form.control}
                          name="department"
                          render={({ field }) => (
-                           <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="Sciences" {...field} /></FormControl><FormMessage /></FormItem>
+                           <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="e.g., Languages" {...field} /></FormControl><FormMessage /></FormItem>
+                         )}
+                       />
+                       <FormField
+                         control={form.control}
+                         name="qualification"
+                         render={({ field }) => (
+                           <FormItem><FormLabel>Primary Qualification</FormLabel><FormControl><Input placeholder="e.g., B.Sc Ed" {...field} /></FormControl><FormMessage /></FormItem>
+                         )}
+                       />
+                       <FormField
+                         control={form.control}
+                         name="dateOfJoining"
+                         render={({ field }) => (
+                           <FormItem><FormLabel>Joining Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                          )}
                        />
                     </CardContent>
