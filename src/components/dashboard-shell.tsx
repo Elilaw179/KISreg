@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -30,6 +31,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
+import { ModeToggle } from '@/components/mode-toggle';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -133,6 +135,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <ModeToggle />
             <Button variant="ghost" size="icon" className="relative h-10 w-10 hover:bg-muted transition-colors">
               <Bell className="h-5 w-5 text-muted-foreground" />
               <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background animate-pulse"></span>
