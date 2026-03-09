@@ -51,8 +51,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <SidebarHeader className="p-4 flex flex-row items-center gap-3">
           <div className="bg-white rounded-xl p-1 shrink-0 shadow-md w-10 h-10 relative overflow-hidden transition-transform hover:scale-105">
              <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
-                alt="KIS Logo"
+               src="/logokis.png"
+               alt="KIS Logo"
                 fill
                 className="object-contain p-1"
                 priority

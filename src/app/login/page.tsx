@@ -36,8 +36,8 @@ export default function LoginPage() {
       <div className="mb-10 flex flex-col items-center gap-4 relative z-10 animate-in fade-in slide-in-from-top-4 duration-700">
         <div className="relative w-36 h-36 mb-2 drop-shadow-2xl transition-transform hover:scale-105">
           <Image 
-            src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
-            alt="Kourrklys International School Logo"
+           src="/logokis.png"
+           alt="Kourrklys International School Logo"
             fill
             className="object-contain"
             priority
