@@ -114,7 +114,7 @@ export default function EditStudentPage() {
     }
   }, [student, form]);
 
-  const onSubmit = (values: z.infer<typeof studentFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof studentFormSchema>) => {
     if (!studentRef) return;
 
     const updateData = {
@@ -122,18 +122,17 @@ export default function EditStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    updateDoc(studentRef, updateData)
-      .then(() => {
-        router.push(`/dashboard/students/${studentId}`);
-      })
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: studentRef.path,
-          operation: 'update',
-          requestResourceData: updateData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
+    try {
+      await updateDoc(studentRef, updateData);
+      router.push(`/dashboard/students/${studentId}`);
+    } catch (error) {
+      const permissionError = new FirestorePermissionError({
+        path: studentRef.path,
+        operation: 'update',
+        requestResourceData: updateData,
       });
+      errorEmitter.emit('permission-error', permissionError);
+    }
   };
 
   if (loading) {
@@ -237,7 +236,7 @@ export default function EditStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
                             </FormControl>
@@ -338,7 +337,7 @@ export default function EditStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Class</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger></FormControl>
                             <SelectContent>
                               {CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -354,7 +353,7 @@ export default function EditStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Enrollment Status</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select Status" /></SelectTrigger></FormControl>
                             <SelectContent>
                               <SelectItem value="Active">Active</SelectItem>
@@ -382,7 +381,7 @@ export default function EditStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Blood Group</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
                             <SelectContent>
                               {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => (
@@ -409,8 +408,22 @@ export default function EditStudentPage() {
             </div>
 
             <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-background/80 backdrop-blur p-4 rounded-xl border shadow-lg">
-               <Button type="button" variant="outline" asChild><Link href={`/dashboard/students/${studentId}`}>Cancel</Link></Button>
-               <Button type="submit" className="px-8 font-bold"><Save className="mr-2 h-4 w-4" /> Save Changes</Button>
+               <Button type="button" variant="outline" asChild disabled={form.formState.isSubmitting}>
+                 <Link href={`/dashboard/students/${studentId}`}>Cancel</Link>
+               </Button>
+               <Button type="submit" className="px-8 font-bold" disabled={form.formState.isSubmitting}>
+                 {form.formState.isSubmitting ? (
+                   <>
+                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                     Saving...
+                   </>
+                 ) : (
+                   <>
+                     <Save className="mr-2 h-4 w-4" /> 
+                     Save Changes
+                   </>
+                 )}
+               </Button>
             </div>
           </form>
         </Form>

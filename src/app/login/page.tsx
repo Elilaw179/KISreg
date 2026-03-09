@@ -1,9 +1,10 @@
+
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Lock, User } from 'lucide-react';
+import { ShieldCheck, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,10 +13,16 @@ import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/dashboard');
+    setIsLoggingIn(true);
+    // Simulate a secure handshake delay
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 1200);
   };
 
   return (
@@ -76,17 +83,37 @@ export default function LoginPage() {
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <Input 
                   id="password" 
-                  type="password" 
-                  className="pl-11 h-12 bg-muted/50 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl" 
+                  type={showPassword ? "text" : "password"} 
+                  className="pl-11 pr-10 h-12 bg-muted/50 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl" 
                   required 
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-6 p-8 pt-2">
-            <Button type="submit" className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all rounded-xl">
-              <ShieldCheck className="mr-2 h-5 w-5" />
-              Secure Login
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all rounded-xl"
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="mr-2 h-5 w-5" />
+                  Secure Login
+                </>
+              )}
             </Button>
             <div className="flex items-center justify-center gap-2">
                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />

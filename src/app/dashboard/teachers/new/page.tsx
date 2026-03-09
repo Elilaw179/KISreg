@@ -18,7 +18,8 @@ import {
   Calendar,
   Heart,
   BadgeCheck,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -107,7 +108,7 @@ export default function NewTeacherPage() {
     }
   };
 
-  const onSubmit = (values: z.infer<typeof teacherFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof teacherFormSchema>) => {
     if (!db) return;
 
     const teacherData = {
@@ -117,18 +118,17 @@ export default function NewTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
-    addDoc(collection(db, 'teachers'), teacherData)
-      .then(() => {
-        router.push('/dashboard/teachers');
-      })
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: 'teachers',
-          operation: 'create',
-          requestResourceData: teacherData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
+    try {
+      await addDoc(collection(db, 'teachers'), teacherData);
+      router.push('/dashboard/teachers');
+    } catch (error) {
+      const permissionError = new FirestorePermissionError({
+        path: 'teachers',
+        operation: 'create',
+        requestResourceData: teacherData,
       });
+      errorEmitter.emit('permission-error', permissionError);
+    }
   };
 
   return (
@@ -167,7 +167,11 @@ export default function NewTeacherPage() {
                       control={form.control}
                       name="dateOfBirth"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Date of Birth</FormLabel>
+                          <FormControl><Input type="date" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
@@ -176,10 +180,11 @@ export default function NewTeacherPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem></SelectContent>
                           </Select>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -187,28 +192,44 @@ export default function NewTeacherPage() {
                       control={form.control}
                       name="email"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl><Input type="email" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="phone"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="nationality"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Nationality</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Nationality</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="address"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2"><FormLabel>Residential Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Residential Address</FormLabel>
+                          <FormControl><Textarea {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                   </CardContent>
@@ -223,28 +244,44 @@ export default function NewTeacherPage() {
                         control={form.control}
                         name="nextOfKin.name"
                         render={({ field }) => (
-                          <FormItem><FormLabel>NOK Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormItem>
+                            <FormLabel>NOK Full Name</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
                       />
                       <FormField
                         control={form.control}
                         name="nextOfKin.relationship"
                         render={({ field }) => (
-                          <FormItem><FormLabel>Relationship</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormItem>
+                            <FormLabel>Relationship</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
                       />
                       <FormField
                         control={form.control}
                         name="nextOfKin.phone"
                         render={({ field }) => (
-                          <FormItem><FormLabel>NOK Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormItem>
+                            <FormLabel>NOK Phone</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
                       />
                       <FormField
                         control={form.control}
                         name="nextOfKin.address"
                         render={({ field }) => (
-                          <FormItem className="md:col-span-2"><FormLabel>NOK Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormItem className="md:col-span-2">
+                            <FormLabel>NOK Address</FormLabel>
+                            <FormControl><Textarea {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
                       />
                    </CardContent>
@@ -279,35 +316,55 @@ export default function NewTeacherPage() {
                          control={form.control}
                          name="staffId"
                          render={({ field }) => (
-                           <FormItem><FormLabel>Staff ID</FormLabel><FormControl><Input placeholder="KIS/STAFF/..." {...field} /></FormControl><FormMessage /></FormItem>
+                           <FormItem>
+                             <FormLabel>Staff ID</FormLabel>
+                             <FormControl><Input placeholder="KIS/STAFF/..." {...field} /></FormControl>
+                             <FormMessage />
+                           </FormItem>
                          )}
                        />
                        <FormField
                          control={form.control}
                          name="designation"
                          render={({ field }) => (
-                           <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="e.g., Senior Teacher" {...field} /></FormControl><FormMessage /></FormItem>
+                           <FormItem>
+                             <FormLabel>Designation</FormLabel>
+                             <FormControl><Input placeholder="e.g., Senior Teacher" {...field} /></FormControl>
+                             <FormMessage />
+                           </FormItem>
                          )}
                        />
                        <FormField
                          control={form.control}
                          name="department"
                          render={({ field }) => (
-                           <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="e.g., Languages" {...field} /></FormControl><FormMessage /></FormItem>
+                           <FormItem>
+                             <FormLabel>Department</FormLabel>
+                             <FormControl><Input placeholder="e.g., Languages" {...field} /></FormControl>
+                             <FormMessage />
+                           </FormItem>
                          )}
                        />
                        <FormField
                          control={form.control}
                          name="qualification"
                          render={({ field }) => (
-                           <FormItem><FormLabel>Primary Qualification</FormLabel><FormControl><Input placeholder="e.g., B.Sc Ed" {...field} /></FormControl><FormMessage /></FormItem>
+                           <FormItem>
+                             <FormLabel>Primary Qualification</FormLabel>
+                             <FormControl><Input placeholder="e.g., B.Sc Ed" {...field} /></FormControl>
+                             <FormMessage />
+                           </FormItem>
                          )}
                        />
                        <FormField
                          control={form.control}
                          name="dateOfJoining"
                          render={({ field }) => (
-                           <FormItem><FormLabel>Joining Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                           <FormItem>
+                             <FormLabel>Joining Date</FormLabel>
+                             <FormControl><Input type="date" {...field} /></FormControl>
+                             <FormMessage />
+                           </FormItem>
                          )}
                        />
                     </CardContent>
@@ -316,8 +373,22 @@ export default function NewTeacherPage() {
             </div>
 
             <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-background/80 backdrop-blur p-4 rounded-xl border shadow-lg">
-               <Button type="button" variant="outline" asChild><Link href="/dashboard/teachers">Cancel</Link></Button>
-               <Button type="submit" className="px-10 font-bold"><Save className="mr-2 h-4 w-4" /> Register Staff</Button>
+               <Button type="button" variant="outline" asChild disabled={form.formState.isSubmitting}>
+                 <Link href="/dashboard/teachers">Cancel</Link>
+               </Button>
+               <Button type="submit" className="px-10 font-bold" disabled={form.formState.isSubmitting}>
+                 {form.formState.isSubmitting ? (
+                   <>
+                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                     Registering...
+                   </>
+                 ) : (
+                   <>
+                     <Save className="mr-2 h-4 w-4" /> 
+                     Register Staff
+                   </>
+                 )}
+               </Button>
             </div>
           </form>
         </Form>

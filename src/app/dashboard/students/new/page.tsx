@@ -21,7 +21,8 @@ import {
   Stethoscope,
   Droplet,
   Mail,
-  Briefcase
+  Briefcase,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +49,7 @@ import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useToast } from '@/hooks/use-toast';
 
 const studentFormSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
@@ -70,6 +72,7 @@ const studentFormSchema = z.object({
 export default function NewStudentPage() {
   const router = useRouter();
   const db = useFirestore();
+  const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof studentFormSchema>>({
@@ -102,7 +105,7 @@ export default function NewStudentPage() {
     }
   };
 
-  const onSubmit = (values: z.infer<typeof studentFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof studentFormSchema>) => {
     if (!db) return;
 
     const studentData = {
@@ -113,18 +116,17 @@ export default function NewStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    addDoc(collection(db, 'students'), studentData)
-      .then(() => {
-        router.push('/dashboard/students');
-      })
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: 'students',
-          operation: 'create',
-          requestResourceData: studentData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
+    try {
+      await addDoc(collection(db, 'students'), studentData);
+      router.push('/dashboard/students');
+    } catch (error) {
+      const permissionError = new FirestorePermissionError({
+        path: 'students',
+        operation: 'create',
+        requestResourceData: studentData,
       });
+      errorEmitter.emit('permission-error', permissionError);
+    }
   };
 
   return (
@@ -175,7 +177,7 @@ export default function NewStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Blood Group</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
                             <SelectContent>{['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => <SelectItem key={bg} value={bg}>{bg}</SelectItem>)}</SelectContent>
                           </Select>
@@ -186,7 +188,7 @@ export default function NewStudentPage() {
                       control={form.control}
                       name="medicalInfo"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Health Conditions</FormLabel><FormControl><Textarea placeholder="..." {...field} /></FormControl></FormItem>
+                        <FormItem><FormLabel>Health Conditions</FormLabel><FormControl><Textarea placeholder="List allergies or chronic conditions..." {...field} /></FormControl></FormItem>
                       )}
                     />
                   </CardContent>
@@ -204,28 +206,44 @@ export default function NewStudentPage() {
                       control={form.control}
                       name="fullName"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2"><FormLabel>Full Name (Surname First)</FormLabel><FormControl><Input placeholder="e.g., Okeke, Chioma" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Full Name (Surname First)</FormLabel>
+                          <FormControl><Input placeholder="e.g., Okeke, Chioma" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="admissionNumber"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Admission Number</FormLabel><FormControl><Input placeholder="KIS/..." {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Admission Number</FormLabel>
+                          <FormControl><Input placeholder="KIS/2024/..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="nationality"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Nationality</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Nationality</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="dateOfBirth"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Date of Birth</FormLabel>
+                          <FormControl><Input type="date" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
@@ -234,7 +252,7 @@ export default function NewStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Class</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger></FormControl>
                             <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                           </Select>
@@ -254,35 +272,55 @@ export default function NewStudentPage() {
                       control={form.control}
                       name="parentName"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2"><FormLabel>Guardian Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Guardian Name</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="parentContact"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Contact Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Contact Number</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="parentEmail"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="parentOccupation"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2"><FormLabel>Occupation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Occupation</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="address"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2"><FormLabel>Home Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Home Address</FormLabel>
+                          <FormControl><Textarea {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                   </CardContent>
@@ -291,8 +329,22 @@ export default function NewStudentPage() {
             </div>
 
             <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-background/80 backdrop-blur p-4 rounded-xl border shadow-lg">
-               <Button type="button" variant="outline" asChild><Link href="/dashboard/students">Discard</Link></Button>
-               <Button type="submit" className="px-10 font-bold"><Save className="mr-2 h-4 w-4" /> Finalize Admission</Button>
+               <Button type="button" variant="outline" asChild disabled={form.formState.isSubmitting}>
+                 <Link href="/dashboard/students">Discard</Link>
+               </Button>
+               <Button type="submit" className="px-10 font-bold" disabled={form.formState.isSubmitting}>
+                 {form.formState.isSubmitting ? (
+                   <>
+                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                     Processing...
+                   </>
+                 ) : (
+                   <>
+                     <Save className="mr-2 h-4 w-4" /> 
+                     Finalize Admission
+                   </>
+                 )}
+               </Button>
             </div>
           </form>
         </Form>
