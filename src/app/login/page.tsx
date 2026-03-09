@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -16,82 +15,91 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login
     router.push('/dashboard');
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
-      <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="relative w-32 h-32 mb-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-5">
+        <div className="absolute top-10 left-10 w-64 h-64 bg-primary rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-primary rounded-full blur-3xl" />
+      </div>
+
+      <div className="mb-10 flex flex-col items-center gap-4 relative z-10 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div className="relative w-36 h-36 mb-2 drop-shadow-2xl transition-transform hover:scale-105">
           <Image 
             src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
             alt="Kourrklys International School Logo"
             fill
             className="object-contain"
             priority
-            data-ai-hint="school logo"
           />
         </div>
-        <h1 className="text-3xl font-headline font-extrabold text-primary tracking-tight">KOURRKLYS</h1>
-        <p className="text-muted-foreground text-center font-medium">
-          INTERNATIONAL SCHOOL
-        </p>
+        <div className="text-center space-y-1">
+          <h1 className="text-4xl font-headline font-black text-primary tracking-tight">KOURRKLYS</h1>
+          <p className="text-muted-foreground font-bold tracking-[0.2em] uppercase text-xs">
+            International School
+          </p>
+        </div>
       </div>
 
-      <Card className="w-full max-w-md shadow-2xl border-none">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center font-headline font-bold">Admin Portal</CardTitle>
-          <CardDescription className="text-center">
-            Sign in to manage student records
+      <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10 animate-in fade-in zoom-in-95 duration-500 delay-200">
+        <CardHeader className="space-y-2 pt-8">
+          <CardTitle className="text-3xl text-center font-headline font-black text-primary/90">Admin Access</CardTitle>
+          <CardDescription className="text-center text-sm font-medium">
+            Sign in to the KIS Administrative Management System
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <CardContent className="space-y-6 px-8">
+            <div className="space-y-2.5">
+              <Label htmlFor="username" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Username / Email</Label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <Input 
                   id="username" 
-                  placeholder="admin@kourrklys.edu" 
-                  className="pl-10 h-11" 
+                  placeholder="admin@kourrklys.edu.ng" 
+                  className="pl-11 h-12 bg-muted/50 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl" 
                   required 
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" size="sm" className="text-xs text-primary hover:underline font-medium">
-                  Forgot password?
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between ml-1">
+                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Security Code</Label>
+                <Link href="/forgot-password" size="sm" className="text-xs text-primary hover:text-primary/70 transition-colors font-bold">
+                  Lost Key?
                 </Link>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <Input 
                   id="password" 
                   type="password" 
-                  className="pl-10 h-11" 
+                  className="pl-11 h-12 bg-muted/50 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl" 
                   required 
                 />
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full h-12 text-base font-semibold shadow-md">
+          <CardFooter className="flex flex-col gap-6 p-8 pt-2">
+            <Button type="submit" className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all rounded-xl">
               <ShieldCheck className="mr-2 h-5 w-5" />
-              Access System
+              Secure Login
             </Button>
-            <p className="text-xs text-center text-muted-foreground">
-              Secure access for authorized staff only.
-            </p>
+            <div className="flex items-center justify-center gap-2">
+               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                 Authorized Personnel Only
+               </p>
+            </div>
           </CardFooter>
         </form>
       </Card>
 
-      <footer className="mt-12 text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} Kourrklys International School.
+      <footer className="mt-16 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
+        &copy; {new Date().getFullYear()} Kourrklys International School Admin Portal
       </footer>
     </div>
   );

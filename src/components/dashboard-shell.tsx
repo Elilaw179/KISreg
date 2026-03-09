@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Users, 
-  UserPlus, 
   LogOut, 
   Settings, 
   Search,
@@ -48,20 +47,20 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
   return (
     <SidebarProvider>
-      <Sidebar collapsible="icon" className="border-r-0 shadow-2xl">
+      <Sidebar collapsible="icon" className="border-r-0 shadow-2xl transition-all duration-300">
         <SidebarHeader className="p-4 flex flex-row items-center gap-3">
-          <div className="bg-white rounded-full p-1 shrink-0 shadow-inner w-10 h-10 relative overflow-hidden">
+          <div className="bg-white rounded-xl p-1 shrink-0 shadow-md w-10 h-10 relative overflow-hidden transition-transform hover:scale-105">
              <Image 
                 src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
                 alt="KIS Logo"
                 fill
-                className="object-contain p-0.5"
-                data-ai-hint="school logo"
+                className="object-contain p-1"
+                priority
              />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden">
             <span className="font-headline font-black text-lg text-white leading-tight tracking-tight">KOURRKLYS</span>
-            <span className="text-[10px] text-white/70 font-medium tracking-widest uppercase">Int. School</span>
+            <span className="text-[10px] text-white/70 font-bold tracking-widest uppercase">Int. School</span>
           </div>
         </SidebarHeader>
         <SidebarContent className="px-2 pt-6">
@@ -72,32 +71,47 @@ export function DashboardShell({ children }: DashboardShellProps) {
                   asChild 
                   isActive={pathname === item.href}
                   tooltip={item.name}
-                  className="hover:bg-sidebar-accent mb-1 h-11"
+                  className={cn(
+                    "mb-1 h-11 transition-all duration-200",
+                    pathname === item.href ? "bg-white/10 text-white shadow-sm" : "hover:bg-white/5 text-white/80"
+                  )}
                 >
                   <Link href={item.href}>
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.name}</span>
+                    <item.icon className={cn("w-5 h-5", pathname === item.href ? "text-white" : "text-white/60")} />
+                    <span className="font-semibold">{item.name}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-4">
+        <SidebarFooter className="p-4 space-y-2">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton className="hover:bg-sidebar-accent h-10" asChild tooltip="Settings" isActive={pathname === '/dashboard/settings'}>
+              <SidebarMenuButton 
+                className={cn(
+                  "h-11 transition-all",
+                  pathname === '/dashboard/settings' ? "bg-white/10 text-white" : "hover:bg-white/5 text-white/80"
+                )} 
+                asChild 
+                tooltip="Settings" 
+                isActive={pathname === '/dashboard/settings'}
+              >
                 <Link href="/dashboard/settings">
-                  <Settings className="w-5 h-5" />
-                  <span>Admin Settings</span>
+                  <Settings className="w-5 h-5 text-white/60" />
+                  <span className="font-medium">Admin Settings</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton className="hover:bg-destructive text-white h-10 mt-2" asChild tooltip="Logout">
+              <SidebarMenuButton 
+                className="hover:bg-destructive hover:text-white text-white/80 h-11 mt-2 transition-colors" 
+                asChild 
+                tooltip="Logout"
+              >
                 <Link href="/login">
-                  <LogOut className="w-5 h-5" />
-                  <span>Logout</span>
+                  <LogOut className="w-5 h-5 opacity-60" />
+                  <span className="font-medium">Logout</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -105,38 +119,40 @@ export function DashboardShell({ children }: DashboardShellProps) {
         </SidebarFooter>
       </Sidebar>
       
-      <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-          <SidebarTrigger />
+      <SidebarInset className="transition-all duration-300">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-md px-4 md:px-6">
+          <SidebarTrigger className="hover:bg-muted" />
           <div className="flex-1">
-            <div className="relative max-w-sm hidden md:block">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="relative max-w-sm hidden md:block group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
                 type="search"
                 placeholder="Find records..."
-                className="pl-8 bg-muted/50 border-none ring-0 focus-visible:ring-1"
+                className="pl-10 bg-muted/30 border-none ring-0 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all rounded-full h-10"
               />
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative h-10 w-10">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background"></span>
+            <Button variant="ghost" size="icon" className="relative h-10 w-10 hover:bg-muted transition-colors">
+              <Bell className="h-5 w-5 text-muted-foreground" />
+              <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background animate-pulse"></span>
             </Button>
-            <div className="flex items-center gap-3 pl-2 border-l">
+            <div className="flex items-center gap-3 pl-4 border-l">
               <div className="text-right hidden sm:block">
-                <p className="text-xs font-bold leading-none">Admin User</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Registrar Office</p>
+                <p className="text-sm font-bold leading-none">Admin User</p>
+                <p className="text-[10px] text-muted-foreground font-medium mt-1 tracking-wider uppercase">Registrar Office</p>
               </div>
-              <Avatar className="h-9 w-9 border-2 border-primary/20">
+              <Avatar className="h-10 w-10 border-2 border-primary/10 shadow-sm transition-transform hover:scale-105 cursor-pointer">
                 <AvatarImage src="https://picsum.photos/seed/admin/200/200" alt="Admin" />
-                <AvatarFallback className="bg-primary text-white text-xs">AD</AvatarFallback>
+                <AvatarFallback className="bg-primary text-white text-xs font-bold">AD</AvatarFallback>
               </Avatar>
             </div>
           </div>
         </header>
-        <main className="p-4 md:p-8 flex-1 bg-muted/20">
-          {children}
+        <main className="p-4 md:p-8 flex-1 bg-muted/10">
+          <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {children}
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>
