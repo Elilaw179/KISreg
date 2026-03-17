@@ -22,12 +22,11 @@ export default function LoginPage() {
     // Simulate a secure handshake delay
     setTimeout(() => {
       router.push('/dashboard');
-    }, 1200);
+    }, 800);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 relative overflow-hidden">
-      {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-5">
         <div className="absolute top-10 left-10 w-64 h-64 bg-primary rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-primary rounded-full blur-3xl" />
@@ -90,7 +89,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors z-20"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>

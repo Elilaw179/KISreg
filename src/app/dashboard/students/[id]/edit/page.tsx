@@ -46,6 +46,7 @@ import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useToast } from '@/hooks/use-toast';
 
 const studentFormSchema = z.object({
   fullName: z.string().min(3, "Full name is required"),
@@ -70,6 +71,7 @@ export default function EditStudentPage() {
   const params = useParams();
   const router = useRouter();
   const db = useFirestore();
+  const { toast } = useToast();
   const studentId = params.id as string;
 
   const studentRef = useMemoFirebase(() => {
@@ -124,7 +126,7 @@ export default function EditStudentPage() {
     }
   }, [student, form]);
 
-  const onSubmit = async (values: z.infer<typeof studentFormSchema>) => {
+  const onSubmit = (values: z.infer<typeof studentFormSchema>) => {
     if (!studentRef) return;
 
     const updateData = {
@@ -133,9 +135,6 @@ export default function EditStudentPage() {
     };
 
     updateDoc(studentRef, updateData)
-      .then(() => {
-        router.push(`/dashboard/students/${studentId}`);
-      })
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
           path: studentRef.path,
@@ -144,6 +143,12 @@ export default function EditStudentPage() {
         });
         errorEmitter.emit('permission-error', permissionError);
       });
+
+    router.push(`/dashboard/students/${studentId}`);
+    toast({
+      title: "Record Updated",
+      description: "Changes are being synchronized with the registry.",
+    });
   };
 
   if (loading) {

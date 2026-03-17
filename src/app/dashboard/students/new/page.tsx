@@ -99,14 +99,29 @@ export default function NewStudentPage() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 500000) {
+        toast({
+          variant: "destructive",
+          title: "File too large",
+          description: "Please upload a photo smaller than 500KB."
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => setPhotoPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof studentFormSchema>) => {
-    if (!db) return;
+  const onSubmit = (values: z.infer<typeof studentFormSchema>) => {
+    if (!db) {
+      toast({
+        variant: "destructive",
+        title: "Connection Error",
+        description: "Could not connect to the database. Please check your internet connection."
+      });
+      return;
+    }
 
     const studentData = {
       ...values,
@@ -116,17 +131,23 @@ export default function NewStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    try {
-      await addDoc(collection(db, 'students'), studentData);
-      router.push('/dashboard/students');
-    } catch (error) {
-      const permissionError = new FirestorePermissionError({
-        path: 'students',
-        operation: 'create',
-        requestResourceData: studentData,
+    // Non-blocking write: initiate and proceed
+    addDoc(collection(db, 'students'), studentData)
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: 'students',
+          operation: 'create',
+          requestResourceData: studentData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-      errorEmitter.emit('permission-error', permissionError);
-    }
+
+    // Proceed to directory immediately using local cache
+    router.push('/dashboard/students');
+    toast({
+      title: "Admission Initiated",
+      description: `${values.fullName}'s record is being synchronized.`,
+    });
   };
 
   return (
@@ -144,7 +165,6 @@ export default function NewStudentPage() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid lg:grid-cols-12 gap-6">
-              {/* Photo & Medical Sidebar */}
               <div className="lg:col-span-4 space-y-6">
                 <Card className="shadow-sm border">
                   <CardHeader><CardTitle className="text-lg">Passport Photo</CardTitle></CardHeader>
@@ -177,7 +197,7 @@ export default function NewStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Blood Group</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
                             <SelectContent>{['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => <SelectItem key={bg} value={bg}>{bg}</SelectItem>)}</SelectContent>
                           </Select>
@@ -195,7 +215,6 @@ export default function NewStudentPage() {
                 </Card>
               </div>
 
-              {/* Main Form Fields */}
               <div className="lg:col-span-8 space-y-6">
                 <Card className="shadow-sm border">
                   <CardHeader className="bg-muted/30 border-b">
@@ -252,7 +271,7 @@ export default function NewStudentPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Class</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger></FormControl>
                             <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                           </Select>
@@ -336,7 +355,7 @@ export default function NewStudentPage() {
                  {form.formState.isSubmitting ? (
                    <>
                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                     Processing...
+                     Initiating...
                    </>
                  ) : (
                    <>
