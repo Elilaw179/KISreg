@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo } from 'react';
@@ -10,7 +11,8 @@ import {
   Calendar,
   Loader2,
   TrendingUp,
-  ArrowUpRight
+  ArrowUpRight,
+  BadgeCheck
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -24,17 +26,17 @@ import {
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useFirestore, useCollection } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
 
 const SECONDARY_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 export default function DashboardPage() {
   const db = useFirestore();
   
-  const studentsQuery = useMemo(() => {
+  const studentsQuery = useMemoFirebase(() => {
     if (!db) return null;
-    return collection(db, 'students');
+    return query(collection(db, 'students'), orderBy('createdAt', 'desc'));
   }, [db]);
 
   const { data: students, loading } = useCollection(studentsQuery);
@@ -58,9 +60,7 @@ export default function DashboardPage() {
 
   const recentStudents = useMemo(() => {
     if (!students) return [];
-    return [...students]
-      .sort((a, b) => (b.dateOfAdmission || '').localeCompare(a.dateOfAdmission || ''))
-      .slice(0, 4);
+    return students.slice(0, 4);
   }, [students]);
 
   if (loading) {
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 opacity-60">
                         <Calendar className="h-3 w-3" />
-                        {new Date(student.dateOfAdmission).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        {student.dateOfAdmission ? new Date(student.dateOfAdmission).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'N/A'}
                       </div>
                     </div>
                   ))
@@ -249,24 +249,4 @@ export default function DashboardPage() {
       </div>
     </DashboardShell>
   );
-}
-
-function BadgeCheck(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.74z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  )
 }

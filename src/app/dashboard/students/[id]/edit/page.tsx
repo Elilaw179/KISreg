@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/select';
 import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
-import { useFirestore, useDoc } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -72,7 +72,7 @@ export default function EditStudentPage() {
   const db = useFirestore();
   const studentId = params.id as string;
 
-  const studentRef = useMemo(() => {
+  const studentRef = useMemoFirebase(() => {
     if (!db || !studentId) return null;
     return doc(db, 'students', studentId);
   }, [db, studentId]);
@@ -104,12 +104,22 @@ export default function EditStudentPage() {
   useEffect(() => {
     if (student) {
       form.reset({
-        ...student,
+        fullName: student.fullName || '',
+        admissionNumber: student.admissionNumber || '',
+        dateOfBirth: student.dateOfBirth || '',
+        gender: student.gender || 'Male',
+        class: student.class || '',
+        dateOfAdmission: student.dateOfAdmission || '',
+        nationality: student.nationality || 'Nigerian',
+        parentName: student.parentName || '',
+        parentContact: student.parentContact || '',
+        parentEmail: student.parentEmail || '',
+        parentOccupation: student.parentOccupation || '',
+        address: student.address || '',
         bloodGroup: student.bloodGroup || '',
         medicalInfo: student.medicalInfo || '',
         previousSchool: student.previousSchool || '',
-        parentEmail: student.parentEmail || '',
-        parentOccupation: student.parentOccupation || '',
+        status: student.status || 'Active',
       });
     }
   }, [student, form]);
@@ -122,17 +132,18 @@ export default function EditStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    try {
-      await updateDoc(studentRef, updateData);
-      router.push(`/dashboard/students/${studentId}`);
-    } catch (error) {
-      const permissionError = new FirestorePermissionError({
-        path: studentRef.path,
-        operation: 'update',
-        requestResourceData: updateData,
+    updateDoc(studentRef, updateData)
+      .then(() => {
+        router.push(`/dashboard/students/${studentId}`);
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: studentRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-      errorEmitter.emit('permission-error', permissionError);
-    }
   };
 
   if (loading) {
@@ -172,7 +183,6 @@ export default function EditStudentPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid lg:grid-cols-12 gap-6">
               <div className="lg:col-span-8 space-y-6">
-                {/* Personal Details */}
                 <Card className="shadow-sm border">
                   <CardHeader className="bg-muted/30 border-b">
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -253,7 +263,6 @@ export default function EditStudentPage() {
                   </CardContent>
                 </Card>
 
-                {/* Guardian Details */}
                 <Card className="shadow-sm border">
                   <CardHeader className="bg-muted/30 border-b">
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -321,7 +330,6 @@ export default function EditStudentPage() {
                 </Card>
               </div>
 
-              {/* Academic & Medical Sidebar */}
               <div className="lg:col-span-4 space-y-6">
                 <Card className="shadow-sm border">
                   <CardHeader className="bg-primary/5 border-b">

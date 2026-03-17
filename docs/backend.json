@@ -15,7 +15,7 @@
         "class": { "type": "string" },
         "parentName": { "type": "string" },
         "parentContact": { "type": "string" },
-        "parentEmail": { "type": "string" },
+        "parentEmail": { "type": "string", "format": "email" },
         "parentOccupation": { "type": "string" },
         "address": { "type": "string" },
         "previousSchool": { "type": "string" },
@@ -24,9 +24,10 @@
         "nationality": { "type": "string" },
         "bloodGroup": { "type": "string" },
         "medicalInfo": { "type": "string" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "admissionNumber", "class", "status"]
+      "required": ["fullName", "admissionNumber", "class", "status", "parentEmail", "parentOccupation"]
     },
     "Teacher": {
       "title": "Teacher",
@@ -38,13 +39,29 @@
         "fullName": { "type": "string" },
         "designation": { "type": "string" },
         "department": { "type": "string" },
-        "email": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
         "phone": { "type": "string" },
         "dateOfJoining": { "type": "string", "format": "date" },
         "qualification": { "type": "string" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "gender": { "type": "string", "enum": ["Male", "Female"] },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "nationality": { "type": "string" },
+        "maritalStatus": { "type": "string", "enum": ["Single", "Married", "Divorced", "Widowed"] },
+        "address": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "nextOfKin": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "phone": { "type": "string" },
+            "address": { "type": "string" }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "staffId", "designation"]
+      "required": ["fullName", "staffId", "designation", "email"]
     }
   },
   "auth": {

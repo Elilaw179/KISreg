@@ -39,7 +39,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import Link from 'next/link';
-import { useFirestore, useDoc } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -72,7 +72,7 @@ export default function EditTeacherPage() {
   const db = useFirestore();
   const teacherId = params.id as string;
 
-  const teacherRef = useMemo(() => {
+  const teacherRef = useMemoFirebase(() => {
     if (!db || !teacherId) return null;
     return doc(db, 'teachers', teacherId);
   }, [db, teacherId]);
@@ -107,8 +107,19 @@ export default function EditTeacherPage() {
   useEffect(() => {
     if (teacher) {
       form.reset({
-        ...teacher,
+        fullName: teacher.fullName || '',
+        staffId: teacher.staffId || '',
+        dateOfBirth: teacher.dateOfBirth || '',
+        gender: teacher.gender || 'Male',
+        nationality: teacher.nationality || 'Nigerian',
         maritalStatus: teacher.maritalStatus || 'Single',
+        phone: teacher.phone || '',
+        email: teacher.email || '',
+        address: teacher.address || '',
+        designation: teacher.designation || '',
+        department: teacher.department || '',
+        qualification: teacher.qualification || '',
+        dateOfJoining: teacher.dateOfJoining || '',
         nextOfKin: teacher.nextOfKin || { name: '', relationship: '', phone: '', address: '' }
       });
     }
@@ -122,17 +133,18 @@ export default function EditTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
-    try {
-      await updateDoc(teacherRef, updateData);
-      router.push(`/dashboard/teachers/${teacherId}`);
-    } catch (error) {
-      const permissionError = new FirestorePermissionError({
-        path: teacherRef.path,
-        operation: 'update',
-        requestResourceData: updateData,
+    updateDoc(teacherRef, updateData)
+      .then(() => {
+        router.push(`/dashboard/teachers/${teacherId}`);
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: teacherRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-      errorEmitter.emit('permission-error', permissionError);
-    }
   };
 
   if (loading) {
@@ -140,17 +152,6 @@ export default function EditTeacherPage() {
       <DashboardShell>
         <div className="flex items-center justify-center h-[50vh]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </DashboardShell>
-    );
-  }
-
-  if (!teacher) {
-    return (
-      <DashboardShell>
-        <div className="text-center py-20">
-          <h2 className="text-xl font-bold">Staff member not found</h2>
-          <Button variant="link" asChild><Link href="/dashboard/teachers">Back to Registry</Link></Button>
         </div>
       </DashboardShell>
     );
