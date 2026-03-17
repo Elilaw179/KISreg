@@ -46,32 +46,34 @@ import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useToast } from '@/hooks/use-toast';
 
 const teacherFormSchema = z.object({
-  fullName: z.string().min(3, "Full name is required"),
+  fullName: z.string().min(3, "Full name is required (minimum 3 characters)"),
   staffId: z.string().min(3, "Staff ID is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   gender: z.enum(['Male', 'Female', 'Other']),
   nationality: z.string().min(2, "Nationality is required"),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
   phone: z.string().min(5, "Valid phone number is required"),
-  email: z.string().email("Invalid email address"),
-  address: z.string().min(10, "Residential address is required"),
+  email: z.string().email("Invalid official email address"),
+  address: z.string().min(10, "Full residential address is required"),
   designation: z.string().min(2, "Designation is required"),
   department: z.string().min(2, "Department is required"),
-  qualification: z.string().min(2, "Qualification is required"),
+  qualification: z.string().min(2, "Primary qualification is required"),
   dateOfJoining: z.string().min(1, "Date of joining is required"),
   nextOfKin: z.object({
-    name: z.string().min(3, "NOK name is required"),
+    name: z.string().min(3, "NOK full name is required"),
     relationship: z.string().min(2, "Relationship is required"),
-    phone: z.string().min(5, "NOK phone number is required"),
-    address: z.string().min(10, "NOK address is required"),
+    phone: z.string().min(5, "NOK contact number is required"),
+    address: z.string().min(10, "NOK residential address is required"),
   }),
 });
 
 export default function NewTeacherPage() {
   const router = useRouter();
   const db = useFirestore();
+  const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof teacherFormSchema>>({
@@ -102,13 +104,21 @@ export default function NewTeacherPage() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 1024 * 500) {
+        toast({
+          variant: "destructive",
+          title: "File too large",
+          description: "Passport photo must be under 500KB."
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => setPhotoPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof teacherFormSchema>) => {
+  const onSubmit = (values: z.infer<typeof teacherFormSchema>) => {
     if (!db) return;
 
     const teacherData = {
@@ -118,17 +128,23 @@ export default function NewTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
-    try {
-      await addDoc(collection(db, 'teachers'), teacherData);
-      router.push('/dashboard/teachers');
-    } catch (error) {
-      const permissionError = new FirestorePermissionError({
-        path: 'teachers',
-        operation: 'create',
-        requestResourceData: teacherData,
+    // Non-blocking write: initiate and proceed immediately
+    addDoc(collection(db, 'teachers'), teacherData)
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: 'teachers',
+          operation: 'create',
+          requestResourceData: teacherData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-      errorEmitter.emit('permission-error', permissionError);
-    }
+
+    // Immediate navigation using local cache
+    router.push('/dashboard/teachers');
+    toast({
+      title: "Registration Initiated",
+      description: `${values.fullName}'s staff profile is being synchronized.`,
+    });
   };
 
   return (
@@ -157,8 +173,8 @@ export default function NewTeacherPage() {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl><Input placeholder="Surname First" {...field} /></FormControl>
+                          <FormLabel>Full Name (Surname First)</FormLabel>
+                          <FormControl><Input placeholder="e.g. Bakare, Olumide" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -180,7 +196,7 @@ export default function NewTeacherPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem></SelectContent>
                           </Select>
@@ -193,8 +209,8 @@ export default function NewTeacherPage() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl><Input type="email" {...field} /></FormControl>
+                          <FormLabel>Official Email Address</FormLabel>
+                          <FormControl><Input type="email" placeholder="staff@kourrklys.edu.ng" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}

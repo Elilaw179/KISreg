@@ -43,6 +43,7 @@ import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useToast } from '@/hooks/use-toast';
 
 const teacherFormSchema = z.object({
   fullName: z.string().min(3, "Full name is required"),
@@ -70,6 +71,7 @@ export default function EditTeacherPage() {
   const params = useParams();
   const router = useRouter();
   const db = useFirestore();
+  const { toast } = useToast();
   const teacherId = params.id as string;
 
   const teacherRef = useMemoFirebase(() => {
@@ -125,7 +127,7 @@ export default function EditTeacherPage() {
     }
   }, [teacher, form]);
 
-  const onSubmit = async (values: z.infer<typeof teacherFormSchema>) => {
+  const onSubmit = (values: z.infer<typeof teacherFormSchema>) => {
     if (!teacherRef) return;
 
     const updateData = {
@@ -133,10 +135,8 @@ export default function EditTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
+    // Non-blocking update
     updateDoc(teacherRef, updateData)
-      .then(() => {
-        router.push(`/dashboard/teachers/${teacherId}`);
-      })
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
           path: teacherRef.path,
@@ -145,6 +145,13 @@ export default function EditTeacherPage() {
         });
         errorEmitter.emit('permission-error', permissionError);
       });
+
+    // Immediate navigation
+    router.push(`/dashboard/teachers/${teacherId}`);
+    toast({
+      title: "Record Updated",
+      description: `Changes for ${values.fullName} are being synchronized.`,
+    });
   };
 
   if (loading) {
