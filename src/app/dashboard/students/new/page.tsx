@@ -9,7 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { 
   ArrowLeft, 
-  Upload, 
   Save, 
   X,
   User,
@@ -42,6 +41,8 @@ import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
 import { useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp } from 'firebase/firestore';
+import { compressImage } from '@/lib/image-utils';
+import { useToast } from '@/hooks/use-toast';
 
 const studentFormSchema = z.object({
   fullName: z.string().min(3, "Full name is required (Surname First)"),
@@ -64,6 +65,7 @@ const studentFormSchema = z.object({
 export default function NewStudentPage() {
   const router = useRouter();
   const db = useFirestore();
+  const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof studentFormSchema>>({
@@ -87,11 +89,19 @@ export default function NewStudentPage() {
     }
   });
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setPhotoPreview(reader.result as string);
+      reader.onloadend = async () => {
+        const rawData = reader.result as string;
+        try {
+          const compressed = await compressImage(rawData, 300, 300);
+          setPhotoPreview(compressed);
+        } catch (err) {
+          toast({ variant: "destructive", title: "Image Error", description: "Could not process student photo." });
+        }
+      };
       reader.readAsDataURL(file);
     }
   };

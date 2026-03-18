@@ -13,8 +13,7 @@ import {
   RefreshCcw,
   Camera,
   User,
-  X,
-  UploadCloud
+  X
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -31,11 +30,17 @@ import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking, useUser, useAuth } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { updateProfile } from 'firebase/auth';
+import { 
+  useFirestore, 
+  useDoc, 
+  useMemoFirebase, 
+  setDocumentNonBlocking, 
+  useUser, 
+  updateDocumentNonBlocking 
+} from '@/firebase';
+import { doc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { compressImage } from '@/lib/image-utils';
 
 const settingsSchema = z.object({
   schoolName: z.string().min(3, "School name is required"),
@@ -52,7 +57,6 @@ type SettingsValues = z.infer<typeof settingsSchema>;
 
 export default function SettingsPage() {
   const db = useFirestore();
-  const auth = useAuth();
   const { user } = useUser();
   const { toast } = useToast();
   
@@ -60,12 +64,20 @@ export default function SettingsPage() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
+  // Reference for global school settings
   const settingsRef = useMemoFirebase(() => {
     if (!db) return null;
     return doc(db, 'settings', 'school-config');
   }, [db]);
 
+  // Reference for current admin's professional profile
+  const adminProfileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'staffs', user.uid);
+  }, [db, user]);
+
   const { data: remoteSettings, isLoading: isFetching } = useDoc(settingsRef);
+  const { data: adminProfile } = useDoc(adminProfileRef);
 
   const form = useForm<SettingsValues>({
     resolver: zodResolver(settingsSchema),
@@ -97,38 +109,59 @@ export default function SettingsPage() {
   }, [remoteSettings, form]);
 
   useEffect(() => {
-    if (user) {
+    if (adminProfile) {
+      setProfileName(adminProfile.fullName || user?.displayName || '');
+      setProfileImage(adminProfile.photoUrl || user?.photoURL || null);
+    } else if (user) {
       setProfileName(user.displayName || '');
       setProfileImage(user.photoURL || null);
     }
-  }, [user]);
+  }, [adminProfile, user]);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setProfileImage(reader.result as string);
+      reader.onloadend = async () => {
+        const rawData = reader.result as string;
+        try {
+          // Compress image to ensure it fits in Firestore and Auth limits
+          const compressed = await compressImage(rawData, 200, 200);
+          setProfileImage(compressed);
+        } catch (err) {
+          toast({ variant: "destructive", title: "Image Error", description: "Could not process photo." });
+        }
+      };
       reader.readAsDataURL(file);
     }
   };
 
   const handleUpdateProfile = async () => {
-    if (!user) return;
+    if (!user || !adminProfileRef) return;
     setIsUpdatingProfile(true);
+    
+    // We store the admin's profile in the 'staffs' collection to avoid the 2KB Auth photoURL limit
+    const adminData = {
+      fullName: profileName,
+      photoUrl: profileImage,
+      email: user.email,
+      role: 'Admin',
+      status: 'Active',
+      updatedAt: serverTimestamp(),
+      createdAt: adminProfile?.createdAt || serverTimestamp(),
+    };
+
     try {
-      await updateProfile(user, {
-        displayName: profileName,
-        photoURL: profileImage
-      });
+      setDocumentNonBlocking(adminProfileRef, adminData, { merge: true });
       toast({
-        title: "Profile Updated",
-        description: "Your administrative identity has been synchronized.",
+        title: "Identity Synchronized",
+        description: "Your administrative profile has been updated in the registry.",
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Update Failed",
-        description: error.message || "Could not update auth profile.",
+        description: error.message || "Could not save profile.",
       });
     } finally {
       setIsUpdatingProfile(false);
@@ -137,9 +170,7 @@ export default function SettingsPage() {
 
   const onSubmit = (values: SettingsValues) => {
     if (!settingsRef) return;
-
     setDocumentNonBlocking(settingsRef, values, { merge: true });
-    
     toast({
       title: "Settings Synchronized",
       description: "School configurations have been updated globally.",
@@ -182,14 +213,14 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-8">
-          {/* Admin Profile Section */}
+          {/* Admin Identity Section */}
           <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-primary text-white">
             <CardHeader className="bg-white/10 border-b border-white/10 py-6 px-8">
               <CardTitle className="text-lg font-black flex items-center gap-3">
                 <UserCircle className="h-6 w-6" />
                 Admin Identity
               </CardTitle>
-              <CardDescription className="font-bold text-white/70">Update your personal administrative profile and avatar.</CardDescription>
+              <CardDescription className="font-bold text-white/70">Update your professional profile and avatar.</CardDescription>
             </CardHeader>
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center gap-8">
@@ -233,9 +264,9 @@ export default function SettingsPage() {
                     disabled={isUpdatingProfile}
                   >
                     {isUpdatingProfile ? (
-                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Synchronizing...</>
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Syncing...</>
                     ) : (
-                      'Update Profile'
+                      'Save Profile'
                     )}
                   </Button>
                 </div>
@@ -251,7 +282,7 @@ export default function SettingsPage() {
                   <School className="h-6 w-6" />
                   School Identity
                 </CardTitle>
-                <CardDescription className="font-bold">Update the official school details used on reports and system documents.</CardDescription>
+                <CardDescription className="font-bold">Update official details for reports and documents.</CardDescription>
               </CardHeader>
               <CardContent className="grid md:grid-cols-2 gap-8 pt-10 px-8 pb-10">
                 <div className="space-y-2">
@@ -321,29 +352,6 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            {/* User Account Settings */}
-            <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden">
-              <CardHeader className="bg-muted/20 border-b py-6 px-8">
-                <CardTitle className="text-lg font-black flex items-center gap-3 text-primary">
-                  <UserCircle className="h-6 w-6" />
-                  Security Overlays
-                </CardTitle>
-                <CardDescription className="font-bold">Administrative access and security protocols.</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-10 px-8 pb-10">
-                <div className="flex items-center justify-between p-6 bg-muted/30 rounded-2xl border border-dashed border-primary/10">
-                  <div className="space-y-1">
-                    <Label className="text-sm font-black text-primary uppercase tracking-tight">Two-Factor Authentication</Label>
-                    <p className="text-xs text-muted-foreground font-medium">Add an extra verification layer to all admin logins.</p>
-                  </div>
-                  <Switch 
-                    checked={form.watch('twoFactorEnabled')} 
-                    onCheckedChange={(val) => form.setValue('twoFactorEnabled', val)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
             <div className="flex justify-end gap-3 pt-4 sticky bottom-6 z-20 bg-background/80 backdrop-blur-xl p-4 rounded-2xl border shadow-2xl">
               <Button 
                 type="submit" 
@@ -351,7 +359,7 @@ export default function SettingsPage() {
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Committing Changes...</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
                 ) : (
                   <><Save className="mr-2 h-4 w-4" /> Save Global Config</>
                 )}

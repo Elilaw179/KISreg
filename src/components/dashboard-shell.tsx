@@ -34,8 +34,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { ModeToggle } from '@/components/mode-toggle';
-import { useUser, useAuth } from '@/firebase';
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -44,8 +45,17 @@ interface DashboardShellProps {
 export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const db = useFirestore();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+
+  // Fetch expanded admin profile from Firestore to get higher-res photos
+  const adminProfileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'staffs', user.uid);
+  }, [db, user]);
+
+  const { data: adminProfile } = useDoc(adminProfileRef);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -71,15 +81,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
         </div>
         <div className="text-center space-y-2">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground animate-pulse">Authenticating Session</p>
-          <div className="h-1 w-32 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary animate-pulse w-full" />
-          </div>
         </div>
       </div>
     );
   }
 
-  // Fallback for safety during transitions
   if (!user) return null;
 
   const navItems = [
@@ -88,6 +94,10 @@ export function DashboardShell({ children }: DashboardShellProps) {
     { name: 'Staff Management', href: '/dashboard/teachers', icon: GraduationCap },
     { name: 'Admission Center', href: '/dashboard/students/new', icon: ClipboardList },
   ];
+
+  // Prefer Firestore data for name and photo, fallback to Auth profile
+  const displayName = adminProfile?.fullName || user.displayName || 'Admin User';
+  const photoUrl = adminProfile?.photoUrl || user.photoURL || "https://picsum.photos/seed/admin/200/200";
 
   return (
     <SidebarProvider>
@@ -184,11 +194,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
             </Button>
             <div className="flex items-center gap-4 pl-6 border-l h-10">
               <div className="text-right hidden sm:block space-y-0.5">
-                <p className="text-sm font-black text-primary leading-none">{user?.displayName || 'Admin User'}</p>
+                <p className="text-sm font-black text-primary leading-none">{displayName}</p>
                 <p className="text-[10px] text-muted-foreground font-black tracking-widest uppercase opacity-60">Registrar Office</p>
               </div>
               <Avatar className="h-11 w-11 border-2 border-primary/10 shadow-xl transition-all hover:scale-110 hover:rotate-3 cursor-pointer ring-offset-background ring-primary/20 hover:ring-2">
-                <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/admin/200/200"} alt="Admin" />
+                <AvatarImage src={photoUrl} alt="Admin" />
                 <AvatarFallback className="bg-primary text-white text-xs font-black">AD</AvatarFallback>
               </Avatar>
             </div>
