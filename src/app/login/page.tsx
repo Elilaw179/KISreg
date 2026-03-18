@@ -1,28 +1,48 @@
-
 "use client";
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { ShieldCheck, Lock, User, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { ADMIN_CREDENTIALS } from '@/lib/auth-config';
 import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
-    // Simulate a secure handshake delay
+
+    // Artificial delay for professional feel
     setTimeout(() => {
-      router.push('/dashboard');
-    }, 800);
+      if (
+        formData.email === ADMIN_CREDENTIALS.email && 
+        formData.password === ADMIN_CREDENTIALS.password
+      ) {
+        toast({
+          title: "Access Granted",
+          description: "Welcome to the KIS Administrative Portal.",
+        });
+        router.push('/dashboard');
+      } else {
+        setIsLoggingIn(false);
+        toast({
+          variant: "destructive",
+          title: "Authentication Failed",
+          description: "Invalid credentials. Please verify your security key and email.",
+        });
+      }
+    }, 1200);
   };
 
   return (
@@ -33,7 +53,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mb-10 flex flex-col items-center gap-4 relative z-10 animate-in fade-in slide-in-from-top-4 duration-700">
-        <div className="relative w-36 h-36 mb-2 drop-shadow-2xl transition-transform hover:scale-105">
+        <div className="relative w-32 h-32 mb-2 drop-shadow-2xl">
           <Image 
             src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
             alt="Kourrklys International School Logo"
@@ -43,47 +63,50 @@ export default function LoginPage() {
           />
         </div>
         <div className="text-center space-y-1">
-          <h1 className="text-4xl font-headline font-black text-primary tracking-tight">KOURRKLYS</h1>
-          <p className="text-muted-foreground font-bold tracking-[0.2em] uppercase text-xs">
-            International School
+          <h1 className="text-4xl font-headline font-black text-primary tracking-tight uppercase">KOURRKLYS</h1>
+          <p className="text-muted-foreground font-bold tracking-[0.2em] uppercase text-[10px]">
+            International School Admin Portal
           </p>
         </div>
       </div>
 
       <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10 animate-in fade-in zoom-in-95 duration-500 delay-200">
         <CardHeader className="space-y-2 pt-8">
-          <CardTitle className="text-3xl text-center font-headline font-black text-primary/90">Admin Access</CardTitle>
-          <CardDescription className="text-center text-sm font-medium">
-            Sign in to the KIS Administrative Management System
+          <CardTitle className="text-2xl text-center font-headline font-black text-primary/90 uppercase tracking-tight">Secured Entry</CardTitle>
+          <CardDescription className="text-center text-xs font-bold uppercase text-muted-foreground/60 tracking-widest">
+            Authorization Required
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
-          <CardContent className="space-y-6 px-8">
-            <div className="space-y-2.5">
-              <Label htmlFor="username" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Username / Email</Label>
+          <CardContent className="space-y-5 px-8">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 ml-1">Email Identifier</Label>
               <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
-                  id="username" 
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="admin@kourrklys.edu.ng" 
-                  className="pl-11 h-12 bg-muted/50 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl" 
+                  className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl text-sm" 
                   required 
                 />
               </div>
             </div>
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <div className="flex items-center justify-between ml-1">
-                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Security Code</Label>
-                <Link href="/forgot-password" size="sm" className="text-xs text-primary hover:text-primary/70 transition-colors font-bold">
-                  Lost Key?
+                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Security Code</Label>
+                <Link href="/forgot-password" size="sm" className="text-[10px] text-primary hover:text-primary/70 transition-colors font-black uppercase tracking-widest">
+                  Reset Key
                 </Link>
               </div>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
-                  id="password" 
                   type={showPassword ? "text" : "password"} 
-                  className="pl-11 pr-10 h-12 bg-muted/50 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl" 
+                  value={formData.password}
+                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  className="pl-11 pr-10 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl text-sm" 
                   required 
                 />
                 <button
@@ -96,27 +119,27 @@ export default function LoginPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col gap-6 p-8 pt-2">
+          <CardFooter className="flex flex-col gap-6 p-8 pt-4">
             <Button 
               type="submit" 
-              className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-xl transition-all rounded-xl"
+              className="w-full h-12 text-sm font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-xl transition-all rounded-xl"
               disabled={isLoggingIn}
             >
               {isLoggingIn ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Authenticating...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="mr-2 h-5 w-5" />
-                  Secure Login
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  Access Dashboard
                 </>
               )}
             </Button>
             <div className="flex items-center justify-center gap-2">
                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
                  Authorized Personnel Only
                </p>
             </div>
@@ -124,8 +147,8 @@ export default function LoginPage() {
         </form>
       </Card>
 
-      <footer className="mt-16 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
-        &copy; {new Date().getFullYear()} Kourrklys International School Admin Portal
+      <footer className="mt-16 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40">
+        &copy; {new Date().getFullYear()} Kourrklys Int. School • Admin Infrastructure
       </footer>
     </div>
   );
