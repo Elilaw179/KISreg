@@ -1,79 +1,250 @@
-
 {
   "entities": {
-    "Student": {
-      "title": "Student",
-      "description": "Information about a student registered at Kourrklys International School.",
+    "Staff": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Staff",
       "type": "object",
+      "description": "Represents an authorized staff member within the school system, such as an administrator.",
       "properties": {
-        "admissionNumber": { "type": "string" },
-        "fullName": { "type": "string" },
-        "dateOfBirth": { "type": "string", "format": "date" },
-        "dateOfAdmission": { "type": "string", "format": "date" },
-        "gender": { "type": "string", "enum": ["Male", "Female", "Other"] },
-        "class": { "type": "string" },
-        "parentName": { "type": "string" },
-        "parentContact": { "type": "string" },
-        "parentEmail": { "type": "string", "format": "email" },
-        "parentOccupation": { "type": "string" },
-        "address": { "type": "string" },
-        "previousSchool": { "type": "string" },
-        "status": { "type": "string", "enum": ["Active", "Withdrawn"] },
-        "photoUrl": { "type": "string" },
-        "nationality": { "type": "string" },
-        "bloodGroup": { "type": "string" },
-        "medicalInfo": { "type": "string" },
-        "updatedAt": { "type": "string", "format": "date-time" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["fullName", "admissionNumber", "class", "status", "parentEmail", "parentOccupation", "parentName", "parentContact", "address"]
-    },
-    "Teacher": {
-      "title": "Teacher",
-      "description": "Information about a staff member at Kourrklys International School.",
-      "type": "object",
-      "properties": {
-        "staffId": { "type": "string" },
-        "fullName": { "type": "string" },
-        "designation": { "type": "string" },
-        "department": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "phone": { "type": "string" },
-        "dateOfJoining": { "type": "string", "format": "date" },
-        "qualification": { "type": "string" },
-        "gender": { "type": "string", "enum": ["Male", "Female"] },
-        "dateOfBirth": { "type": "string", "format": "date" },
-        "nationality": { "type": "string" },
-        "maritalStatus": { "type": "string", "enum": ["Single", "Married", "Divorced", "Widowed"] },
-        "address": { "type": "string" },
-        "photoUrl": { "type": "string" },
-        "nextOfKin": {
-          "type": "object",
-          "properties": {
-            "name": { "type": "string" },
-            "relationship": { "type": "string" },
-            "phone": { "type": "string" },
-            "address": { "type": "string" }
-          },
-          "required": ["name", "relationship", "phone", "address"]
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Staff entity."
         },
-        "updatedAt": { "type": "string", "format": "date-time" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the staff member."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the staff member.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "The assigned role of the staff member, e.g., 'Admin'. This field is descriptive and assumes an external authentication system manages actual access control."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The contact phone number for the staff member."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the staff record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the staff record was last updated.",
+          "format": "date-time"
+        }
       },
-      "required": ["fullName", "staffId", "designation", "email", "phone", "department", "qualification"]
+      "required": [
+        "id",
+        "fullName",
+        "email",
+        "role",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Class": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Class",
+      "type": "object",
+      "description": "Represents an academic class or grade level within the school.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Class entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the class, e.g., 'Grade 1', 'SS1'."
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional description or notes about the class."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the class record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the class record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Student": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Student",
+      "type": "object",
+      "description": "Represents a student enrolled in the school, storing all relevant personal and academic information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Student entity."
+        },
+        "admissionNumber": {
+          "type": "string",
+          "description": "A unique admission number assigned to the student."
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The full legal name of the student."
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "The student's date of birth.",
+          "format": "date"
+        },
+        "dateOfAdmission": {
+          "type": "string",
+          "description": "The date when the student was admitted to the school.",
+          "format": "date"
+        },
+        "gender": {
+          "type": "string",
+          "description": "The gender of the student (e.g., 'Male', 'Female', 'Other')."
+        },
+        "classId": {
+          "type": "string",
+          "description": "Reference to the Class entity the student is currently enrolled in. (Relationship: Class 1:N Student)"
+        },
+        "parentGuardianName": {
+          "type": "string",
+          "description": "The full name of the student's primary parent or guardian."
+        },
+        "parentContactInformation": {
+          "type": "string",
+          "description": "Contact details for the parent/guardian (e.g., phone number, email address)."
+        },
+        "address": {
+          "type": "string",
+          "description": "The student's residential address."
+        },
+        "previousSchool": {
+          "type": "string",
+          "description": "The name of the school the student attended prior to admission, if any."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current enrollment status of the student (e.g., 'Active', 'Withdrawn', 'Graduated')."
+        },
+        "passportPhotoUrl": {
+          "type": "string",
+          "description": "A URL pointing to the student's uploaded passport photograph.",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the student record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the student record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "admissionNumber",
+        "fullName",
+        "dateOfBirth",
+        "dateOfAdmission",
+        "gender",
+        "classId",
+        "parentGuardianName",
+        "parentContactInformation",
+        "address",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
     }
   },
   "auth": {
-    "providers": ["password"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "students": {
-      "schema": "Student",
-      "description": "Collection of student records."
-    },
-    "teachers": {
-      "schema": "Teacher",
-      "description": "Collection of staff records."
-    }
+    "structure": [
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "This collection serves as the central authority for 'Admin' roles. Each document's ID corresponds to a Firebase Auth UID of an administrator. The *existence* of a document at this path signifies admin status, enabling 'Existence over Content' for robust and authorization-independent security rules. No specific schema is linked here as only the document's existence matters for the role; the actual User entity would be in /users or /staffs.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication User ID (UID) of an authorized administrator."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/staffs/{staffId}",
+        "definition": {
+          "entityName": "Staff",
+          "schema": {
+            "$ref": "#/backend/entities/Staff"
+          },
+          "description": "Stores individual staff member profiles. The `staffId` corresponds to the staff member's Firebase Authentication UID. This collection is primarily managed by administrators, though individual staff members can read their own profiles (path-based ownership).",
+          "params": [
+            {
+              "name": "staffId",
+              "description": "The unique identifier for a staff member, corresponding to their Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/classes/{classId}",
+        "definition": {
+          "entityName": "Class",
+          "schema": {
+            "$ref": "#/backend/entities/Class"
+          },
+          "description": "Contains definitions for academic classes or grade levels. These documents are managed exclusively by authorized administrators.",
+          "params": [
+            {
+              "name": "classId",
+              "description": "The unique identifier for an academic class."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/students/{studentId}",
+        "definition": {
+          "entityName": "Student",
+          "schema": {
+            "$ref": "#/backend/entities/Student"
+          },
+          "description": "Stores comprehensive records for each student. This collection is managed exclusively by authorized administrators. It includes `classId` and `status` fields which facilitate efficient filtering and searching, supporting QAPs for list operations where the initial read permission is granted only to admins.",
+          "params": [
+            {
+              "name": "studentId",
+              "description": "The unique identifier for a student, typically their admission number or a generated UID."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The proposed Firestore structure prioritizes security, scalability, and debuggability by strictly adhering to the core design principles. The central authorization model is based on an 'Admin' role, which is implemented using a dedicated top-level collection `/roles_admin/{userId}`. This collection stores the Firebase Authentication UIDs of all authorized administrators. This approach is critical for **Authorization Independence** because security rules can check `exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid))` without performing `get()` operations on other documents (like the Staff collection) to determine a user's role. This makes authorization checks atomic, resilient to data inconsistencies, and easy to debug.\n\n**Structural Segregation** is maintained by ensuring that all documents within a given collection share a homogeneous security posture. For instance, the `/classes/{classId}` collection only contains class definitions, which are managed exclusively by administrators. Similarly, `/students/{studentId}` and `/staffs/{staffId}` documents are managed by administrators, with the added capability for staff members to read their own profile (`request.auth.uid == staffId`). This segregation simplifies security rules significantly, as the logic for each collection is uniform.\n\n**QAPs (Rules are not Filters)** are supported through this design by making access control explicit at the collection level. For example, to list students in `/students/{studentId}`, the security rule will first verify that the `request.auth.uid` corresponds to an existing document in `/roles_admin/{userId}`. This ensures that unauthorized clients cannot even initiate a `list` query for student data, regardless of any filters they attempt to apply. The filters (e.g., by `classId` or `status`) can then be applied on the client side, but only after the fundamental authorization check has passed. The `Staff` collection allows an individual staff member to read their own record (path-based ownership), while `list` operations on `Staff` (and all CUD operations) are restricted to administrators. This robust segregation and independent authorization logic ensure that the system is secure and performant for its intended use."
   }
 }
