@@ -57,6 +57,7 @@ const teacherFormSchema = z.object({
   department: z.string().min(2, "Department required"),
   qualification: z.string().min(2, "Qualification required"),
   dateOfJoining: z.string().min(1, "Joining date required"),
+  status: z.enum(['Active', 'Inactive']),
   nextOfKin: z.object({
     name: z.string().min(3, "NOK name required"),
     relationship: z.string().min(2, "Relationship required"),
@@ -87,6 +88,7 @@ export default function NewTeacherPage() {
       department: '',
       qualification: '',
       dateOfJoining: new Date().toISOString().split('T')[0],
+      status: 'Active',
       nextOfKin: { name: '', relationship: '', phone: '', address: '' },
     }
   });
@@ -110,8 +112,14 @@ export default function NewTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
-    // Aligning collection name with staffs
     addDoc(collection(db, 'staffs'), teacherData)
+      .then(() => {
+        toast({ 
+          title: "Staff Registered", 
+          description: `Official profile created for ${values.fullName}.` 
+        });
+        router.push('/dashboard/teachers');
+      })
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
           path: 'staffs',
@@ -120,43 +128,68 @@ export default function NewTeacherPage() {
         });
         errorEmitter.emit('permission-error', permissionError);
       });
-
-    toast({ title: "Staff Registered", description: `Official profile created for ${values.fullName}.` });
-    router.push('/dashboard/teachers');
   };
 
   return (
     <DashboardShell>
       <div className="max-w-5xl mx-auto space-y-6 pb-20">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild><Link href="/dashboard/teachers"><ArrowLeft className="h-5 w-5" /></Link></Button>
-          <h2 className="text-3xl font-headline font-bold text-primary">Official Staff Enrollment</h2>
+          <Button variant="ghost" size="icon" className="rounded-full" asChild>
+            <Link href="/dashboard/teachers">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+          </Button>
+          <div className="space-y-0.5">
+            <h2 className="text-3xl font-headline font-black text-primary tracking-tight">Staff Enrollment</h2>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">New Professional Entry</p>
+          </div>
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-8 space-y-6">
-                <Card className="border shadow-sm">
-                  <CardHeader className="bg-muted/30 border-b"><CardTitle className="text-lg flex items-center gap-2"><User className="h-5 w-5 text-primary" /> Bio-Data</CardTitle></CardHeader>
-                  <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-8 space-y-8">
+                <Card className="shadow-sm border-none bg-white rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-muted/20 border-b py-4 px-8">
+                    <CardTitle className="text-xs font-black uppercase tracking-widest flex items-center gap-2 text-primary">
+                      <User className="h-5 w-5" /> 
+                      Core Bio-Data
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid md:grid-cols-2 gap-6 pt-8 px-8 pb-10">
                     <FormField control={form.control} name="fullName" render={({ field }) => (
-                      <FormItem className="md:col-span-2"><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2">
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Name (Surname First)</FormLabel>
+                        <FormControl><Input placeholder="e.g. OKORO, Chidi James" className="h-12 rounded-xl" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="email" render={({ field }) => (
-                      <FormItem><FormLabel>Official Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Official Email</FormLabel>
+                        <FormControl><Input placeholder="staff@kourrklys.edu.ng" className="h-12 rounded-xl" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="phone" render={({ field }) => (
-                      <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Phone Number</FormLabel>
+                        <FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
-                      <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Date of Birth</FormLabel>
+                        <FormControl><Input type="date" className="h-12 rounded-xl" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="gender" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Gender</FormLabel>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gender</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <FormControl><SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>
                             <SelectItem value="Male">Male</SelectItem>
                             <SelectItem value="Female">Female</SelectItem>
@@ -166,13 +199,13 @@ export default function NewTeacherPage() {
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="nationality" render={({ field }) => (
-                      <FormItem><FormLabel>Nationality</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Nationality</FormLabel><FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="maritalStatus" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Marital Status</FormLabel>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Marital Status</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <FormControl><SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>
                             <SelectItem value="Single">Single</SelectItem>
                             <SelectItem value="Married">Married</SelectItem>
@@ -184,44 +217,57 @@ export default function NewTeacherPage() {
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="address" render={({ field }) => (
-                      <FormItem className="md:col-span-2"><FormLabel>Residential Address</FormLabel><FormControl><Textarea className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2">
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Residential Address</FormLabel>
+                        <FormControl><Textarea className="min-h-[80px] rounded-xl" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                   </CardContent>
                 </Card>
 
-                <Card className="border shadow-sm">
-                  <CardHeader className="bg-primary/5 border-b text-primary"><CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Emergency Contact (NOK)</CardTitle></CardHeader>
-                  <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
+                <Card className="shadow-sm border-none bg-white rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-primary/5 border-b py-4 px-8">
+                    <CardTitle className="text-xs font-black uppercase tracking-widest flex items-center gap-2 text-primary">
+                      <Heart className="h-5 w-5" /> 
+                      Next of Kin (Emergency)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid md:grid-cols-2 gap-6 pt-8 px-8 pb-10">
                     <FormField control={form.control} name="nextOfKin.name" render={({ field }) => (
-                      <FormItem className="md:col-span-2"><FormLabel>NOK Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2"><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">NOK Full Name</FormLabel><FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="nextOfKin.relationship" render={({ field }) => (
-                      <FormItem><FormLabel>Relationship</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Relationship</FormLabel><FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="nextOfKin.phone" render={({ field }) => (
-                      <FormItem><FormLabel>NOK Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">NOK Contact Phone</FormLabel><FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="nextOfKin.address" render={({ field }) => (
-                      <FormItem className="md:col-span-2"><FormLabel>NOK Address</FormLabel><FormControl><Textarea className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2"><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">NOK Address</FormLabel><FormControl><Textarea className="min-h-[80px] rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </CardContent>
                 </Card>
               </div>
 
-              <div className="lg:col-span-4 space-y-6">
-                 <Card className="shadow-sm border-none bg-white mb-6">
-                  <CardHeader className="pb-3"><CardTitle className="text-sm font-black uppercase tracking-widest">Passport Photo</CardTitle></CardHeader>
-                  <CardContent className="flex flex-col items-center gap-4">
-                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-primary/10 flex items-center justify-center bg-muted/20 overflow-hidden relative group transition-all">
+              <div className="lg:col-span-4 space-y-8">
+                <Card className="shadow-sm border-none bg-white rounded-3xl overflow-hidden">
+                  <CardHeader className="pb-3 px-6 pt-6">
+                    <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Passport Photo</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center gap-4 px-6 pb-6">
+                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-primary/10 flex items-center justify-center bg-muted/20 overflow-hidden relative group transition-all hover:bg-muted/30">
                       {photoPreview ? (
                         <>
                           <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => setPhotoPreview(null)} className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full"><X className="h-4 w-4" /></button>
+                          <button type="button" onClick={() => setPhotoPreview(null)} className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full shadow-lg"><X className="h-4 w-4" /></button>
                         </>
                       ) : (
                         <div className="flex flex-col items-center gap-3 text-muted-foreground p-6 text-center">
-                          <Upload className="h-6 w-6 text-primary" />
-                          <span className="text-[10px] font-black uppercase tracking-widest">Upload Photo</span>
+                          <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+                            <Upload className="h-6 w-6 text-primary" />
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-widest">Upload Portrait</span>
                         </div>
                       )}
                       <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handlePhotoChange} />
@@ -229,33 +275,77 @@ export default function NewTeacherPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border shadow-sm bg-primary/5">
-                  <CardHeader className="border-b bg-white/50"><CardTitle className="text-sm font-bold flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-primary" /> Professional Profile</CardTitle></CardHeader>
-                  <CardContent className="pt-4 space-y-4">
+                <Card className="shadow-sm border-none bg-primary/5 rounded-3xl overflow-hidden">
+                  <CardHeader className="border-b bg-white/50 py-4 px-6">
+                    <CardTitle className="text-xs font-black uppercase tracking-widest flex items-center gap-2 text-primary">
+                      <BadgeCheck className="h-4 w-4" /> 
+                      Employment Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-5 px-6 pb-8">
                     <FormField control={form.control} name="staffId" render={({ field }) => (
-                      <FormItem><FormLabel>Staff ID</FormLabel><FormControl><Input placeholder="KIS/STAFF/XXX" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Staff Registry ID</FormLabel>
+                        <FormControl><Input placeholder="KIS/STAFF/001" className="h-11 rounded-xl bg-white border-transparent focus:border-primary/20" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="designation" render={({ field }) => (
-                      <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="e.g. Senior Tutor" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Official Designation</FormLabel>
+                        <FormControl><Input placeholder="e.g. Senior Educator" className="h-11 rounded-xl bg-white border-transparent focus:border-primary/20" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="department" render={({ field }) => (
-                      <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="e.g. Sciences" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Department</FormLabel>
+                        <FormControl><Input placeholder="e.g. Humanities" className="h-11 rounded-xl bg-white border-transparent focus:border-primary/20" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="status" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Initial Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="h-11 rounded-xl bg-white border-transparent focus:border-primary/20"><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Inactive">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="qualification" render={({ field }) => (
-                      <FormItem><FormLabel>Qualification</FormLabel><FormControl><Input placeholder="e.g. B.Sc (Ed)" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Academic Qualification</FormLabel>
+                        <FormControl><Input placeholder="e.g. M.Ed (Education)" className="h-11 rounded-xl bg-white border-transparent focus:border-primary/20" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={form.control} name="dateOfJoining" render={({ field }) => (
-                      <FormItem><FormLabel>Date of Joining</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Joining Date</FormLabel>
+                        <FormControl><Input type="date" className="h-11 rounded-xl bg-white border-transparent focus:border-primary/20" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                   </CardContent>
                 </Card>
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-background/80 backdrop-blur p-4 rounded-xl border shadow-lg">
-               <Button type="button" variant="outline" asChild disabled={form.formState.isSubmitting}><Link href="/dashboard/teachers">Cancel</Link></Button>
-               <Button type="submit" className="px-10 font-bold" disabled={form.formState.isSubmitting}>
-                 {form.formState.isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registering...</> : <><Save className="mr-2 h-4 w-4" /> Finalize Registry</>}
+            <div className="flex justify-end gap-3 sticky bottom-4 z-20 bg-background/90 backdrop-blur-md p-4 rounded-2xl border shadow-xl">
+               <Button type="button" variant="outline" className="rounded-xl px-6 h-12 font-bold" asChild disabled={form.formState.isSubmitting}>
+                 <Link href="/dashboard/teachers">Discard Registry</Link>
+               </Button>
+               <Button type="submit" className="px-12 h-12 font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]" disabled={form.formState.isSubmitting}>
+                 {form.formState.isSubmitting ? (
+                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</>
+                 ) : (
+                   <><Save className="mr-2 h-4 w-4" /> Finalize Registry</>
+                 )}
                </Button>
             </div>
           </form>

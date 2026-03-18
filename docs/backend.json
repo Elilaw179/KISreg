@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Staff": {
@@ -10,6 +11,10 @@
           "type": "string",
           "description": "Unique identifier for the Staff entity."
         },
+        "staffId": {
+          "type": "string",
+          "description": "Official staff identification number."
+        },
         "fullName": {
           "type": "string",
           "description": "The full name of the staff member."
@@ -21,11 +26,29 @@
         },
         "role": {
           "type": "string",
-          "description": "The assigned role of the staff member, e.g., 'Admin'. This field is descriptive and assumes an external authentication system manages actual access control."
+          "description": "The assigned role of the staff member, e.g., 'Admin'."
+        },
+        "designation": {
+          "type": "string",
+          "description": "The job title of the staff member."
+        },
+        "department": {
+          "type": "string",
+          "description": "The department the staff member belongs to."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current employment status (Active, Inactive).",
+          "enum": ["Active", "Inactive"]
         },
         "contactNumber": {
           "type": "string",
           "description": "The contact phone number for the staff member."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL to the staff passport photo.",
+          "format": "uri"
         },
         "createdAt": {
           "type": "string",
@@ -42,7 +65,8 @@
         "id",
         "fullName",
         "email",
-        "role",
+        "staffId",
+        "status",
         "createdAt",
         "updatedAt"
       ]
@@ -117,7 +141,7 @@
         },
         "classId": {
           "type": "string",
-          "description": "Reference to the Class entity the student is currently enrolled in. (Relationship: Class 1:N Student)"
+          "description": "Reference to the Class entity the student is currently enrolled in."
         },
         "parentGuardianName": {
           "type": "string",
@@ -125,19 +149,16 @@
         },
         "parentContactInformation": {
           "type": "string",
-          "description": "Contact details for the parent/guardian (e.g., phone number, email address)."
+          "description": "Contact details for the parent/guardian."
         },
         "address": {
           "type": "string",
           "description": "The student's residential address."
         },
-        "previousSchool": {
-          "type": "string",
-          "description": "The name of the school the student attended prior to admission, if any."
-        },
         "status": {
           "type": "string",
-          "description": "The current enrollment status of the student (e.g., 'Active', 'Withdrawn', 'Graduated')."
+          "description": "The current enrollment status of the student.",
+          "enum": ["Active", "Withdrawn", "Graduated"]
         },
         "passportPhotoUrl": {
           "type": "string",
@@ -151,7 +172,7 @@
         },
         "updatedAt": {
           "type": "string",
-          "description": "Timestamp indicating when the student record was last updated.",
+          "description": "Timestamp indicating when the staff record was last updated.",
           "format": "date-time"
         }
       },
@@ -159,13 +180,6 @@
         "id",
         "admissionNumber",
         "fullName",
-        "dateOfBirth",
-        "dateOfAdmission",
-        "gender",
-        "classId",
-        "parentGuardianName",
-        "parentContactInformation",
-        "address",
         "status",
         "createdAt",
         "updatedAt"
@@ -174,28 +188,11 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
     "structure": [
-      {
-        "path": "/roles_admin/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "This collection serves as the central authority for 'Admin' roles. Each document's ID corresponds to a Firebase Auth UID of an administrator. The *existence* of a document at this path signifies admin status, enabling 'Existence over Content' for robust and authorization-independent security rules. No specific schema is linked here as only the document's existence matters for the role; the actual User entity would be in /users or /staffs.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The Firebase Authentication User ID (UID) of an authorized administrator."
-            }
-          ]
-        }
-      },
       {
         "path": "/staffs/{staffId}",
         "definition": {
@@ -203,27 +200,11 @@
           "schema": {
             "$ref": "#/backend/entities/Staff"
           },
-          "description": "Stores individual staff member profiles. The `staffId` corresponds to the staff member's Firebase Authentication UID. This collection is primarily managed by administrators, though individual staff members can read their own profiles (path-based ownership).",
+          "description": "Stores individual staff member profiles.",
           "params": [
             {
               "name": "staffId",
-              "description": "The unique identifier for a staff member, corresponding to their Firebase Authentication UID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/classes/{classId}",
-        "definition": {
-          "entityName": "Class",
-          "schema": {
-            "$ref": "#/backend/entities/Class"
-          },
-          "description": "Contains definitions for academic classes or grade levels. These documents are managed exclusively by authorized administrators.",
-          "params": [
-            {
-              "name": "classId",
-              "description": "The unique identifier for an academic class."
+              "description": "The unique identifier for a staff member."
             }
           ]
         }
@@ -235,16 +216,15 @@
           "schema": {
             "$ref": "#/backend/entities/Student"
           },
-          "description": "Stores comprehensive records for each student. This collection is managed exclusively by authorized administrators. It includes `classId` and `status` fields which facilitate efficient filtering and searching, supporting QAPs for list operations where the initial read permission is granted only to admins.",
+          "description": "Stores comprehensive records for each student.",
           "params": [
             {
               "name": "studentId",
-              "description": "The unique identifier for a student, typically their admission number or a generated UID."
+              "description": "The unique identifier for a student."
             }
           ]
         }
       }
-    ],
-    "reasoning": "The proposed Firestore structure prioritizes security, scalability, and debuggability by strictly adhering to the core design principles. The central authorization model is based on an 'Admin' role, which is implemented using a dedicated top-level collection `/roles_admin/{userId}`. This collection stores the Firebase Authentication UIDs of all authorized administrators. This approach is critical for **Authorization Independence** because security rules can check `exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid))` without performing `get()` operations on other documents (like the Staff collection) to determine a user's role. This makes authorization checks atomic, resilient to data inconsistencies, and easy to debug.\n\n**Structural Segregation** is maintained by ensuring that all documents within a given collection share a homogeneous security posture. For instance, the `/classes/{classId}` collection only contains class definitions, which are managed exclusively by administrators. Similarly, `/students/{studentId}` and `/staffs/{staffId}` documents are managed by administrators, with the added capability for staff members to read their own profile (`request.auth.uid == staffId`). This segregation simplifies security rules significantly, as the logic for each collection is uniform.\n\n**QAPs (Rules are not Filters)** are supported through this design by making access control explicit at the collection level. For example, to list students in `/students/{studentId}`, the security rule will first verify that the `request.auth.uid` corresponds to an existing document in `/roles_admin/{userId}`. This ensures that unauthorized clients cannot even initiate a `list` query for student data, regardless of any filters they attempt to apply. The filters (e.g., by `classId` or `status`) can then be applied on the client side, but only after the fundamental authorization check has passed. The `Staff` collection allows an individual staff member to read their own record (path-based ownership), while `list` operations on `Staff` (and all CUD operations) are restricted to administrators. This robust segregation and independent authorization logic ensure that the system is secure and performant for its intended use."
+    ]
   }
 }
