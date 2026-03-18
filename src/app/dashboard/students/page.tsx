@@ -93,27 +93,61 @@ export default function StudentsPage() {
   const handleExport = () => {
     if (!filteredStudents || filteredStudents.length === 0) return;
 
-    const headers = ['Full Name', 'Admission Number', 'Class', 'Status', 'Admission Date', 'Gender', 'Parent Name', 'Parent Contact'];
+    // Define comprehensive headers
+    const headers = [
+      'Full Name', 
+      'Admission Number', 
+      'Class', 
+      'Status', 
+      'Admission Date', 
+      'Gender', 
+      'Nationality',
+      'Guardian Name', 
+      'Guardian Contact',
+      'Guardian Email',
+      'Guardian Occupation',
+      'Residential Address',
+      'Blood Group',
+      'Medical Info'
+    ];
+    
+    // Helper to safely escape CSV fields for Excel
+    const escapeCsv = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
     const csvRows = [
       headers.join(','),
       ...filteredStudents.map(s => [
-        `"${s.fullName || ''}"`,
-        `"${s.admissionNumber || ''}"`,
-        `"${s.class || ''}"`,
-        `"${s.status || ''}"`,
-        `"${s.dateOfAdmission || 'N/A'}"`,
-        `"${s.gender || ''}"`,
-        `"${s.parentName || ''}"`,
-        `"${s.parentContact || ''}"`
+        escapeCsv(s.fullName),
+        escapeCsv(s.admissionNumber),
+        escapeCsv(s.class),
+        escapeCsv(s.status),
+        escapeCsv(s.dateOfAdmission || 'N/A'),
+        escapeCsv(s.gender),
+        escapeCsv(s.nationality),
+        escapeCsv(s.parentName),
+        escapeCsv(s.parentContact),
+        escapeCsv(s.parentEmail),
+        escapeCsv(s.parentOccupation),
+        escapeCsv(s.address),
+        escapeCsv(s.bloodGroup),
+        escapeCsv(s.medicalInfo)
       ].join(','))
     ];
 
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    // Add UTF-8 BOM (\uFEFF) to the start of the file. 
+    // This tells Excel the file is UTF-8 encoded, preventing broken characters.
+    const csvContent = '\uFEFF' + csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
+    
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `kis_students_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `kis_students_full_report_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -132,7 +166,7 @@ export default function StudentsPage() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleExport} disabled={!filteredStudents.length}>
               <FileDown className="mr-2 h-4 w-4" />
-              Export
+              Export Full Report
             </Button>
             <Button size="sm" asChild>
               <Link href="/dashboard/students/new">
