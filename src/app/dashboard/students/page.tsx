@@ -67,7 +67,7 @@ export default function StudentsPage() {
     return collection(db, 'students');
   }, [db, user]);
 
-  const { data: students, loading } = useCollection(studentsQuery);
+  const { data: students, isLoading: loading } = useCollection(studentsQuery);
 
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -111,10 +111,20 @@ export default function StudentsPage() {
       'Medical Info'
     ];
     
-    // Helper to safely escape CSV fields for Excel
-    const escapeCsv = (val: any) => {
+    /**
+     * Helper to safely escape CSV fields for Excel
+     * @param val The value to escape
+     * @param forceText If true, uses Excel formula format ="val" to prevent scientific notation
+     */
+    const escapeCsv = (val: any, forceText = false) => {
       if (val === null || val === undefined) return '""';
-      const str = String(val).replace(/"/g, '""');
+      // Remove any newlines which break CSV row structure
+      let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""');
+      
+      // For phone numbers and IDs, use ="value" to force Excel to treat it as text
+      if (forceText) {
+        return `="${str}"`;
+      }
       return `"${str}"`;
     };
 
@@ -122,14 +132,14 @@ export default function StudentsPage() {
       headers.join(','),
       ...filteredStudents.map(s => [
         escapeCsv(s.fullName),
-        escapeCsv(s.admissionNumber),
+        escapeCsv(s.admissionNumber, true), // Force text for IDs
         escapeCsv(s.class),
         escapeCsv(s.status),
         escapeCsv(s.dateOfAdmission || 'N/A'),
         escapeCsv(s.gender),
         escapeCsv(s.nationality),
         escapeCsv(s.parentName),
-        escapeCsv(s.parentContact),
+        escapeCsv(s.parentContact, true), // Force text for phone numbers
         escapeCsv(s.parentEmail),
         escapeCsv(s.parentOccupation),
         escapeCsv(s.address),
