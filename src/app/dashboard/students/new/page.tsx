@@ -121,8 +121,14 @@ export default function NewStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    // Non-blocking Firestore Write
+    // Use non-blocking Firestore write pattern
     addDoc(collection(db, 'students'), studentData)
+      .then(() => {
+        toast({
+          title: "Admission Record Created",
+          description: `Registry updated for ${values.fullName}.`,
+        });
+      })
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
           path: 'students',
@@ -132,12 +138,8 @@ export default function NewStudentPage() {
         errorEmitter.emit('permission-error', permissionError);
       });
 
-    // Instant optimistic navigation
+    // Optimistic navigation
     router.push('/dashboard/students');
-    toast({
-      title: "Admission Record Created",
-      description: `Registry updated for ${values.fullName}.`,
-    });
   };
 
   return (
