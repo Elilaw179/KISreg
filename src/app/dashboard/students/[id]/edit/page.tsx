@@ -11,13 +11,7 @@ import {
   ArrowLeft, 
   Save, 
   User, 
-  Briefcase, 
-  Loader2,
-  Mail,
-  Phone,
-  Calendar,
-  MapPin,
-  Globe
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,10 +34,8 @@ import {
 } from '@/components/ui/select';
 import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
-import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { useFirestore, useDoc, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
+import { doc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 const studentFormSchema = z.object({
@@ -75,7 +67,7 @@ export default function EditStudentPage() {
     return doc(db, 'students', studentId);
   }, [db, studentId]);
 
-  const { data: student, loading } = useDoc(studentRef);
+  const { data: student, isLoading: loading } = useDoc(studentRef);
 
   const form = useForm<z.infer<typeof studentFormSchema>>({
     resolver: zodResolver(studentFormSchema),
@@ -126,21 +118,8 @@ export default function EditStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    updateDoc(studentRef, updateData)
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: studentRef.path,
-          operation: 'update',
-          requestResourceData: updateData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
-
+    updateDocumentNonBlocking(studentRef, updateData);
     router.push(`/dashboard/students/${studentId}`);
-    toast({
-      title: "Update Saved",
-      description: "Student record has been successfully modified.",
-    });
   };
 
   if (loading) {

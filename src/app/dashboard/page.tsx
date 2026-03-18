@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo } from 'react';
@@ -11,7 +12,8 @@ import {
   TrendingUp,
   ArrowUpRight,
   BadgeCheck,
-  Zap
+  Zap,
+  Clock
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -26,7 +28,8 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, limit } from 'firebase/firestore';
+import { FormattedDate } from '@/components/formatted-date';
 
 const SECONDARY_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
@@ -36,10 +39,10 @@ export default function DashboardPage() {
   
   const studentsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return query(collection(db, 'students'), orderBy('createdAt', 'desc'));
+    return collection(db, 'students');
   }, [db, user]);
 
-  const { data: students, loading } = useCollection(studentsQuery);
+  const { data: students, isLoading: loading } = useCollection(studentsQuery);
 
   const stats = useMemo(() => {
     if (!students) return { total: 0, active: 0, withdrawn: 0 };
@@ -60,7 +63,12 @@ export default function DashboardPage() {
 
   const recentStudents = useMemo(() => {
     if (!students) return [];
-    return students.slice(0, 5);
+    // Sort locally to avoid index dependency for now
+    return [...students].sort((a, b) => {
+      const dateA = a.createdAt?.toMillis?.() || new Date(a.createdAt).getTime() || 0;
+      const dateB = b.createdAt?.toMillis?.() || new Date(b.createdAt).getTime() || 0;
+      return dateB - dateA;
+    }).slice(0, 5);
   }, [students]);
 
   if (loading) {
@@ -203,6 +211,10 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2 py-0.5 bg-muted rounded-md">{student.class}</span>
                           <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{student.admissionNumber}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground/60 text-[9px] font-bold">
+                           <Clock className="h-3 w-3" />
+                           <FormattedDate date={student.createdAt} />
                         </div>
                       </div>
                     </div>

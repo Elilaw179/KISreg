@@ -40,6 +40,7 @@ import {
 import Link from 'next/link';
 import { useFirestore, useDoc, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { FormattedDate } from '@/components/formatted-date';
 
 export default function StudentDetailPage() {
   const params = useParams();
@@ -54,7 +55,7 @@ export default function StudentDetailPage() {
     return doc(db, 'students', studentId);
   }, [db, studentId, user]);
 
-  const { data: student, loading } = useDoc(studentRef);
+  const { data: student, isLoading: loading } = useDoc(studentRef);
 
   const handleDelete = () => {
     if (!studentRef) return;
@@ -165,7 +166,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Date of Birth</p>
-                    <p className="font-semibold">{student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'N/A'}</p>
+                    <p className="font-semibold"><FormattedDate date={student.dateOfBirth} /></p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
@@ -174,7 +175,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Joined On</p>
-                    <p className="font-semibold">{student.dateOfAdmission ? new Date(student.dateOfAdmission).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'N/A'}</p>
+                    <p className="font-semibold"><FormattedDate date={student.dateOfAdmission} /></p>
                   </div>
                 </div>
               </CardContent>
@@ -316,7 +317,7 @@ export default function StudentDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold">Admission Date</p>
-                    <p className="text-sm font-semibold">{student.dateOfAdmission ? new Date(student.dateOfAdmission).toLocaleDateString() : 'N/A'}</p>
+                    <p className="text-sm font-semibold"><FormattedDate date={student.dateOfAdmission} /></p>
                   </div>
                </CardContent>
             </Card>

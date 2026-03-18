@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect } from 'react';
@@ -61,7 +62,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     }
   };
 
-  if (isUserLoading || !user) {
+  if (isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6">
         <div className="relative">
@@ -71,12 +72,15 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <div className="text-center space-y-2">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground animate-pulse">Authenticating Session</p>
           <div className="h-1 w-32 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary animate-progress-loading w-full" />
+            <div className="h-full bg-primary animate-pulse w-full" />
           </div>
         </div>
       </div>
     );
   }
+
+  // Fallback for safety during transitions
+  if (!user) return null;
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },

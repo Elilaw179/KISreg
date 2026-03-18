@@ -15,7 +15,8 @@ import {
   Heart, 
   X,
   Loader2,
-  BadgeCheck
+  BadgeCheck,
+  UploadCloud
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,11 +38,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
-import { useFirestore } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
-import { useToast } from '@/hooks/use-toast';
+import { useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection, serverTimestamp } from 'firebase/firestore';
 
 const teacherFormSchema = z.object({
   fullName: z.string().min(3, "Full name required"),
@@ -69,7 +67,6 @@ const teacherFormSchema = z.object({
 export default function NewTeacherPage() {
   const router = useRouter();
   const db = useFirestore();
-  const { toast } = useToast();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof teacherFormSchema>>({
@@ -112,22 +109,8 @@ export default function NewTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
-    addDoc(collection(db, 'staffs'), teacherData)
-      .then(() => {
-        toast({ 
-          title: "Staff Registered", 
-          description: `Official profile created for ${values.fullName}.` 
-        });
-        router.push('/dashboard/teachers');
-      })
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: 'staffs',
-          operation: 'create',
-          requestResourceData: teacherData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
+    addDocumentNonBlocking(collection(db, 'staffs'), teacherData);
+    router.push('/dashboard/teachers');
   };
 
   return (
@@ -265,7 +248,7 @@ export default function NewTeacherPage() {
                       ) : (
                         <div className="flex flex-col items-center gap-3 text-muted-foreground p-6 text-center">
                           <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center shadow-sm">
-                            <Upload className="h-6 w-6 text-primary" />
+                            <UploadCloud className="h-6 w-6 text-primary" />
                           </div>
                           <span className="text-[10px] font-black uppercase tracking-widest">Upload Portrait</span>
                         </div>
