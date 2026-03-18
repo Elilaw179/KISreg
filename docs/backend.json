@@ -2,229 +2,65 @@
 {
   "entities": {
     "Staff": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Staff",
       "type": "object",
       "description": "Represents an authorized staff member within the school system, such as an administrator.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Staff entity."
-        },
-        "staffId": {
-          "type": "string",
-          "description": "Official staff identification number."
-        },
-        "fullName": {
-          "type": "string",
-          "description": "The full name of the staff member."
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address of the staff member.",
-          "format": "email"
-        },
-        "role": {
-          "type": "string",
-          "description": "The assigned role of the staff member, e.g., 'Admin'."
-        },
-        "designation": {
-          "type": "string",
-          "description": "The job title of the staff member."
-        },
-        "department": {
-          "type": "string",
-          "description": "The department the staff member belongs to."
-        },
-        "status": {
-          "type": "string",
-          "description": "Current employment status (Active, Inactive).",
-          "enum": ["Active", "Inactive"]
-        },
-        "contactNumber": {
-          "type": "string",
-          "description": "The contact phone number for the staff member."
-        },
-        "photoUrl": {
-          "type": "string",
-          "description": "URL to the staff passport photo.",
-          "format": "uri"
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the staff record was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the staff record was last updated.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "staffId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string" },
+        "designation": { "type": "string" },
+        "department": { "type": "string" },
+        "status": { "type": "string", "enum": ["Active", "Inactive"] },
+        "contactNumber": { "type": "string" },
+        "photoUrl": { "type": "string", "format": "uri" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "fullName",
-        "email",
-        "staffId",
-        "status",
-        "createdAt",
-        "updatedAt"
-      ]
+      "required": ["id", "fullName", "email", "staffId", "status", "createdAt", "updatedAt"]
     },
-    "Class": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Class",
+    "SchoolSettings": {
+      "title": "School Settings",
       "type": "object",
-      "description": "Represents an academic class or grade level within the school.",
+      "description": "Global configuration for the school instance.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Class entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the class, e.g., 'Grade 1', 'SS1'."
-        },
-        "description": {
-          "type": "string",
-          "description": "An optional description or notes about the class."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the class record was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the class record was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "createdAt",
-        "updatedAt"
-      ]
+        "schoolName": { "type": "string" },
+        "schoolAbbr": { "type": "string" },
+        "schoolAddress": { "type": "string" },
+        "schoolEmail": { "type": "string" },
+        "schoolPhone": { "type": "string" },
+        "activeSession": { "type": "string" },
+        "currentTerm": { "type": "string" },
+        "twoFactorEnabled": { "type": "boolean" }
+      }
     },
     "Student": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Student",
       "type": "object",
-      "description": "Represents a student enrolled in the school, storing all relevant personal and academic information.",
+      "description": "Represents a student enrolled in the school.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Student entity."
-        },
-        "admissionNumber": {
-          "type": "string",
-          "description": "A unique admission number assigned to the student."
-        },
-        "fullName": {
-          "type": "string",
-          "description": "The full legal name of the student."
-        },
-        "dateOfBirth": {
-          "type": "string",
-          "description": "The student's date of birth.",
-          "format": "date"
-        },
-        "dateOfAdmission": {
-          "type": "string",
-          "description": "The date when the student was admitted to the school.",
-          "format": "date"
-        },
-        "gender": {
-          "type": "string",
-          "description": "The gender of the student (e.g., 'Male', 'Female', 'Other')."
-        },
-        "classId": {
-          "type": "string",
-          "description": "Reference to the Class entity the student is currently enrolled in."
-        },
-        "parentGuardianName": {
-          "type": "string",
-          "description": "The full name of the student's primary parent or guardian."
-        },
-        "parentContactInformation": {
-          "type": "string",
-          "description": "Contact details for the parent/guardian."
-        },
-        "address": {
-          "type": "string",
-          "description": "The student's residential address."
-        },
-        "status": {
-          "type": "string",
-          "description": "The current enrollment status of the student.",
-          "enum": ["Active", "Withdrawn", "Graduated"]
-        },
-        "passportPhotoUrl": {
-          "type": "string",
-          "description": "A URL pointing to the student's uploaded passport photograph.",
-          "format": "uri"
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the student record was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the staff record was last updated.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "admissionNumber": { "type": "string" },
+        "fullName": { "type": "string" },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "dateOfAdmission": { "type": "string", "format": "date" },
+        "gender": { "type": "string" },
+        "classId": { "type": "string" },
+        "status": { "type": "string", "enum": ["Active", "Withdrawn", "Graduated"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "admissionNumber",
-        "fullName",
-        "status",
-        "createdAt",
-        "updatedAt"
-      ]
+      "required": ["id", "admissionNumber", "fullName", "status", "createdAt", "updatedAt"]
     }
   },
   "auth": {
-    "providers": [
-      "password"
-    ]
+    "providers": ["password"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/staffs/{staffId}",
-        "definition": {
-          "entityName": "Staff",
-          "schema": {
-            "$ref": "#/backend/entities/Staff"
-          },
-          "description": "Stores individual staff member profiles.",
-          "params": [
-            {
-              "name": "staffId",
-              "description": "The unique identifier for a staff member."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/students/{studentId}",
-        "definition": {
-          "entityName": "Student",
-          "schema": {
-            "$ref": "#/backend/entities/Student"
-          },
-          "description": "Stores comprehensive records for each student.",
-          "params": [
-            {
-              "name": "studentId",
-              "description": "The unique identifier for a student."
-            }
-          ]
-        }
-      }
-    ]
+    "/staffs/{staffId}": { "schema": "Staff", "description": "Staff profiles" },
+    "/students/{studentId}": { "schema": "Student", "description": "Student records" },
+    "/settings/{settingId}": { "schema": "SchoolSettings", "description": "Global school configurations" }
   }
 }
