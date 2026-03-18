@@ -25,18 +25,21 @@ import {
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 
 const SECONDARY_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 export default function DashboardPage() {
   const db = useFirestore();
+  const { user } = useUser();
   
   const studentsQuery = useMemoFirebase(() => {
-    if (!db) return null;
+    // Only create the query if both the database and the user (auth state) are available.
+    // This prevents "Missing or insufficient permissions" during the initial load.
+    if (!db || !user) return null;
     return query(collection(db, 'students'), orderBy('createdAt', 'desc'));
-  }, [db]);
+  }, [db, user]);
 
   const { data: students, loading } = useCollection(studentsQuery);
 

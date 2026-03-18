@@ -41,7 +41,7 @@ import {
 } from '@/components/ui/select';
 import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, deleteDoc, doc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -51,11 +51,12 @@ export default function StudentsPage() {
   const [classFilter, setClassFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const db = useFirestore();
+  const { user } = useUser();
 
-  const studentsQuery = useMemo(() => {
-    if (!db) return null;
+  const studentsQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
     return collection(db, 'students');
-  }, [db]);
+  }, [db, user]);
 
   const { data: students, loading } = useCollection(studentsQuery);
 

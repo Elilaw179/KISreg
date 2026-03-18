@@ -1,9 +1,9 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Users, 
@@ -12,7 +12,8 @@ import {
   Search,
   Bell,
   GraduationCap,
-  ClipboardList
+  ClipboardList,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { ModeToggle } from '@/components/mode-toggle';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -39,6 +42,33 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground animate-pulse">Authenticating...</p>
+      </div>
+    );
+  }
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -108,13 +138,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
             <SidebarMenuItem>
               <SidebarMenuButton 
                 className="hover:bg-destructive hover:text-white text-white/80 h-11 mt-2 transition-colors" 
-                asChild 
+                onClick={handleLogout}
                 tooltip="Logout"
               >
-                <Link href="/login">
-                  <LogOut className="w-5 h-5 opacity-60" />
-                  <span className="font-medium">Logout</span>
-                </Link>
+                <LogOut className="w-5 h-5 opacity-60" />
+                <span className="font-medium">Logout</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -142,11 +170,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
             </Button>
             <div className="flex items-center gap-3 pl-4 border-l">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold leading-none">Admin User</p>
+                <p className="text-sm font-bold leading-none">{user?.displayName || 'Admin User'}</p>
                 <p className="text-[10px] text-muted-foreground font-medium mt-1 tracking-wider uppercase">Registrar Office</p>
               </div>
               <Avatar className="h-10 w-10 border-2 border-primary/10 shadow-sm transition-transform hover:scale-105 cursor-pointer">
-                <AvatarImage src="https://picsum.photos/seed/admin/200/200" alt="Admin" />
+                <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/admin/200/200"} alt="Admin" />
                 <AvatarFallback className="bg-primary text-white text-xs font-bold">AD</AvatarFallback>
               </Avatar>
             </div>

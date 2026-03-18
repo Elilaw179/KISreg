@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, deleteDoc, doc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -42,11 +42,12 @@ import { FirestorePermissionError } from '@/firebase/errors';
 export default function TeachersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const db = useFirestore();
+  const { user } = useUser();
 
-  const teachersQuery = useMemo(() => {
-    if (!db) return null;
+  const teachersQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
     return collection(db, 'teachers');
-  }, [db]);
+  }, [db, user]);
 
   const { data: teachers, loading } = useCollection(teachersQuery);
 
