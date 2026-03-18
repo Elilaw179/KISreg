@@ -76,9 +76,13 @@ export default function DashboardPage() {
   const recentStudents = useMemo(() => {
     if (!students) return [];
     return [...students].sort((a, b) => {
-      const dateA = a.createdAt?.toMillis?.() || new Date(a.createdAt).getTime() || 0;
-      const dateB = b.createdAt?.toMillis?.() || new Date(b.createdAt).getTime() || 0;
-      return dateB - dateA;
+      const getTime = (val: any) => {
+        if (!val) return 0;
+        if (typeof val.toMillis === 'function') return val.toMillis();
+        if (val.seconds) return val.seconds * 1000;
+        return new Date(val).getTime() || 0;
+      };
+      return getTime(b.createdAt) - getTime(a.createdAt);
     }).slice(0, 5);
   }, [students]);
 
