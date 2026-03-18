@@ -114,8 +114,10 @@ export default function TeachersPage() {
     
     const escapeCsv = (val: any, forceText = false) => {
       if (val === null || val === undefined) return '""';
-      let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""');
+      // Strip line breaks and escape quotes to prevent truncation in Excel
+      let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""').trim();
       if (forceText) {
+        // Excel literal string formula to preserve leading zeros and prevent scientific notation
         return `="${str}"`;
       }
       return `"${str}"`;
@@ -170,7 +172,7 @@ export default function TeachersPage() {
               <FileDown className="mr-2 h-4 w-4" />
               Export CSV
             </Button>
-            <Button className="rounded-xl font-bold shadow-lg shadow-primary/10" asChild>
+            <Button className="rounded-xl font-bold shadow-lg shadow-primary/20" asChild>
               <Link href="/dashboard/teachers/new">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Register Staff

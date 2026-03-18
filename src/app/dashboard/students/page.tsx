@@ -112,8 +112,10 @@ export default function StudentsPage() {
     
     const escapeCsv = (val: any, forceText = false) => {
       if (val === null || val === undefined) return '""';
-      let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""');
+      // Clean up line breaks and escape quotes to prevent Excel truncation
+      let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""').trim();
       if (forceText) {
+        // Force Excel to treat numbers (Phone/IDs) as literal text
         return `="${str}"`;
       }
       return `"${str}"`;
@@ -146,7 +148,7 @@ export default function StudentsPage() {
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `kis_students_full_report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `kis_students_report_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();

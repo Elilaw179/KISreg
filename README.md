@@ -17,17 +17,17 @@ A professional management system designed for Kourrklys International School to 
 
 The system uses **Google Firebase Firestore**, which is highly scalable:
 
-- **Free Tier (Spark Plan)**:
+- **Free Tier (Spark Plan)**: 
+  - **Duration**: Forever Free (No expiration).
   - **Storage**: 1 GB (Approx. 250,000+ full student/staff profiles).
-  - **Daily Operations**: 50,000 Reads / 20,000 Writes (More than sufficient for daily administrative tasks).
-- **Scalability**: For larger institutions, the system can scale to millions of records without code modifications.
+  - **Daily Operations**: 50,000 Reads / 20,000 Writes (Sufficient for daily administrative tasks of a large institution).
+- **Scalability**: For larger institutions, the system can scale to millions of records. Document-based storage ensures that data retrieval remains fast regardless of the total number of students.
 - **Data Security**: Protected by robust Security Rules that ensure only authorized administrators can modify sensitive bio-data.
 
 ## 📁 Project Structure
 
 ```text
 src/
-├── ai/                # Genkit AI configurations and flows
 ├── app/               # Next.js App Router (Pages and Layouts)
 │   ├── dashboard/     # Protected admin dashboard routes
 │   │   ├── students/  # Student Directory (CRUD + CSV Export)
@@ -36,7 +36,7 @@ src/
 │   └── (auth)/        # Authentication routes
 ├── components/        # Reusable React components
 │   └── dashboard-shell.tsx # Global dashboard layout with auth guards
-├── firebase/          # Firebase core integration
+├── firebase/          # Firebase core integration (SDK v11+)
 └── lib/               # Utility functions and global schemas
 ```
 
@@ -49,10 +49,10 @@ src/
 ## 🛠 Features
 
 1. **Student Enrollment**: Full bio-data, guardian details, and medical profile tracking.
-2. **Staff Registry**: Professional record management with deactivation/activation toggles.
+2. **Staff Registry**: Professional record management with active/inactive status toggles.
 3. **Global Settings**: Live synchronization of academic sessions, terms, and school identity.
-4. **Reporting**: One-click CSV exports for both Student and Staff directories, optimized for Excel.
-5. **Analytics**: Real-time enrollment distribution charts for Primary and Secondary levels.
+4. **Excel-Optimized Reporting**: One-click CSV exports with Excel-specific formatting to prevent scientific notation on phone numbers and ensure no data truncation.
+5. **Real-Time Analytics**: Live enrollment distribution charts for both Primary and Secondary levels.
 
 ---
 *Developed for Kourrklys International School Admin Portal.*
