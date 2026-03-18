@@ -11,12 +11,13 @@ import {
   ArrowLeft, 
   Save, 
   User, 
-  School, 
-  Phone, 
-  Stethoscope, 
-  Mail, 
-  Briefcase,
-  Loader2
+  Briefcase, 
+  Loader2,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,6 +60,7 @@ const studentFormSchema = z.object({
   status: z.enum(['Active', 'Withdrawn']),
   bloodGroup: z.string().optional(),
   medicalInfo: z.string().optional(),
+  nationality: z.string().min(2, "Nationality required"),
 });
 
 export default function EditStudentPage() {
@@ -91,6 +93,7 @@ export default function EditStudentPage() {
       status: 'Active',
       bloodGroup: '',
       medicalInfo: '',
+      nationality: 'Nigerian',
     }
   });
 
@@ -110,6 +113,7 @@ export default function EditStudentPage() {
         status: (student.status as any) || 'Active',
         bloodGroup: student.bloodGroup || '',
         medicalInfo: student.medicalInfo || '',
+        nationality: student.nationality || 'Nigerian',
       });
     }
   }, [student, form]);
@@ -179,7 +183,28 @@ export default function EditStudentPage() {
                           <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
+                    )} />
+                    <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
+                      <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="gender" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gender</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="nationality" render={({ field }) => (
+                      <FormItem><FormLabel>Nationality</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </CardContent>
                 </Card>
@@ -193,8 +218,14 @@ export default function EditStudentPage() {
                     <FormField control={form.control} name="parentEmail" render={({ field }) => (
                       <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
+                    <FormField control={form.control} name="parentContact" render={({ field }) => (
+                      <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
                     <FormField control={form.control} name="parentOccupation" render={({ field }) => (
                       <FormItem><FormLabel>Occupation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="address" render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel>Residential Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </CardContent>
                 </Card>
@@ -211,6 +242,7 @@ export default function EditStudentPage() {
                           <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent><SelectItem value="Active">Active</SelectItem><SelectItem value="Withdrawn">Withdrawn</SelectItem></SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )} />
                   </CardContent>

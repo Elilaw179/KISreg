@@ -15,7 +15,13 @@ import {
   Heart, 
   X,
   Loader2,
-  BadgeCheck
+  BadgeCheck,
+  Briefcase,
+  Globe,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -143,39 +149,108 @@ export default function NewTeacherPage() {
                       <FormItem className="md:col-span-2"><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="email" render={({ field }) => (
-                      <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Official Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="phone" render={({ field }) => (
-                      <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
+                      <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="gender" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gender</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="nationality" render={({ field }) => (
+                      <FormItem><FormLabel>Nationality</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="maritalStatus" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Marital Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Single">Single</SelectItem>
+                            <SelectItem value="Married">Married</SelectItem>
+                            <SelectItem value="Divorced">Divorced</SelectItem>
+                            <SelectItem value="Widowed">Widowed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="address" render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel>Residential Address</FormLabel><FormControl><Textarea className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </CardContent>
                 </Card>
 
                 <Card className="border shadow-sm">
-                  <CardHeader className="bg-primary/5 border-b text-primary"><CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Emergency Contact</CardTitle></CardHeader>
+                  <CardHeader className="bg-primary/5 border-b text-primary"><CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Emergency Contact (NOK)</CardTitle></CardHeader>
                   <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
                     <FormField control={form.control} name="nextOfKin.name" render={({ field }) => (
-                      <FormItem className="md:col-span-2"><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2"><FormLabel>NOK Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="nextOfKin.relationship" render={({ field }) => (
+                      <FormItem><FormLabel>Relationship</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="nextOfKin.phone" render={({ field }) => (
-                      <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>NOK Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="nextOfKin.address" render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel>NOK Address</FormLabel><FormControl><Textarea className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </CardContent>
                 </Card>
               </div>
 
               <div className="lg:col-span-4 space-y-6">
+                 <Card className="shadow-sm border-none bg-white mb-6">
+                  <CardHeader className="pb-3"><CardTitle className="text-sm font-black uppercase tracking-widest">Passport Photo</CardTitle></CardHeader>
+                  <CardContent className="flex flex-col items-center gap-4">
+                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-primary/10 flex items-center justify-center bg-muted/20 overflow-hidden relative group transition-all">
+                      {photoPreview ? (
+                        <>
+                          <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => setPhotoPreview(null)} className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full"><X className="h-4 w-4" /></button>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center gap-3 text-muted-foreground p-6 text-center">
+                          <Upload className="h-6 w-6 text-primary" />
+                          <span className="text-[10px] font-black uppercase tracking-widest">Upload Photo</span>
+                        </div>
+                      )}
+                      <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handlePhotoChange} />
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card className="border shadow-sm bg-primary/5">
                   <CardHeader className="border-b bg-white/50"><CardTitle className="text-sm font-bold flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-primary" /> Professional Profile</CardTitle></CardHeader>
                   <CardContent className="pt-4 space-y-4">
                     <FormField control={form.control} name="staffId" render={({ field }) => (
-                      <FormItem><FormLabel>Staff ID</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Staff ID</FormLabel><FormControl><Input placeholder="KIS/STAFF/XXX" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="designation" render={({ field }) => (
-                      <FormItem><FormLabel>Designation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="e.g. Senior Tutor" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="department" render={({ field }) => (
-                      <FormItem><FormLabel>Department</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="e.g. Sciences" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="qualification" render={({ field }) => (
+                      <FormItem><FormLabel>Qualification</FormLabel><FormControl><Input placeholder="e.g. B.Sc (Ed)" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="dateOfJoining" render={({ field }) => (
+                      <FormItem><FormLabel>Date of Joining</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </CardContent>
                 </Card>

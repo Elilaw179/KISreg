@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -17,12 +18,14 @@ import {
   Loader2,
   Stethoscope,
   MapPin,
-  CalendarDays
+  CalendarDays,
+  Globe,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Form, 
   FormControl, 
@@ -111,7 +114,6 @@ export default function NewStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    // Optimistic write
     addDoc(collection(db, 'students'), studentData)
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
@@ -147,7 +149,6 @@ export default function NewStudentPage() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid lg:grid-cols-12 gap-8">
-              {/* Sidebar: Photo & Medical */}
               <div className="lg:col-span-4 space-y-8">
                 <Card className="shadow-sm border-none bg-white">
                   <CardHeader className="pb-3"><CardTitle className="text-sm font-black uppercase tracking-widest">Identity Passport</CardTitle></CardHeader>
@@ -195,7 +196,6 @@ export default function NewStudentPage() {
                 </Card>
               </div>
 
-              {/* Main Form Area */}
               <div className="lg:col-span-8 space-y-8">
                 <Card className="shadow-sm border-none bg-white">
                   <CardHeader className="bg-muted/20 border-b py-4">
@@ -222,12 +222,38 @@ export default function NewStudentPage() {
                         <FormMessage />
                       </FormItem>
                     )} />
+                    <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
+                      <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Date of Birth</FormLabel><FormControl><Input type="date" className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="gender" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gender</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Select Gender" /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="nationality" render={({ field }) => (
+                      <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Nationality</FormLabel><FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                     <FormField control={form.control} name="dateOfAdmission" render={({ field }) => (
+                      <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admission Date</FormLabel><FormControl><Input type="date" className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                     <FormField control={form.control} name="previousSchool" render={({ field }) => (
+                      <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Previous School</FormLabel><FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
                   </CardContent>
                 </Card>
 
                 <Card className="shadow-sm border-none bg-white">
                   <CardHeader className="bg-muted/20 border-b py-4">
-                    <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><Briefcase className="h-5 w-5 text-primary" /> Guardian Information</CardTitle>
+                    <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><Briefcase className="h-5 w-5 text-primary" /> Guardian & Residence</CardTitle>
                   </CardHeader>
                   <CardContent className="grid md:grid-cols-2 gap-6 pt-8">
                     <FormField control={form.control} name="parentName" render={({ field }) => (
@@ -237,7 +263,7 @@ export default function NewStudentPage() {
                       <FormItem>
                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contact Email</FormLabel>
                         <div className="relative group">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input className="pl-11 h-12 rounded-xl" placeholder="email@example.com" {...field} />
                         </div>
                         <FormMessage />
@@ -248,6 +274,9 @@ export default function NewStudentPage() {
                     )} />
                     <FormField control={form.control} name="parentOccupation" render={({ field }) => (
                       <FormItem className="md:col-span-2"><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Occupation / Business</FormLabel><FormControl><Input className="h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="address" render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Residential Address</FormLabel><FormControl><Textarea className="min-h-[80px] rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </CardContent>
                 </Card>
