@@ -112,10 +112,10 @@ export default function StudentsPage() {
     
     const escapeCsv = (val: any, forceText = false) => {
       if (val === null || val === undefined) return '""';
-      // Clean up line breaks and escape quotes to prevent Excel truncation
+      // Clean up line breaks and escape quotes to prevent Excel truncation/layout issues
       let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""').trim();
       if (forceText) {
-        // Force Excel to treat numbers (Phone/IDs) as literal text
+        // Force Excel to treat numbers (Phone/IDs) as literal text to prevent scientific notation
         return `="${str}"`;
       }
       return `"${str}"`;
@@ -141,6 +141,7 @@ export default function StudentsPage() {
       ].join(','))
     ];
 
+    // Added BOM for Excel UTF-8 compatibility
     const csvContent = '\uFEFF' + csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');

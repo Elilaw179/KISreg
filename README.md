@@ -15,13 +15,13 @@ A professional management system designed for Kourrklys International School to 
 
 ## 📊 Database Scalability & Limits
 
-The system uses **Google Firebase Firestore**, which is highly scalable:
+The system uses **Google Firebase Firestore**, which is highly scalable and cost-efficient for educational institutions:
 
 - **Free Tier (Spark Plan)**: 
-  - **Duration**: Forever Free (No expiration).
-  - **Storage**: 1 GB (Approx. 250,000+ full student/staff profiles).
-  - **Daily Operations**: 50,000 Reads / 20,000 Writes (Sufficient for daily administrative tasks of a large institution).
-- **Scalability**: For larger institutions, the system can scale to millions of records. Document-based storage ensures that data retrieval remains fast regardless of the total number of students.
+  - **Duration**: Forever Free (No expiration date).
+  - **Storage**: 1 GB (Sufficient for approximately 250,000+ full student/staff profiles).
+  - **Daily Operations**: 50,000 Reads / 20,000 Writes (More than enough for the daily administrative tasks of a large institution).
+- **Scalability**: For larger institutions, the system can scale to millions of records. Document-based storage ensures that data retrieval remains fast regardless of total record count.
 - **Data Security**: Protected by robust Security Rules that ensure only authorized administrators can modify sensitive bio-data.
 
 ## 📁 Project Structure
@@ -44,15 +44,15 @@ src/
 
 - **Master Credentials**: Controlled via `src/lib/auth-config.ts`.
 - **Auth Guard**: The `DashboardShell` automatically redirects unauthenticated users to `/login`.
-- **Non-Blocking Mutations**: All database writes use an optimistic, non-blocking pattern for a "hang-free" user experience.
+- **Non-Blocking Mutations**: All database writes use an optimistic, non-blocking pattern for a high-performance, lag-free user experience.
 
-## 🛠 Features
+## 🛠 Key Features
 
-1. **Student Enrollment**: Full bio-data, guardian details, and medical profile tracking.
+1. **Student Enrollment**: Comprehensive bio-data, guardian details, and medical profile tracking.
 2. **Staff Registry**: Professional record management with active/inactive status toggles.
-3. **Global Settings**: Live synchronization of academic sessions, terms, and school identity.
+3. **Global Settings**: Live synchronization of academic sessions, terms, and school identity across the portal.
 4. **Excel-Optimized Reporting**: One-click CSV exports with Excel-specific formatting to prevent scientific notation on phone numbers and ensure no data truncation.
 5. **Real-Time Analytics**: Live enrollment distribution charts for both Primary and Secondary levels.
 
 ---
-*Developed for Kourrklys International School Admin Portal.*
+*Developed for Kourrklys International School Administrative Infrastructure.*
