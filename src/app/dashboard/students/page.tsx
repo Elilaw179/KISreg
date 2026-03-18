@@ -90,6 +90,37 @@ export default function StudentsPage() {
     setStudentToDelete(null);
   };
 
+  const handleExport = () => {
+    if (!filteredStudents || filteredStudents.length === 0) return;
+
+    const headers = ['Full Name', 'Admission Number', 'Class', 'Status', 'Admission Date', 'Gender', 'Parent Name', 'Parent Contact'];
+    const csvRows = [
+      headers.join(','),
+      ...filteredStudents.map(s => [
+        `"${s.fullName || ''}"`,
+        `"${s.admissionNumber || ''}"`,
+        `"${s.class || ''}"`,
+        `"${s.status || ''}"`,
+        `"${s.dateOfAdmission || 'N/A'}"`,
+        `"${s.gender || ''}"`,
+        `"${s.parentName || ''}"`,
+        `"${s.parentContact || ''}"`
+      ].join(','))
+    ];
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `kis_students_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <DashboardShell>
       <div className="space-y-6">
@@ -99,7 +130,7 @@ export default function StudentsPage() {
             <p className="text-muted-foreground">Manage and view all student records in the system.</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleExport} disabled={!filteredStudents.length}>
               <FileDown className="mr-2 h-4 w-4" />
               Export
             </Button>
