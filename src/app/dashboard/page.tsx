@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const primaryClassData = useMemo(() => {
     if (!students) return [];
     return PRIMARY_CLASSES.map(className => ({
-      name: className.replace('Grade ', 'G'), // Shorten for chart
+      name: className.replace('Grade ', 'G'),
       fullName: className,
       count: students.filter((s: any) => s.class === className).length
     }));
@@ -80,7 +80,8 @@ export default function DashboardPage() {
         if (!val) return 0;
         if (typeof val.toMillis === 'function') return val.toMillis();
         if (val.seconds) return val.seconds * 1000;
-        return new Date(val).getTime() || 0;
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
       };
       return getTime(b.createdAt) - getTime(a.createdAt);
     }).slice(0, 5);
@@ -123,7 +124,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="hover-lift border-none bg-primary text-white overflow-hidden relative group">
+          <Card className="hover-lift border-none bg-primary text-white overflow-hidden relative group rounded-3xl">
             <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 rotate-12 group-hover:scale-110 transition-transform duration-700">
               <Users className="h-24 w-24" />
             </div>
@@ -139,7 +140,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
           
-          <Card className="hover-lift border-none shadow-xl shadow-muted overflow-hidden relative group">
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verified Students</CardTitle>
               <UserCheck className="h-5 w-5 text-green-500" />
@@ -150,7 +151,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift border-none shadow-xl shadow-muted overflow-hidden relative group">
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Withdrawn</CardTitle>
               <UserX className="h-5 w-5 text-destructive" />
@@ -161,7 +162,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift border-none shadow-xl shadow-muted overflow-hidden relative group">
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">School Stats</CardTitle>
               <School className="h-5 w-5 text-amber-500" />

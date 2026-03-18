@@ -93,7 +93,6 @@ export default function StudentsPage() {
   const handleExport = () => {
     if (!filteredStudents || filteredStudents.length === 0) return;
 
-    // Define comprehensive headers
     const headers = [
       'Full Name', 
       'Admission Number', 
@@ -111,17 +110,9 @@ export default function StudentsPage() {
       'Medical Info'
     ];
     
-    /**
-     * Helper to safely escape CSV fields for Excel
-     * @param val The value to escape
-     * @param forceText If true, uses Excel formula format ="val" to prevent scientific notation
-     */
     const escapeCsv = (val: any, forceText = false) => {
       if (val === null || val === undefined) return '""';
-      // Remove any newlines which break CSV row structure
       let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""');
-      
-      // For phone numbers and IDs, use ="value" to force Excel to treat it as text
       if (forceText) {
         return `="${str}"`;
       }
@@ -132,14 +123,14 @@ export default function StudentsPage() {
       headers.join(','),
       ...filteredStudents.map(s => [
         escapeCsv(s.fullName),
-        escapeCsv(s.admissionNumber, true), // Force text for IDs
+        escapeCsv(s.admissionNumber, true),
         escapeCsv(s.class),
         escapeCsv(s.status),
         escapeCsv(s.dateOfAdmission || 'N/A'),
         escapeCsv(s.gender),
         escapeCsv(s.nationality),
         escapeCsv(s.parentName),
-        escapeCsv(s.parentContact, true), // Force text for phone numbers
+        escapeCsv(s.parentContact, true),
         escapeCsv(s.parentEmail),
         escapeCsv(s.parentOccupation),
         escapeCsv(s.address),
@@ -148,8 +139,6 @@ export default function StudentsPage() {
       ].join(','))
     ];
 
-    // Add UTF-8 BOM (\uFEFF) to the start of the file. 
-    // This tells Excel the file is UTF-8 encoded, preventing broken characters.
     const csvContent = '\uFEFF' + csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -169,16 +158,16 @@ export default function StudentsPage() {
     <DashboardShell>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-headline font-bold text-primary">Student Directory</h2>
-            <p className="text-muted-foreground">Manage and view all student records in the system.</p>
+          <div className="space-y-1">
+            <h2 className="text-4xl font-headline font-black text-primary tracking-tight">Student Directory</h2>
+            <p className="text-muted-foreground font-medium">Manage and view all student records in the system.</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport} disabled={!filteredStudents.length}>
+            <Button variant="outline" className="rounded-xl font-bold border-2" onClick={handleExport} disabled={!filteredStudents.length}>
               <FileDown className="mr-2 h-4 w-4" />
-              Export Full Report
+              Export CSV
             </Button>
-            <Button size="sm" asChild>
+            <Button className="rounded-xl font-bold shadow-lg shadow-primary/20" asChild>
               <Link href="/dashboard/students/new">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Add Student
@@ -187,22 +176,22 @@ export default function StudentsPage() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl shadow-sm border">
+        <div className="flex flex-col md:flex-row gap-4 glass-card p-6 rounded-3xl shadow-sm border-none">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name or admission number..."
-              className="pl-9"
+              className="pl-12 h-12 rounded-2xl bg-muted/30 border-transparent focus:bg-white focus:border-primary/20 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <Select value={classFilter} onValueChange={setClassFilter}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[160px] h-12 rounded-2xl bg-muted/30 border-transparent">
                 <SelectValue placeholder="All Classes" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 <SelectItem value="all">All Classes</SelectItem>
                 {CLASSES.map(c => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -211,10 +200,10 @@ export default function StudentsPage() {
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[160px] h-12 rounded-2xl bg-muted/30 border-transparent">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="Active">Active</SelectItem>
                 <SelectItem value="Withdrawn">Withdrawn</SelectItem>
@@ -223,30 +212,30 @@ export default function StudentsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl shadow-muted/50 border-none overflow-hidden">
           {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex flex-col items-center justify-center h-80 gap-4">
+              <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground animate-pulse">Syncing Directory</p>
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-muted/30">
-                <TableRow>
-                  <TableHead className="w-[80px]">Photo</TableHead>
-                  <TableHead>Full Name</TableHead>
-                  <TableHead>Adm. Number</TableHead>
-                  <TableHead>Class</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Adm. Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+              <TableHeader className="bg-muted/30 border-none">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[100px] font-black text-[10px] uppercase tracking-widest pl-8 py-5">Photo</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Full Name</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Adm. Number</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Class</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Status</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-8">Manage</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredStudents.length > 0 ? (
                   filteredStudents.map((student) => (
-                    <TableRow key={student.id}>
-                      <TableCell>
-                        <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border">
+                    <TableRow key={student.id} className="group hover:bg-muted/5 transition-colors border-b-muted/20">
+                      <TableCell className="pl-8 py-5">
+                        <div className="h-12 w-12 rounded-2xl bg-secondary overflow-hidden border-2 border-primary/5 shadow-sm group-hover:scale-110 transition-transform">
                           <img 
                             src={student.photoUrl || 'https://placehold.co/100'} 
                             alt="" 
@@ -254,46 +243,47 @@ export default function StudentsPage() {
                           />
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{student.fullName}</TableCell>
-                      <TableCell className="text-muted-foreground">{student.admissionNumber}</TableCell>
-                      <TableCell>{student.class}</TableCell>
+                      <TableCell className="font-black text-primary text-base">{student.fullName}</TableCell>
+                      <TableCell className="text-muted-foreground font-bold text-xs">{student.admissionNumber}</TableCell>
                       <TableCell>
-                        <Badge variant={student.status === 'Active' ? 'default' : 'secondary'} className={student.status === 'Active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none' : ''}>
+                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 font-bold px-3">
+                          {student.class}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={student.status === 'Active' ? 'default' : 'secondary'} className={student.status === 'Active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none px-4' : 'px-4'}>
                           {student.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {student.dateOfAdmission ? new Date(student.dateOfAdmission).toLocaleDateString() : 'N/A'}
-                      </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right pr-8">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5">
+                              <MoreHorizontal className="h-5 w-5" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
+                          <DropdownMenuContent align="end" className="w-48 rounded-2xl shadow-2xl border-none p-2">
+                            <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground p-2">Registry Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator className="opacity-50" />
+                            <DropdownMenuItem asChild className="rounded-xl">
                               <Link href={`/dashboard/students/${student.id}`}>
-                                <Eye className="mr-2 h-4 w-4" />
+                                <Eye className="mr-2 h-4 w-4 opacity-70" />
                                 View Profile
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
+                            <DropdownMenuItem asChild className="rounded-xl">
                               <Link href={`/dashboard/students/${student.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4" />
+                                <Edit className="mr-2 h-4 w-4 opacity-70" />
                                 Edit Record
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
+                            <DropdownMenuSeparator className="opacity-50" />
                             <DropdownMenuItem 
-                              className="text-destructive"
+                              className="text-destructive font-bold rounded-xl focus:bg-destructive focus:text-white"
                               onClick={() => setStudentToDelete(student.id)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
+                              Delete Permanent
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -302,8 +292,11 @@ export default function StudentsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                      No students found matching your criteria.
+                    <TableCell colSpan={6} className="h-64 text-center">
+                      <div className="flex flex-col items-center gap-4 text-muted-foreground">
+                        <Search className="h-12 w-12 opacity-10" />
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No matching student records found</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}
@@ -314,17 +307,17 @@ export default function StudentsPage() {
       </div>
 
       <AlertDialog open={!!studentToDelete} onOpenChange={(open) => !open && setStudentToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the student record from the KIS database.
+            <AlertDialogTitle className="text-2xl font-black text-primary">Permanent Registry Deletion</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Are you sure you want to remove this student? This action will permanently erase all bio-data, academic history, and guardian contact details from the KIS database.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Record
+          <AlertDialogFooter className="pt-6">
+            <AlertDialogCancel className="rounded-xl font-bold">Abort</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-white hover:bg-destructive/90 rounded-xl font-bold shadow-lg shadow-destructive/20">
+              Confirm Deletion
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
