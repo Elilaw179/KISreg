@@ -39,17 +39,26 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
-import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, deleteDoc, doc } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { useFirestore, useCollection, useMemoFirebase, useUser, deleteDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 
 export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [classFilter, setClassFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const db = useFirestore();
   const { user } = useUser();
 
@@ -74,16 +83,11 @@ export default function StudentsPage() {
     });
   }, [students, searchTerm, classFilter, statusFilter]);
 
-  const handleDelete = (id: string) => {
-    if (!db || !confirm('Are you sure you want to PERMANENTLY delete this student record?')) return;
-    const docRef = doc(db, 'students', id);
-    deleteDoc(docRef).catch(async (error) => {
-      const permissionError = new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'delete',
-      });
-      errorEmitter.emit('permission-error', permissionError);
-    });
+  const confirmDelete = () => {
+    if (!db || !studentToDelete) return;
+    const docRef = doc(db, 'students', studentToDelete);
+    deleteDocumentNonBlocking(docRef);
+    setStudentToDelete(null);
   };
 
   return (
@@ -211,7 +215,7 @@ export default function StudentsPage() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                               className="text-destructive"
-                              onClick={() => handleDelete(student.id)}
+                              onClick={() => setStudentToDelete(student.id)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete
@@ -233,6 +237,23 @@ export default function StudentsPage() {
           )}
         </div>
       </div>
+
+      <AlertDialog open={!!studentToDelete} onOpenChange={(open) => !open && setStudentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the student record from the KIS database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardShell>
   );
 }

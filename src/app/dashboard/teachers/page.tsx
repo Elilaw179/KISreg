@@ -35,14 +35,23 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import Link from 'next/link';
-import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { useFirestore, useCollection, useMemoFirebase, useUser, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
 
 export default function TeachersPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [staffToDelete, setStaffToDelete] = useState<string | null>(null);
   const db = useFirestore();
   const { user } = useUser();
 
@@ -68,30 +77,17 @@ export default function TeachersPage() {
     if (!db) return;
     const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
     const docRef = doc(db, 'staffs', id);
-    
-    updateDoc(docRef, { 
+    updateDocumentNonBlocking(docRef, { 
       status: newStatus,
       updatedAt: serverTimestamp() 
-    }).catch(async (error) => {
-      const permissionError = new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'update',
-      });
-      errorEmitter.emit('permission-error', permissionError);
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!db || !confirm('Are you sure you want to PERMANENTLY delete this staff record? This action cannot be undone.')) return;
-    const docRef = doc(db, 'staffs', id);
-    
-    deleteDoc(docRef).catch(async (error) => {
-      const permissionError = new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'delete',
-      });
-      errorEmitter.emit('permission-error', permissionError);
-    });
+  const confirmDelete = () => {
+    if (!db || !staffToDelete) return;
+    const docRef = doc(db, 'staffs', staffToDelete);
+    deleteDocumentNonBlocking(docRef);
+    setStaffToDelete(null);
   };
 
   return (
@@ -210,7 +206,7 @@ export default function TeachersPage() {
                             <DropdownMenuSeparator className="my-1 opacity-50" />
                             <DropdownMenuItem 
                               className="text-destructive font-bold rounded-lg focus:bg-destructive focus:text-white"
-                              onClick={() => handleDelete(teacher.id)}
+                              onClick={() => setStaffToDelete(teacher.id)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete Permanent
@@ -238,6 +234,23 @@ export default function TeachersPage() {
           )}
         </div>
       </div>
+
+      <AlertDialog open={!!staffToDelete} onOpenChange={(open) => !open && setStaffToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanent Removal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this staff record? This action will permanently remove all professional and bio-data from the registry.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Confirm Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardShell>
   );
 }

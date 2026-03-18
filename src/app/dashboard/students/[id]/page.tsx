@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
@@ -27,11 +27,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import Link from 'next/link';
-import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
-import { doc, deleteDoc } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { useFirestore, useDoc, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function StudentDetailPage() {
   const params = useParams();
@@ -39,6 +47,7 @@ export default function StudentDetailPage() {
   const db = useFirestore();
   const { user } = useUser();
   const studentId = params.id as string;
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const studentRef = useMemoFirebase(() => {
     if (!db || !studentId || !user) return null;
@@ -48,19 +57,9 @@ export default function StudentDetailPage() {
   const { data: student, loading } = useDoc(studentRef);
 
   const handleDelete = () => {
-    if (!studentRef || !confirm('Are you sure you want to PERMANENTLY delete this student record?')) return;
-    
-    deleteDoc(studentRef)
-      .then(() => {
-        router.push('/dashboard/students');
-      })
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: studentRef.path,
-          operation: 'delete',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
+    if (!studentRef) return;
+    deleteDocumentNonBlocking(studentRef);
+    router.push('/dashboard/students');
   };
 
   if (loading) {
@@ -106,7 +105,12 @@ export default function StudentDetailPage() {
                 Update Record
               </Link>
             </Button>
-            <Button variant="destructive" size="sm" className="shadow-sm" onClick={handleDelete}>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              className="shadow-sm" 
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </Button>
@@ -319,6 +323,23 @@ export default function StudentDetailPage() {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete <strong>{student.fullName}</strong>'s record from the KIS database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete Permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardShell>
   );
 }
