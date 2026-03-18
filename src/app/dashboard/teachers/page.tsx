@@ -46,7 +46,8 @@ export default function TeachersPage() {
 
   const teachersQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return collection(db, 'teachers');
+    // Aligning collection name with backend.json and firestore.rules
+    return collection(db, 'staffs');
   }, [db, user]);
 
   const { data: teachers, loading } = useCollection(teachersQuery);
@@ -64,7 +65,7 @@ export default function TeachersPage() {
 
   const handleDelete = (id: string) => {
     if (!db || !confirm('Are you sure you want to deactivate this staff member?')) return;
-    const docRef = doc(db, 'teachers', id);
+    const docRef = doc(db, 'staffs', id);
     deleteDoc(docRef).catch(async (error) => {
       const permissionError = new FirestorePermissionError({
         path: docRef.path,
@@ -127,7 +128,7 @@ export default function TeachersPage() {
                       <TableCell>
                         <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border">
                           <img 
-                            src={teacher.photoUrl || 'https://placehold.co/100'} 
+                            src={teacher.photoUrl || 'https://picsum.photos/seed/admin/200/200'} 
                             alt="" 
                             className="h-full w-full object-cover" 
                           />

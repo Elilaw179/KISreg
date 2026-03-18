@@ -15,13 +15,7 @@ import {
   Heart, 
   X,
   Loader2,
-  BadgeCheck,
-  Briefcase,
-  Globe,
-  Mail,
-  Phone,
-  Calendar,
-  MapPin
+  BadgeCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,10 +110,11 @@ export default function NewTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
-    addDoc(collection(db, 'teachers'), teacherData)
+    // Aligning collection name with staffs
+    addDoc(collection(db, 'staffs'), teacherData)
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
-          path: 'teachers',
+          path: 'staffs',
           operation: 'create',
           requestResourceData: teacherData,
         });

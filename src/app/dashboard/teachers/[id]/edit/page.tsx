@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { useForm } from 'react-hook-form';
@@ -11,12 +11,8 @@ import {
   ArrowLeft, 
   Save, 
   User, 
-  Briefcase, 
-  Phone, 
-  Mail, 
-  Calendar,
-  Heart,
-  BadgeCheck,
+  Heart, 
+  BadgeCheck, 
   Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -49,7 +45,7 @@ const teacherFormSchema = z.object({
   fullName: z.string().min(3, "Full name is required"),
   staffId: z.string().min(3, "Staff ID is required"),
   dateOfBirth: z.string().min(1, "DOB is required"),
-  gender: z.enum(['Male', 'Female', 'Other']),
+  gender: z.enum(['Male', 'Female']),
   nationality: z.string().min(2, "Nationality is required"),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
   phone: z.string().min(5, "Phone is required"),
@@ -76,7 +72,7 @@ export default function EditTeacherPage() {
 
   const teacherRef = useMemoFirebase(() => {
     if (!db || !teacherId) return null;
-    return doc(db, 'teachers', teacherId);
+    return doc(db, 'staffs', teacherId);
   }, [db, teacherId]);
 
   const { data: teacher, loading } = useDoc(teacherRef);
@@ -112,9 +108,9 @@ export default function EditTeacherPage() {
         fullName: teacher.fullName || '',
         staffId: teacher.staffId || '',
         dateOfBirth: teacher.dateOfBirth || '',
-        gender: teacher.gender || 'Male',
+        gender: (teacher.gender as any) || 'Male',
         nationality: teacher.nationality || 'Nigerian',
-        maritalStatus: teacher.maritalStatus || 'Single',
+        maritalStatus: (teacher.maritalStatus as any) || 'Single',
         phone: teacher.phone || '',
         email: teacher.email || '',
         address: teacher.address || '',
@@ -135,7 +131,6 @@ export default function EditTeacherPage() {
       updatedAt: serverTimestamp(),
     };
 
-    // Non-blocking update
     updateDoc(teacherRef, updateData)
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
@@ -146,7 +141,6 @@ export default function EditTeacherPage() {
         errorEmitter.emit('permission-error', permissionError);
       });
 
-    // Immediate navigation
     router.push(`/dashboard/teachers/${teacherId}`);
     toast({
       title: "Record Updated",

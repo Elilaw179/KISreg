@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -37,7 +38,7 @@ export default function TeacherDetailPage() {
 
   const teacherRef = useMemoFirebase(() => {
     if (!db || !teacherId || !user) return null;
-    return doc(db, 'teachers', teacherId);
+    return doc(db, 'staffs', teacherId);
   }, [db, teacherId, user]);
 
   const { data: teacher, loading } = useDoc(teacherRef);
@@ -111,7 +112,7 @@ export default function TeacherDetailPage() {
             <Card className="shadow-md border-none overflow-hidden">
               <div className="h-32 bg-primary relative">
                 <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 h-32 w-32 rounded-3xl border-4 border-white overflow-hidden bg-white shadow-xl">
-                  <img src={teacher.photoUrl || 'https://placehold.co/400'} alt={teacher.fullName} className="w-full h-full object-cover" />
+                  <img src={teacher.photoUrl || 'https://picsum.photos/seed/admin/200/200'} alt={teacher.fullName} className="w-full h-full object-cover" />
                 </div>
               </div>
               <CardHeader className="pt-20 text-center space-y-1">
