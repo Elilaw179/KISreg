@@ -13,7 +13,8 @@ import {
   ArrowUpRight,
   BadgeCheck,
   Zap,
-  Clock
+  Clock,
+  Layers
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -26,12 +27,14 @@ import {
   Cell
 } from 'recharts';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, limit } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { FormattedDate } from '@/components/formatted-date';
 
 const SECONDARY_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
+const PRIMARY_CLASSES = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6'];
 
 export default function DashboardPage() {
   const db = useFirestore();
@@ -53,7 +56,7 @@ export default function DashboardPage() {
     };
   }, [students]);
 
-  const classData = useMemo(() => {
+  const secondaryClassData = useMemo(() => {
     if (!students) return [];
     return SECONDARY_CLASSES.map(className => ({
       name: className,
@@ -61,9 +64,17 @@ export default function DashboardPage() {
     }));
   }, [students]);
 
+  const primaryClassData = useMemo(() => {
+    if (!students) return [];
+    return PRIMARY_CLASSES.map(className => ({
+      name: className.replace('Grade ', 'G'), // Shorten for chart
+      fullName: className,
+      count: students.filter((s: any) => s.class === className).length
+    }));
+  }, [students]);
+
   const recentStudents = useMemo(() => {
     if (!students) return [];
-    // Sort locally to avoid index dependency for now
     return [...students].sort((a, b) => {
       const dateA = a.createdAt?.toMillis?.() || new Date(a.createdAt).getTime() || 0;
       const dateB = b.createdAt?.toMillis?.() || new Date(b.createdAt).getTime() || 0;
@@ -161,28 +172,57 @@ export default function DashboardPage() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-7">
           <Card className="col-span-4 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-white">
             <CardHeader className="p-8 border-b bg-muted/5">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <CardTitle className="font-headline font-black text-2xl flex items-center gap-3 text-primary">Secondary Distribution <BadgeCheck className="h-6 w-6 text-primary" /></CardTitle>
-                  <CardDescription className="font-bold text-muted-foreground mt-1">Enrollment distribution across academic levels JSS 1 to SS 3</CardDescription>
+                  <CardTitle className="font-headline font-black text-2xl flex items-center gap-3 text-primary">Enrollment Distribution <BadgeCheck className="h-6 w-6 text-primary" /></CardTitle>
+                  <CardDescription className="font-bold text-muted-foreground mt-1">Class distribution across all academic levels</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-10">
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={classData}>
-                    <XAxis dataKey="name" fontSize={11} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                    <YAxis fontSize={11} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                    <Tooltip cursor={{ fill: 'rgba(59, 130, 246, 0.05)', radius: 12 }} />
-                    <Bar dataKey="count" radius={[12, 12, 0, 0]} barSize={45}>
-                      {classData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3b82f6' : '#2563eb'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            <CardContent className="p-8">
+              <Tabs defaultValue="secondary" className="space-y-8">
+                <TabsList className="bg-muted/50 p-1 h-12 rounded-2xl">
+                  <TabsTrigger value="secondary" className="rounded-xl px-6 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Secondary Levels</TabsTrigger>
+                  <TabsTrigger value="primary" className="rounded-xl px-6 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Primary Levels</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="secondary" className="mt-0">
+                  <div className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={secondaryClassData}>
+                        <XAxis dataKey="name" fontSize={11} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                        <YAxis fontSize={11} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                        <Tooltip cursor={{ fill: 'rgba(59, 130, 246, 0.05)', radius: 12 }} />
+                        <Bar dataKey="count" radius={[12, 12, 0, 0]} barSize={45}>
+                          {secondaryClassData.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.8)'} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="primary" className="mt-0">
+                  <div className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={primaryClassData}>
+                        <XAxis dataKey="name" fontSize={11} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                        <YAxis fontSize={11} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                        <Tooltip 
+                          cursor={{ fill: 'rgba(59, 130, 246, 0.05)', radius: 12 }}
+                          formatter={(value, name, props) => [value, props.payload.fullName]}
+                        />
+                        <Bar dataKey="count" radius={[12, 12, 0, 0]} barSize={45}>
+                          {primaryClassData.map((_, index) => (
+                            <Cell key={`cell-primary-${index}`} fill={index % 2 === 0 ? 'hsl(var(--primary) / 0.6)' : 'hsl(var(--primary) / 0.4)'} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
