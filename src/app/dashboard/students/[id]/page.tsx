@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
@@ -28,7 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useFirestore, useDoc } from '@/firebase';
+import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -37,12 +36,13 @@ export default function StudentDetailPage() {
   const params = useParams();
   const router = useRouter();
   const db = useFirestore();
+  const { user } = useUser();
   const studentId = params.id as string;
 
-  const studentRef = useMemo(() => {
-    if (!db || !studentId) return null;
+  const studentRef = useMemoFirebase(() => {
+    if (!db || !studentId || !user) return null;
     return doc(db, 'students', studentId);
-  }, [db, studentId]);
+  }, [db, studentId, user]);
 
   const { data: student, loading } = useDoc(studentRef);
 

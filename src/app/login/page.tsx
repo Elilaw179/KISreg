@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ADMIN_CREDENTIALS } from '@/lib/auth-config';
 import Image from 'next/image';
 import { useAuth, useUser } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,7 +23,6 @@ export default function LoginPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user && !isUserLoading) {
       router.push('/dashboard');
@@ -35,26 +34,38 @@ export default function LoginPage() {
     setIsLoggingIn(true);
 
     try {
-      // Validate local credentials first (Master Admin check)
+      // 1. Strict Local Validation (Master Admin check)
       if (formData.email !== ADMIN_CREDENTIALS.email || formData.password !== ADMIN_CREDENTIALS.password) {
         throw new Error("Invalid administrative credentials.");
       }
 
-      // Real Firebase Authentication
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      // 2. Real Firebase Authentication with Bootstrap Logic
+      try {
+        await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      } catch (error: any) {
+        // If the master admin account doesn't exist yet, create it automatically (Bootstrap)
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+          try {
+            await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+          } catch (createError) {
+            // If creation fails (e.g., account actually exists but wrong pass), throw original error
+            throw error;
+          }
+        } else {
+          throw error;
+        }
+      }
       
       toast({
         title: "Access Granted",
         description: "Welcome to the KIS Administrative Portal.",
       });
-      
-      // router.push is handled by the useEffect above
     } catch (error: any) {
       setIsLoggingIn(false);
       toast({
         variant: "destructive",
         title: "Authentication Failed",
-        description: error.message || "Invalid credentials. Please verify your security key and email.",
+        description: error.message || "Could not verify credentials.",
       });
     }
   };
@@ -74,7 +85,7 @@ export default function LoginPage() {
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-primary rounded-full blur-3xl" />
       </div>
 
-      <div className="mb-10 flex flex-col items-center gap-4 relative z-10 animate-in fade-in slide-in-from-top-4 duration-700">
+      <div className="mb-10 flex flex-col items-center gap-4 relative z-10">
         <div className="relative w-32 h-32 mb-2 drop-shadow-2xl">
           <Image 
             src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
@@ -92,7 +103,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10 animate-in fade-in zoom-in-95 duration-500 delay-200">
+      <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10">
         <CardHeader className="space-y-2 pt-8">
           <CardTitle className="text-2xl text-center font-headline font-black text-primary/90 uppercase tracking-tight">Secured Entry</CardTitle>
           <CardDescription className="text-center text-xs font-bold uppercase text-muted-foreground/60 tracking-widest">

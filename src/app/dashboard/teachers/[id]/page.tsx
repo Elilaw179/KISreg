@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
@@ -24,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useFirestore, useDoc } from '@/firebase';
+import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -33,12 +32,13 @@ export default function TeacherDetailPage() {
   const params = useParams();
   const router = useRouter();
   const db = useFirestore();
+  const { user } = useUser();
   const teacherId = params.id as string;
 
-  const teacherRef = useMemo(() => {
-    if (!db || !teacherId) return null;
+  const teacherRef = useMemoFirebase(() => {
+    if (!db || !teacherId || !user) return null;
     return doc(db, 'teachers', teacherId);
-  }, [db, teacherId]);
+  }, [db, teacherId, user]);
 
   const { data: teacher, loading } = useDoc(teacherRef);
 
@@ -107,7 +107,6 @@ export default function TeacherDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Header Card */}
           <div className="lg:col-span-1 space-y-6">
             <Card className="shadow-md border-none overflow-hidden">
               <div className="h-32 bg-primary relative">
@@ -162,7 +161,6 @@ export default function TeacherDetailPage() {
             </Card>
           </div>
 
-          {/* Details Column */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-none shadow-sm">
               <CardHeader className="bg-muted/30 border-b">
