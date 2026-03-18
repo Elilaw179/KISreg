@@ -75,7 +75,7 @@ export default function StudentsPage() {
   }, [students, searchTerm, classFilter, statusFilter]);
 
   const handleDelete = (id: string) => {
-    if (!db || !confirm('Are you sure you want to delete this student?')) return;
+    if (!db || !confirm('Are you sure you want to PERMANENTLY delete this student record?')) return;
     const docRef = doc(db, 'students', id);
     deleteDoc(docRef).catch(async (error) => {
       const permissionError = new FirestorePermissionError({

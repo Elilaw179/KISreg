@@ -40,13 +40,11 @@ import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebas
 import { collection, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useToast } from '@/hooks/use-toast';
 
 export default function TeachersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const db = useFirestore();
   const { user } = useUser();
-  const { toast } = useToast();
 
   const teachersQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -74,11 +72,6 @@ export default function TeachersPage() {
     updateDoc(docRef, { 
       status: newStatus,
       updatedAt: serverTimestamp() 
-    }).then(() => {
-      toast({
-        title: "Status Updated",
-        description: `Staff member is now ${newStatus}.`,
-      });
     }).catch(async (error) => {
       const permissionError = new FirestorePermissionError({
         path: docRef.path,
@@ -92,12 +85,7 @@ export default function TeachersPage() {
     if (!db || !confirm('Are you sure you want to PERMANENTLY delete this staff record? This action cannot be undone.')) return;
     const docRef = doc(db, 'staffs', id);
     
-    deleteDoc(docRef).then(() => {
-      toast({
-        title: "Record Deleted",
-        description: "The staff member has been removed from the registry.",
-      });
-    }).catch(async (error) => {
+    deleteDoc(docRef).catch(async (error) => {
       const permissionError = new FirestorePermissionError({
         path: docRef.path,
         operation: 'delete',

@@ -30,14 +30,12 @@ import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
 import { doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useToast } from '@/hooks/use-toast';
 
 export default function TeacherDetailPage() {
   const params = useParams();
   const router = useRouter();
   const db = useFirestore();
   const { user } = useUser();
-  const { toast } = useToast();
   const teacherId = params.id as string;
 
   const teacherRef = useMemoFirebase(() => {
@@ -54,11 +52,6 @@ export default function TeacherDetailPage() {
     updateDoc(teacherRef, {
       status: newStatus,
       updatedAt: serverTimestamp()
-    }).then(() => {
-      toast({
-        title: "Status Updated",
-        description: `Staff member marked as ${newStatus}.`,
-      });
     }).catch(async (error) => {
       const permissionError = new FirestorePermissionError({
         path: teacherRef.path,
@@ -73,10 +66,6 @@ export default function TeacherDetailPage() {
     
     deleteDoc(teacherRef)
       .then(() => {
-        toast({
-          title: "Record Deleted",
-          description: "Staff record removed from the official registry.",
-        });
         router.push('/dashboard/teachers');
       })
       .catch(async (error) => {

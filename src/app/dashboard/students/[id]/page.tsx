@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -47,7 +48,7 @@ export default function StudentDetailPage() {
   const { data: student, loading } = useDoc(studentRef);
 
   const handleDelete = () => {
-    if (!studentRef || !confirm('Are you sure you want to delete this student record?')) return;
+    if (!studentRef || !confirm('Are you sure you want to PERMANENTLY delete this student record?')) return;
     
     deleteDoc(studentRef)
       .then(() => {
