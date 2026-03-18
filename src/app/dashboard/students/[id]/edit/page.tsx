@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { useForm } from 'react-hook-form';
@@ -13,12 +13,9 @@ import {
   User, 
   School, 
   Phone, 
-  Globe, 
   Stethoscope, 
   Mail, 
   Briefcase,
-  Home,
-  Check,
   Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -53,18 +50,15 @@ const studentFormSchema = z.object({
   admissionNumber: z.string().min(3, "Admission number is required"),
   dateOfBirth: z.string().min(1, "DOB is required"),
   gender: z.enum(['Male', 'Female', 'Other']),
-  class: z.string().min(1, "Class selection is required"),
-  dateOfAdmission: z.string().min(1, "Admission date is required"),
-  nationality: z.string().min(2, "Nationality is required"),
+  class: z.string().min(1, "Class is required"),
   parentName: z.string().min(3, "Guardian name is required"),
-  parentContact: z.string().min(5, "Contact number is required"),
-  parentEmail: z.string().email("Invalid email address"),
+  parentContact: z.string().min(5, "Contact is required"),
+  parentEmail: z.string().email("Invalid email"),
   parentOccupation: z.string().min(2, "Occupation is required"),
-  address: z.string().min(10, "Full residential address is required"),
+  address: z.string().min(10, "Address is required"),
+  status: z.enum(['Active', 'Withdrawn']),
   bloodGroup: z.string().optional(),
   medicalInfo: z.string().optional(),
-  previousSchool: z.string().optional(),
-  status: z.enum(['Active', 'Withdrawn']),
 });
 
 export default function EditStudentPage() {
@@ -89,17 +83,14 @@ export default function EditStudentPage() {
       dateOfBirth: '',
       gender: 'Male',
       class: '',
-      dateOfAdmission: '',
-      nationality: 'Nigerian',
       parentName: '',
       parentContact: '',
       parentEmail: '',
       parentOccupation: '',
       address: '',
+      status: 'Active',
       bloodGroup: '',
       medicalInfo: '',
-      previousSchool: '',
-      status: 'Active',
     }
   });
 
@@ -109,19 +100,16 @@ export default function EditStudentPage() {
         fullName: student.fullName || '',
         admissionNumber: student.admissionNumber || '',
         dateOfBirth: student.dateOfBirth || '',
-        gender: student.gender || 'Male',
+        gender: (student.gender as any) || 'Male',
         class: student.class || '',
-        dateOfAdmission: student.dateOfAdmission || '',
-        nationality: student.nationality || 'Nigerian',
         parentName: student.parentName || '',
         parentContact: student.parentContact || '',
         parentEmail: student.parentEmail || '',
         parentOccupation: student.parentOccupation || '',
         address: student.address || '',
+        status: (student.status as any) || 'Active',
         bloodGroup: student.bloodGroup || '',
         medicalInfo: student.medicalInfo || '',
-        previousSchool: student.previousSchool || '',
-        status: student.status || 'Active',
       });
     }
   }, [student, form]);
@@ -146,28 +134,15 @@ export default function EditStudentPage() {
 
     router.push(`/dashboard/students/${studentId}`);
     toast({
-      title: "Record Updated",
-      description: "Changes are being synchronized with the registry.",
+      title: "Update Saved",
+      description: "Student record has been successfully modified.",
     });
   };
 
   if (loading) {
     return (
       <DashboardShell>
-        <div className="flex items-center justify-center h-[50vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </DashboardShell>
-    );
-  }
-
-  if (!student) {
-    return (
-      <DashboardShell>
-        <div className="text-center py-20">
-          <h2 className="text-xl font-bold">Student not found</h2>
-          <Button variant="link" asChild><Link href="/dashboard/students">Back to Directory</Link></Button>
-        </div>
+        <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
       </DashboardShell>
     );
   }
@@ -176,266 +151,77 @@ export default function EditStudentPage() {
     <DashboardShell>
       <div className="max-w-5xl mx-auto space-y-6 pb-20">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/dashboard/students/${studentId}`}>
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-          </Button>
-          <h2 className="text-3xl font-headline font-bold text-primary">Edit Student Record</h2>
+          <Button variant="ghost" size="icon" asChild><Link href={`/dashboard/students/${studentId}`}><ArrowLeft className="h-5 w-5" /></Link></Button>
+          <h2 className="text-3xl font-headline font-bold text-primary">Modify Student Record</h2>
         </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid lg:grid-cols-12 gap-6">
               <div className="lg:col-span-8 space-y-6">
-                <Card className="shadow-sm border">
-                  <CardHeader className="bg-muted/30 border-b">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <User className="h-5 w-5 text-primary" />
-                      Student Bio-Data
-                    </CardTitle>
-                  </CardHeader>
+                <Card className="border shadow-sm">
+                  <CardHeader className="bg-muted/30 border-b"><CardTitle className="text-lg">Bio-Data</CardTitle></CardHeader>
                   <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Full Name (Surname First)</FormLabel>
-                          <FormControl><Input placeholder="Thompson, Adewale" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="admissionNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Admission Number</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="nationality"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nationality</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Globe className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-10" {...field} />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="dateOfBirth"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Date of Birth</FormLabel>
-                          <FormControl><Input type="date" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="gender"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Male">Male</SelectItem>
-                              <SelectItem value="Female">Female</SelectItem>
-                              <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormField control={form.control} name="fullName" render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="admissionNumber" render={({ field }) => (
+                      <FormItem><FormLabel>Admission No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="class" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Class</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </FormItem>
+                    )} />
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-sm border">
-                  <CardHeader className="bg-muted/30 border-b">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Phone className="h-5 w-5 text-primary" />
-                      Guardian & Contact
-                    </CardTitle>
-                  </CardHeader>
+                <Card className="border shadow-sm">
+                  <CardHeader className="bg-muted/30 border-b"><CardTitle className="text-lg">Guardian Details</CardTitle></CardHeader>
                   <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
-                    <FormField
-                      control={form.control}
-                      name="parentName"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Guardian's Full Name</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="parentContact"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="parentEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="parentOccupation"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Occupation</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Residential Address</FormLabel>
-                          <FormControl><Textarea className="min-h-[80px]" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormField control={form.control} name="parentName" render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel>Guardian Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="parentEmail" render={({ field }) => (
+                      <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="parentOccupation" render={({ field }) => (
+                      <FormItem><FormLabel>Occupation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
                   </CardContent>
                 </Card>
               </div>
 
               <div className="lg:col-span-4 space-y-6">
-                <Card className="shadow-sm border">
-                  <CardHeader className="bg-primary/5 border-b">
-                    <CardTitle className="text-sm font-bold flex items-center gap-2">
-                      <School className="h-4 w-4 text-primary" />
-                      Academic Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-4 space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="class"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Class</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger></FormControl>
-                            <SelectContent>
-                              {CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Enrollment Status</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select Status" /></SelectTrigger></FormControl>
-                            <SelectContent>
-                              <SelectItem value="Active">Active</SelectItem>
-                              <SelectItem value="Withdrawn">Withdrawn</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card className="shadow-sm border">
-                  <CardHeader className="bg-red-50 border-b">
-                    <CardTitle className="text-sm font-bold flex items-center gap-2 text-red-900">
-                      <Stethoscope className="h-4 w-4" />
-                      Medical Brief
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-4 space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="bloodGroup"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Blood Group</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                            <SelectContent>
-                              {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => (
-                                <SelectItem key={bg} value={bg}>{bg}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="medicalInfo"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Notes</FormLabel>
-                          <FormControl><Textarea className="min-h-[100px] text-xs" {...field} /></FormControl>
-                        </FormItem>
-                      )}
-                    />
+                <Card className="border shadow-sm bg-primary/5">
+                  <CardHeader className="border-b bg-white/50"><CardTitle className="text-sm font-bold">Status Controls</CardTitle></CardHeader>
+                  <CardContent className="pt-4">
+                    <FormField control={form.control} name="status" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Enrollment Status</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent><SelectItem value="Active">Active</SelectItem><SelectItem value="Withdrawn">Withdrawn</SelectItem></SelectContent>
+                        </Select>
+                      </FormItem>
+                    )} />
                   </CardContent>
                 </Card>
               </div>
             </div>
 
             <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-background/80 backdrop-blur p-4 rounded-xl border shadow-lg">
-               <Button type="button" variant="outline" asChild disabled={form.formState.isSubmitting}>
-                 <Link href={`/dashboard/students/${studentId}`}>Cancel</Link>
-               </Button>
-               <Button type="submit" className="px-8 font-bold" disabled={form.formState.isSubmitting}>
-                 {form.formState.isSubmitting ? (
-                   <>
-                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                     Saving...
-                   </>
-                 ) : (
-                   <>
-                     <Save className="mr-2 h-4 w-4" /> 
-                     Save Changes
-                   </>
-                 )}
+               <Button type="button" variant="outline" asChild disabled={form.formState.isSubmitting}><Link href={`/dashboard/students/${studentId}`}>Cancel</Link></Button>
+               <Button type="submit" className="px-10 font-bold" disabled={form.formState.isSubmitting}>
+                 {form.formState.isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
                </Button>
             </div>
           </form>

@@ -6,7 +6,6 @@
       "description": "Information about a student registered at Kourrklys International School.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
         "admissionNumber": { "type": "string" },
         "fullName": { "type": "string" },
         "dateOfBirth": { "type": "string", "format": "date" },
@@ -27,14 +26,13 @@
         "updatedAt": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "admissionNumber", "class", "status", "parentEmail", "parentOccupation"]
+      "required": ["fullName", "admissionNumber", "class", "status", "parentEmail", "parentOccupation", "parentName", "parentContact", "address"]
     },
     "Teacher": {
       "title": "Teacher",
       "description": "Information about a staff member at Kourrklys International School.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
         "staffId": { "type": "string" },
         "fullName": { "type": "string" },
         "designation": { "type": "string" },
@@ -56,23 +54,24 @@
             "relationship": { "type": "string" },
             "phone": { "type": "string" },
             "address": { "type": "string" }
-          }
+          },
+          "required": ["name", "relationship", "phone", "address"]
         },
         "updatedAt": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "staffId", "designation", "email"]
+      "required": ["fullName", "staffId", "designation", "email", "phone", "department", "qualification"]
     }
   },
   "auth": {
     "providers": ["password"]
   },
   "firestore": {
-    "/students/{studentId}": {
+    "students": {
       "schema": "Student",
       "description": "Collection of student records."
     },
-    "/teachers/{teacherId}": {
+    "teachers": {
       "schema": "Teacher",
       "description": "Collection of staff records."
     }

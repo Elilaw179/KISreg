@@ -14,12 +14,9 @@ import {
   X,
   User,
   School,
-  Calendar as CalendarIcon,
   Phone,
-  Home,
   Globe,
   Stethoscope,
-  Droplet,
   Mail,
   Briefcase,
   Loader2
@@ -52,7 +49,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from '@/hooks/use-toast';
 
 const studentFormSchema = z.object({
-  fullName: z.string().min(3, "Full name must be at least 3 characters"),
+  fullName: z.string().min(3, "Full name is required (min 3 chars)"),
   admissionNumber: z.string().min(3, "Admission number is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   gender: z.enum(['Male', 'Female', 'Other']),
@@ -61,7 +58,7 @@ const studentFormSchema = z.object({
   nationality: z.string().min(2, "Nationality is required"),
   parentName: z.string().min(3, "Guardian name is required"),
   parentContact: z.string().min(5, "Contact number is required"),
-  parentEmail: z.string().email("Invalid email address"),
+  parentEmail: z.string().email("Valid email address is required"),
   parentOccupation: z.string().min(2, "Occupation is required"),
   address: z.string().min(10, "Full residential address is required"),
   bloodGroup: z.string().optional(),
@@ -103,7 +100,7 @@ export default function NewStudentPage() {
         toast({
           variant: "destructive",
           title: "File too large",
-          description: "Please upload a photo smaller than 500KB."
+          description: "Passport photo must be under 500KB."
         });
         return;
       }
@@ -114,14 +111,7 @@ export default function NewStudentPage() {
   };
 
   const onSubmit = (values: z.infer<typeof studentFormSchema>) => {
-    if (!db) {
-      toast({
-        variant: "destructive",
-        title: "Connection Error",
-        description: "Could not connect to the database. Please check your internet connection."
-      });
-      return;
-    }
+    if (!db) return;
 
     const studentData = {
       ...values,
@@ -131,7 +121,7 @@ export default function NewStudentPage() {
       updatedAt: serverTimestamp(),
     };
 
-    // Non-blocking write: initiate and proceed
+    // Non-blocking Firestore Write
     addDoc(collection(db, 'students'), studentData)
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
@@ -142,11 +132,11 @@ export default function NewStudentPage() {
         errorEmitter.emit('permission-error', permissionError);
       });
 
-    // Proceed to directory immediately using local cache
+    // Instant optimistic navigation
     router.push('/dashboard/students');
     toast({
-      title: "Admission Initiated",
-      description: `${values.fullName}'s record is being synchronized.`,
+      title: "Admission Record Created",
+      description: `Registry updated for ${values.fullName}.`,
     });
   };
 
@@ -159,7 +149,7 @@ export default function NewStudentPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h2 className="text-3xl font-headline font-bold text-primary">New Admission</h2>
+          <h2 className="text-3xl font-headline font-bold text-primary">Student Registration</h2>
         </div>
 
         <Form {...form}>
@@ -173,11 +163,11 @@ export default function NewStudentPage() {
                       {photoPreview ? (
                         <>
                           <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => setPhotoPreview(null)} className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full hover:scale-110 transition-transform shadow-lg z-10"><X className="h-4 w-4" /></button>
+                          <button type="button" onClick={() => setPhotoPreview(null)} className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full shadow-lg z-10"><X className="h-4 w-4" /></button>
                         </>
                       ) : (
                         <div className="flex flex-col items-center gap-2 text-muted-foreground p-6 text-center">
-                          <Upload className="h-10 w-10 opacity-50 mb-2 group-hover:scale-110 transition-transform" />
+                          <Upload className="h-10 w-10 opacity-50 mb-2" />
                           <span className="text-sm font-medium">Click to upload photo</span>
                         </div>
                       )}
@@ -186,11 +176,11 @@ export default function NewStudentPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-sm border overflow-hidden">
+                <Card className="shadow-sm border">
                   <CardHeader className="bg-primary/5 border-b">
-                    <CardTitle className="text-lg flex items-center gap-2"><Stethoscope className="h-5 w-5 text-primary" /> Medical Info</CardTitle>
+                    <CardTitle className="text-sm font-bold flex items-center gap-2"><Stethoscope className="h-4 w-4 text-primary" /> Medical Brief</CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-4">
+                  <CardContent className="pt-4 space-y-4">
                     <FormField
                       control={form.control}
                       name="bloodGroup"
@@ -208,7 +198,10 @@ export default function NewStudentPage() {
                       control={form.control}
                       name="medicalInfo"
                       render={({ field }) => (
-                        <FormItem><FormLabel>Health Conditions</FormLabel><FormControl><Textarea placeholder="List allergies or chronic conditions..." {...field} /></FormControl></FormItem>
+                        <FormItem>
+                          <FormLabel>Conditions/Allergies</FormLabel>
+                          <FormControl><Textarea className="text-xs" {...field} /></FormControl>
+                        </FormItem>
                       )}
                     />
                   </CardContent>
@@ -218,7 +211,7 @@ export default function NewStudentPage() {
               <div className="lg:col-span-8 space-y-6">
                 <Card className="shadow-sm border">
                   <CardHeader className="bg-muted/30 border-b">
-                    <CardTitle className="text-lg flex items-center gap-2"><User className="h-5 w-5 text-primary" /> Student Details</CardTitle>
+                    <CardTitle className="text-lg flex items-center gap-2"><User className="h-5 w-5 text-primary" /> Bio-Data</CardTitle>
                   </CardHeader>
                   <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
                     <FormField
@@ -227,7 +220,7 @@ export default function NewStudentPage() {
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
                           <FormLabel>Full Name (Surname First)</FormLabel>
-                          <FormControl><Input placeholder="e.g., Okeke, Chioma" {...field} /></FormControl>
+                          <FormControl><Input placeholder="e.g. Thompson, Adewale" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -237,19 +230,22 @@ export default function NewStudentPage() {
                       name="admissionNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Admission Number</FormLabel>
-                          <FormControl><Input placeholder="KIS/2024/..." {...field} /></FormControl>
+                          <FormLabel>Admission No.</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
-                      name="nationality"
+                      name="class"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nationality</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
+                          <FormLabel>Class</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                            <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -267,15 +263,14 @@ export default function NewStudentPage() {
                     />
                     <FormField
                       control={form.control}
-                      name="class"
+                      name="gender"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Class</FormLabel>
+                          <FormLabel>Gender</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger></FormControl>
-                            <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                            <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent>
                           </Select>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -284,7 +279,7 @@ export default function NewStudentPage() {
 
                 <Card className="shadow-sm border">
                   <CardHeader className="bg-muted/30 border-b">
-                    <CardTitle className="text-lg flex items-center gap-2"><Briefcase className="h-5 w-5 text-primary" /> Guardian Details</CardTitle>
+                    <CardTitle className="text-lg flex items-center gap-2"><Briefcase className="h-5 w-5 text-primary" /> Guardian & Home Details</CardTitle>
                   </CardHeader>
                   <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
                     <FormField
@@ -300,22 +295,14 @@ export default function NewStudentPage() {
                     />
                     <FormField
                       control={form.control}
-                      name="parentContact"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Number</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
                       name="parentEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
+                          <FormLabel>Guardian Email</FormLabel>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input className="pl-10" {...field} />
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -324,8 +311,19 @@ export default function NewStudentPage() {
                       control={form.control}
                       name="parentOccupation"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Occupation</FormLabel>
+                        <FormItem>
+                          <FormLabel>Guardian Occupation</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parentContact"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
                           <FormControl><Input {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
@@ -336,7 +334,7 @@ export default function NewStudentPage() {
                       name="address"
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
-                          <FormLabel>Home Address</FormLabel>
+                          <FormLabel>Residential Address</FormLabel>
                           <FormControl><Textarea {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
@@ -355,12 +353,12 @@ export default function NewStudentPage() {
                  {form.formState.isSubmitting ? (
                    <>
                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                     Initiating...
+                     Submitting...
                    </>
                  ) : (
                    <>
                      <Save className="mr-2 h-4 w-4" /> 
-                     Finalize Admission
+                     Register Student
                    </>
                  )}
                </Button>
