@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Lock, User, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,39 +11,61 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast';
 import { ADMIN_CREDENTIALS } from '@/lib/auth-config';
 import Image from 'next/image';
+import { useAuth, useUser } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !isUserLoading) {
+      router.push('/dashboard');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
 
-    // Artificial delay for professional feel
-    setTimeout(() => {
-      if (
-        formData.email === ADMIN_CREDENTIALS.email && 
-        formData.password === ADMIN_CREDENTIALS.password
-      ) {
-        toast({
-          title: "Access Granted",
-          description: "Welcome to the KIS Administrative Portal.",
-        });
-        router.push('/dashboard');
-      } else {
-        setIsLoggingIn(false);
-        toast({
-          variant: "destructive",
-          title: "Authentication Failed",
-          description: "Invalid credentials. Please verify your security key and email.",
-        });
+    try {
+      // Validate local credentials first (Master Admin check)
+      if (formData.email !== ADMIN_CREDENTIALS.email || formData.password !== ADMIN_CREDENTIALS.password) {
+        throw new Error("Invalid administrative credentials.");
       }
-    }, 1200);
+
+      // Real Firebase Authentication
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      
+      toast({
+        title: "Access Granted",
+        description: "Welcome to the KIS Administrative Portal.",
+      });
+      
+      // router.push is handled by the useEffect above
+    } catch (error: any) {
+      setIsLoggingIn(false);
+      toast({
+        variant: "destructive",
+        title: "Authentication Failed",
+        description: error.message || "Invalid credentials. Please verify your security key and email.",
+      });
+    }
   };
+
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 relative overflow-hidden">

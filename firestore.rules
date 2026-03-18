@@ -6,123 +6,59 @@ service cloud.firestore {
      * SCHOOL MANAGEMENT SYSTEM - SECURITY RULES
      *
      * CORE PHILOSOPHY:
-     * This ruleset implements a centralized administrative authorization model. Access is primarily
-     * governed by an "Admin" role, verified through the existence of a document in the
-     * '/roles_admin' collection. This provides "Authorization Independence," ensuring that
-     * security checks are atomic and not reliant on potentially changing profile data.
-     *
-     * DATA STRUCTURE:
-     * - /roles_admin/{userId}: A registry of administrative UIDs.
-     * - /staffs/{staffId}: Staff profiles (where staffId matches the Firebase Auth UID).
-     * - /classes/{classId}: Global academic class definitions.
-     * - /students/{studentId}: Detailed student records.
-     *
-     * KEY SECURITY DECISIONS:
-     * - ADMIN PRIVILEGE: Users with a document in '/roles_admin' have full CRUD access
-     *   across the entire database to manage students, staff, and classes.
-     * - STAFF SELF-SERVICE: Staff members are permitted to 'get' their own profile
-     *   document via path-based ownership validation.
-     * - RESTRICTED LISTING: Listing of students and staff is strictly limited to
-     *   administrators to prevent unauthorized data harvesting.
-     * - EXISTENCE CHECKS: All update and delete operations require the document to
-     *   exist prior to the operation.
-     *
-     * DENORMALIZATION FOR AUTHORIZATION:
-     * - Path-based Auth: The 'staffId' in the /staffs collection path is matched directly
-     *   against the authenticated user's UID (request.auth.uid) for instant ownership checks.
-     * - Role Existence: Admin status is checked via 'exists()' on a specific path,
-     *   avoiding the need to parse complex role maps or strings within data objects.
+     * This ruleset implements a centralized administrative authorization model. 
+     * Access is primarily governed by an "Admin" role.
      */
 
     // --- Helper Functions ---
 
-    /** @description Checks if the user is authenticated with Firebase Auth. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** @description Checks if the user has a registered Admin role via the roles_admin collection. */
+    /** 
+     * @description Checks if the user is a registered Admin.
+     * We also explicitly whitelist the master email for initial bootstrapping.
+     */
     function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid)) ||
+        request.auth.token.email == "sundayelisha179@gmail.com"
+      );
     }
 
-    /** @description Checks if the authenticated user's UID matches the provided userId. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // The 'isExistingOwner' function was unused and has been removed.
-
-    /**
-     * @description Ensures the document exists and the user is an admin.
-     * @param docResource The 'resource' variable from the match context.
-     */
-    // The 'resource' variable is a context variable and must be passed as an argument to helper functions.
     function isExistingAdmin(docResource) {
       return docResource != null && isAdmin();
     }
 
     // --- Collection Rules ---
 
-    /**
-     * @description Central authority for Admin roles. Access restricted to existing admins.
-     * @path /roles_admin/{userId}
-     * @allow (get) An admin checking their own or another admin's status.
-     * @deny (create) A non-admin attempting to grant themselves admin privileges.
-     * @principle Authorization Independence: Admin status is derived from path existence.
-     */
     match /roles_admin/{userId} {
       allow get, list: if isAdmin();
       allow create: if isAdmin();
-      // Pass the 'resource' context variable to the helper function.
       allow update: if isExistingAdmin(resource);
       allow delete: if isExistingAdmin(resource);
     }
 
-    /**
-     * @description Stores staff profiles. Admins manage all; staff read their own.
-     * @path /staffs/{staffId}
-     * @allow (get) A staff member fetching their own profile via request.auth.uid.
-     * @deny (list) A staff member attempting to browse all other staff members.
-     * @principle Path-based ownership for specific access; Role-based for management.
-     */
     match /staffs/{staffId} {
       allow get: if isOwner(staffId) || isAdmin();
-      allow list: if isAdmin();
-      allow create: if isAdmin();
-      // Pass the 'resource' context variable to the helper function.
-      allow update: if isExistingAdmin(resource);
-      allow delete: if isExistingAdmin(resource);
+      allow list, create: if isAdmin();
+      allow update, delete: if isExistingAdmin(resource);
     }
 
-    /**
-     * @description Academic class definitions. Read by all staff, managed by admins.
-     * @path /classes/{classId}
-     * @allow (list) Any signed-in staff member viewing the list of classes.
-     * @deny (update) A staff member trying to rename a class.
-     * @principle Public read within the organization; administrative write control.
-     */
     match /classes/{classId} {
       allow get, list: if isSignedIn();
       allow create: if isAdmin();
-      // Pass the 'resource' context variable to the helper function.
-      allow update: if isExistingAdmin(resource);
-      allow delete: if isExistingAdmin(resource);
+      allow update, delete: if isExistingAdmin(resource);
     }
 
-    /**
-     * @description Student records containing sensitive PII. Admin-only access.
-     * @path /students/{studentId}
-     * @allow (create) An admin registering a new student.
-     * @deny (get) A standard staff member attempting to access a student's full record.
-     * @principle Strict administrative control over sensitive student data.
-     */
     match /students/{studentId} {
-      allow get, list: if isAdmin();
-      allow create: if isAdmin();
-      // Pass the 'resource' context variable to the helper function.
-      allow update: if isExistingAdmin(resource);
-      allow delete: if isExistingAdmin(resource);
+      allow get, list, create: if isAdmin();
+      allow update, delete: if isExistingAdmin(resource);
     }
   }
 }
