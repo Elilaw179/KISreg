@@ -1,3 +1,4 @@
+
 export const firebaseConfig = {
   apiKey: "AIzaSyB-placeholder-api-key",
   authDomain: "kourrklys-school.firebaseapp.com",
