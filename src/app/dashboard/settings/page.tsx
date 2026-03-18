@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
   Settings, 
@@ -10,7 +10,11 @@ import {
   UserCircle,
   Clock,
   Loader2,
-  RefreshCcw
+  RefreshCcw,
+  Camera,
+  User,
+  X,
+  UploadCloud
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -27,9 +31,11 @@ import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking, useUser, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { updateProfile } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const settingsSchema = z.object({
   schoolName: z.string().min(3, "School name is required"),
@@ -46,8 +52,14 @@ type SettingsValues = z.infer<typeof settingsSchema>;
 
 export default function SettingsPage() {
   const db = useFirestore();
+  const auth = useAuth();
+  const { user } = useUser();
   const { toast } = useToast();
   
+  const [profileName, setProfileName] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
   const settingsRef = useMemoFirebase(() => {
     if (!db) return null;
     return doc(db, 'settings', 'school-config');
@@ -83,6 +95,45 @@ export default function SettingsPage() {
       });
     }
   }, [remoteSettings, form]);
+
+  useEffect(() => {
+    if (user) {
+      setProfileName(user.displayName || '');
+      setProfileImage(user.photoURL || null);
+    }
+  }, [user]);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setProfileImage(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    setIsUpdatingProfile(true);
+    try {
+      await updateProfile(user, {
+        displayName: profileName,
+        photoURL: profileImage
+      });
+      toast({
+        title: "Profile Updated",
+        description: "Your administrative identity has been synchronized.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message || "Could not update auth profile.",
+      });
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
 
   const onSubmit = (values: SettingsValues) => {
     if (!settingsRef) return;
@@ -130,121 +181,184 @@ export default function SettingsPage() {
           </Button>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* School Information */}
-          <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden">
-            <CardHeader className="bg-muted/20 border-b py-6 px-8">
-              <CardTitle className="text-lg font-black flex items-center gap-3 text-primary">
-                <School className="h-6 w-6" />
-                School Identity
-              </CardTitle>
-              <CardDescription className="font-bold">Update the official school details used on reports and system documents.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-8 pt-10 px-8 pb-10">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Official School Name</Label>
-                <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolName')} />
-                {form.formState.errors.schoolName && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolName.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Acronym / Abbreviation</Label>
-                <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white uppercase" {...form.register('schoolAbbr')} />
-                {form.formState.errors.schoolAbbr && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolAbbr.message}</p>}
-              </div>
-              <div className="md:col-span-2 space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Corporate Address</Label>
-                <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolAddress')} />
-                {form.formState.errors.schoolAddress && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolAddress.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Administrative Email</Label>
-                <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" type="email" {...form.register('schoolEmail')} />
-                {form.formState.errors.schoolEmail && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolEmail.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Contact Phone</Label>
-                <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolPhone')} />
-                {form.formState.errors.schoolPhone && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolPhone.message}</p>}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Academic Session Settings */}
-          <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden">
-            <CardHeader className="bg-primary/5 border-b py-6 px-8">
-              <CardTitle className="text-lg font-black flex items-center gap-3 text-primary">
-                <Clock className="h-6 w-6" />
-                Academic Session Control
-              </CardTitle>
-              <CardDescription className="font-bold">Real-time term and session synchronization.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-8 pt-10 px-8 pb-10">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Active Academic Session (Type In)</Label>
-                <Input 
-                  className="h-12 rounded-xl bg-white border-primary/20 focus:ring-primary/30" 
-                  placeholder="e.g. 2024/2025"
-                  {...form.register('activeSession')} 
-                />
-                {form.formState.errors.activeSession && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.activeSession.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Current Academic Term</Label>
-                <Select 
-                  onValueChange={(val) => form.setValue('currentTerm', val)} 
-                  value={form.watch('currentTerm')}
-                >
-                  <SelectTrigger className="h-12 rounded-xl bg-white border-primary/20">
-                    <SelectValue placeholder="Select Term" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1st">1st Term (Autumn/First Half)</SelectItem>
-                    <SelectItem value="2nd">2nd Term (Spring/Second Half)</SelectItem>
-                    <SelectItem value="3rd">3rd Term (Summer/Third Half)</SelectItem>
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.currentTerm && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.currentTerm.message}</p>}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* User Account Settings */}
-          <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden">
-            <CardHeader className="bg-muted/20 border-b py-6 px-8">
-              <CardTitle className="text-lg font-black flex items-center gap-3 text-primary">
+        <div className="space-y-8">
+          {/* Admin Profile Section */}
+          <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-primary text-white">
+            <CardHeader className="bg-white/10 border-b border-white/10 py-6 px-8">
+              <CardTitle className="text-lg font-black flex items-center gap-3">
                 <UserCircle className="h-6 w-6" />
-                Security Overlays
+                Admin Identity
               </CardTitle>
-              <CardDescription className="font-bold">Administrative access and security protocols.</CardDescription>
+              <CardDescription className="font-bold text-white/70">Update your personal administrative profile and avatar.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-10 px-8 pb-10">
-              <div className="flex items-center justify-between p-6 bg-muted/30 rounded-2xl border border-dashed border-primary/10">
-                <div className="space-y-1">
-                  <Label className="text-sm font-black text-primary uppercase tracking-tight">Two-Factor Authentication</Label>
-                  <p className="text-xs text-muted-foreground font-medium">Add an extra verification layer to all admin logins.</p>
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="relative group">
+                  <div className="h-32 w-32 rounded-3xl border-4 border-white/20 overflow-hidden bg-white/10 relative shadow-2xl transition-transform group-hover:scale-105">
+                    {profileImage ? (
+                      <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center">
+                        <User className="h-12 w-12 opacity-20" />
+                      </div>
+                    )}
+                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                      <Camera className="h-6 w-6 text-white" />
+                      <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
+                    </label>
+                  </div>
+                  {profileImage && (
+                    <button 
+                      onClick={() => setProfileImage(null)}
+                      className="absolute -top-2 -right-2 p-1 bg-destructive text-white rounded-full shadow-lg"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
                 </div>
-                <Switch 
-                  checked={form.watch('twoFactorEnabled')} 
-                  onCheckedChange={(val) => form.setValue('twoFactorEnabled', val)}
-                />
+                
+                <div className="flex-1 space-y-4 w-full">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-white/70">Registrar Display Name</Label>
+                    <Input 
+                      className="h-12 rounded-xl bg-white/10 border-white/10 text-white placeholder:text-white/30 focus:bg-white/20" 
+                      value={profileName}
+                      onChange={(e) => setProfileName(e.target.value)}
+                      placeholder="e.g. Dr. Jane Doe"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleUpdateProfile}
+                    className="bg-white text-primary hover:bg-white/90 font-black uppercase tracking-widest text-[10px] h-11 px-8 rounded-xl"
+                    disabled={isUpdatingProfile}
+                  >
+                    {isUpdatingProfile ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Synchronizing...</>
+                    ) : (
+                      'Update Profile'
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <div className="flex justify-end gap-3 pt-4 sticky bottom-6 z-20 bg-background/80 backdrop-blur-xl p-4 rounded-2xl border shadow-2xl">
-            <Button 
-              type="submit" 
-              className="font-black px-12 h-12 rounded-xl shadow-lg shadow-primary/20 uppercase tracking-widest transition-transform hover:scale-[1.02]"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Committing Changes...</>
-              ) : (
-                <><Save className="mr-2 h-4 w-4" /> Save Global Config</>
-              )}
-            </Button>
-          </div>
-        </form>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* School Information */}
+            <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden">
+              <CardHeader className="bg-muted/20 border-b py-6 px-8">
+                <CardTitle className="text-lg font-black flex items-center gap-3 text-primary">
+                  <School className="h-6 w-6" />
+                  School Identity
+                </CardTitle>
+                <CardDescription className="font-bold">Update the official school details used on reports and system documents.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid md:grid-cols-2 gap-8 pt-10 px-8 pb-10">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Official School Name</Label>
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolName')} />
+                  {form.formState.errors.schoolName && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolName.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Acronym / Abbreviation</Label>
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white uppercase" {...form.register('schoolAbbr')} />
+                  {form.formState.errors.schoolAbbr && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolAbbr.message}</p>}
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Corporate Address</Label>
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolAddress')} />
+                  {form.formState.errors.schoolAddress && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolAddress.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Administrative Email</Label>
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" type="email" {...form.register('schoolEmail')} />
+                  {form.formState.errors.schoolEmail && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolEmail.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Contact Phone</Label>
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolPhone')} />
+                  {form.formState.errors.schoolPhone && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolPhone.message}</p>}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Academic Session Settings */}
+            <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden">
+              <CardHeader className="bg-primary/5 border-b py-6 px-8">
+                <CardTitle className="text-lg font-black flex items-center gap-3 text-primary">
+                  <Clock className="h-6 w-6" />
+                  Academic Session Control
+                </CardTitle>
+                <CardDescription className="font-bold">Real-time term and session synchronization.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid md:grid-cols-2 gap-8 pt-10 px-8 pb-10">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Active Academic Session (Type In)</Label>
+                  <Input 
+                    className="h-12 rounded-xl bg-white border-primary/20 focus:ring-primary/30" 
+                    placeholder="e.g. 2024/2025"
+                    {...form.register('activeSession')} 
+                  />
+                  {form.formState.errors.activeSession && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.activeSession.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Current Academic Term</Label>
+                  <Select 
+                    onValueChange={(val) => form.setValue('currentTerm', val)} 
+                    value={form.watch('currentTerm')}
+                  >
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-primary/20">
+                      <SelectValue placeholder="Select Term" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1st">1st Term (Autumn/First Half)</SelectItem>
+                      <SelectItem value="2nd">2nd Term (Spring/Second Half)</SelectItem>
+                      <SelectItem value="3rd">3rd Term (Summer/Third Half)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {form.formState.errors.currentTerm && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.currentTerm.message}</p>}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* User Account Settings */}
+            <Card className="border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden">
+              <CardHeader className="bg-muted/20 border-b py-6 px-8">
+                <CardTitle className="text-lg font-black flex items-center gap-3 text-primary">
+                  <UserCircle className="h-6 w-6" />
+                  Security Overlays
+                </CardTitle>
+                <CardDescription className="font-bold">Administrative access and security protocols.</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-10 px-8 pb-10">
+                <div className="flex items-center justify-between p-6 bg-muted/30 rounded-2xl border border-dashed border-primary/10">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-black text-primary uppercase tracking-tight">Two-Factor Authentication</Label>
+                    <p className="text-xs text-muted-foreground font-medium">Add an extra verification layer to all admin logins.</p>
+                  </div>
+                  <Switch 
+                    checked={form.watch('twoFactorEnabled')} 
+                    onCheckedChange={(val) => form.setValue('twoFactorEnabled', val)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end gap-3 pt-4 sticky bottom-6 z-20 bg-background/80 backdrop-blur-xl p-4 rounded-2xl border shadow-2xl">
+              <Button 
+                type="submit" 
+                className="font-black px-12 h-12 rounded-xl shadow-lg shadow-primary/20 uppercase tracking-widest transition-transform hover:scale-[1.02]"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Committing Changes...</>
+                ) : (
+                  <><Save className="mr-2 h-4 w-4" /> Save Global Config</>
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </DashboardShell>
   );
