@@ -9,14 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ADMIN_CREDENTIALS } from '@/lib/auth-config';
+import { DEFAULT_ADMIN_CREDENTIALS } from '@/lib/auth-config';
 import Image from 'next/image';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
+  const db = useFirestore();
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
@@ -34,21 +36,36 @@ export default function LoginPage() {
     setIsLoggingIn(true);
 
     try {
-      // 1. Strict Local Validation (Master Admin check)
-      if (formData.email !== ADMIN_CREDENTIALS.email || formData.password !== ADMIN_CREDENTIALS.password) {
+      // 1. Fetch Master Credentials from Firestore (Dynamic)
+      let masterEmail = DEFAULT_ADMIN_CREDENTIALS.email;
+      let masterPassword = DEFAULT_ADMIN_CREDENTIALS.password;
+
+      try {
+        const configRef = doc(db, 'settings', 'auth-config');
+        const configSnap = await getDoc(configRef);
+        if (configSnap.exists()) {
+          const data = configSnap.data();
+          if (data.masterEmail) masterEmail = data.masterEmail;
+          if (data.masterPassword) masterPassword = data.masterPassword;
+        }
+      } catch (err) {
+        console.warn("Could not fetch dynamic auth config, falling back to defaults.");
+      }
+
+      // 2. Strict Validation against Master credentials
+      if (formData.email !== masterEmail || formData.password !== masterPassword) {
         throw new Error("Invalid administrative credentials.");
       }
 
-      // 2. Real Firebase Authentication with Bootstrap Logic
+      // 3. Real Firebase Authentication with Bootstrap Logic
       try {
         await signInWithEmailAndPassword(auth, formData.email, formData.password);
       } catch (error: any) {
-        // If the master admin account doesn't exist yet, create it automatically (Bootstrap)
+        // If the account doesn't exist yet, create it automatically (Bootstrap)
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
           try {
             await createUserWithEmailAndPassword(auth, formData.email, formData.password);
           } catch (createError) {
-            // If creation fails (e.g., account actually exists but wrong pass), throw original error
             throw error;
           }
         } else {

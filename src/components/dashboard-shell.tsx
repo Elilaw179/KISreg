@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -51,6 +50,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const [currentSession, setCurrentSession] = useState("");
+  const [logoClicks, setLogoClicks] = useState(0);
 
   const adminProfileRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -67,7 +67,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
     // Automatic Session Calculation
     const year = new Date().getFullYear();
     const month = new Date().getMonth();
-    // Academic sessions usually start in September (Month 8 in JS)
     if (month >= 8) {
       setCurrentSession(`${year}/${year + 1}`);
     } else {
@@ -81,6 +80,18 @@ export function DashboardShell({ children }: DashboardShellProps) {
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  };
+
+  const handleLogoClick = () => {
+    const nextClicks = logoClicks + 1;
+    if (nextClicks >= 5) {
+      setLogoClicks(0);
+      router.push('/dashboard/system-security');
+    } else {
+      setLogoClicks(nextClicks);
+      // Reset clicks after 3 seconds of inactivity
+      setTimeout(() => setLogoClicks(0), 3000);
     }
   };
 
@@ -225,7 +236,10 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <footer className="border-t bg-card py-8 px-6 md:px-10 shrink-0">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 relative opacity-80 grayscale">
+              <div 
+                className="h-10 w-10 relative opacity-80 grayscale cursor-pointer transition-transform active:scale-90"
+                onClick={handleLogoClick}
+              >
                 <Image 
                   src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
                   alt="KIS Logo"

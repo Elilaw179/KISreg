@@ -1,8 +1,8 @@
 /**
  * Admin Access Configuration
- * Change these values to update the master login credentials.
+ * These are the DEFAULT values used if no custom configuration is found in Firestore.
  */
-export const ADMIN_CREDENTIALS = {
+export const DEFAULT_ADMIN_CREDENTIALS = {
   email: "sundayelisha179@gmail.com",
   password: "123456"
 };

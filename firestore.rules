@@ -62,7 +62,8 @@ service cloud.firestore {
     }
 
     match /settings/{settingId} {
-      allow get: if isSignedIn();
+      // Allow public get for the master auth config to facilitate dynamic login checks
+      allow get: if settingId == 'auth-config' || isSignedIn();
       allow list, create, update, delete: if isAdmin();
     }
   }
