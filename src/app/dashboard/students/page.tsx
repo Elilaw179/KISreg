@@ -279,8 +279,8 @@ export default function StudentsPage() {
                             <DropdownMenuSeparator className="opacity-50" />
                             <DropdownMenuItem 
                               className="text-destructive font-bold rounded-xl focus:bg-destructive focus:text-white cursor-pointer"
-                              onSelect={(e) => {
-                                e.preventDefault();
+                              onSelect={() => {
+                                // Remove e.preventDefault() to allow menu to close before dialog opens
                                 setStudentToDelete(student.id);
                               }}
                             >

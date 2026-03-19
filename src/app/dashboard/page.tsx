@@ -163,12 +163,12 @@ export default function DashboardPage() {
 
           <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Attendance</CardTitle>
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Live Attendance</CardTitle>
               <School className="h-5 w-5 text-amber-500" />
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-black text-amber-600">98%</div>
-              <p className="text-[10px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Session Average</p>
+              <p className="text-[10px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Term Average</p>
             </CardContent>
           </Card>
         </div>
