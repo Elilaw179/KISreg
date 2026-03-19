@@ -29,8 +29,6 @@ import {
   SidebarTrigger,
   SidebarInset
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -232,14 +230,14 @@ export function DashboardShell({ children }: DashboardShellProps) {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div 
-                className="h-10 w-10 relative opacity-80 grayscale cursor-pointer transition-transform active:scale-90"
+                className="h-11 w-11 bg-white rounded-2xl p-1.5 relative shadow-xl shrink-0 cursor-pointer transition-transform active:scale-90 hover:rotate-3 border border-primary/5 overflow-hidden"
                 onClick={handleLogoClick}
               >
                 <Image 
                   src="/logokis.png"
                   alt="KIS Logo"
                   fill
-                  className="object-contain"
+                  className="object-contain p-1"
                 />
               </div>
               <div>
