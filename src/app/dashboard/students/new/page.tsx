@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -143,7 +142,7 @@ export default function NewStudentPage() {
                 <Card className="shadow-sm border-none bg-white">
                   <CardHeader className="pb-3"><CardTitle className="text-sm font-black uppercase tracking-widest">Identity Passport</CardTitle></CardHeader>
                   <CardContent className="flex flex-col items-center gap-4">
-                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-primary/10 flex items-center justify-center bg-muted/20 overflow-hidden relative group transition-all hover:bg-muted/30">
+                    <div className="w-full aspect-square rounded-full border-2 border-dashed border-primary/10 flex items-center justify-center bg-muted/20 overflow-hidden relative group transition-all hover:bg-muted/30">
                       {photoPreview ? (
                         <>
                           <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />

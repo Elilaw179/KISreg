@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -114,7 +113,7 @@ export default function StudentDetailPage() {
           <div className="lg:col-span-1 space-y-6">
             <Card className="shadow-md border overflow-hidden rounded-3xl">
               <div className="bg-primary h-24 relative">
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 h-28 w-28 rounded-2xl border-4 border-white overflow-hidden bg-white shadow-xl">
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 h-28 w-28 rounded-full border-4 border-white overflow-hidden bg-white shadow-xl">
                   <img 
                     src={student.photoUrl || 'https://picsum.photos/seed/student/200/200'} 
                     alt={student.fullName} 

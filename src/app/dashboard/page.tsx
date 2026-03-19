@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo } from 'react';
@@ -249,7 +248,7 @@ export default function DashboardPage() {
                 {recentStudents.length > 0 ? (
                   recentStudents.map((student: any) => (
                     <div key={student.id} className="flex items-center gap-5 p-4 rounded-2xl hover:bg-muted/50 transition-all group">
-                      <div className="h-14 w-14 rounded-2xl bg-secondary overflow-hidden shrink-0 border-2 border-primary/5 shadow-md transition-transform group-hover:scale-110 group-hover:rotate-3">
+                      <div className="h-14 w-14 rounded-full bg-secondary overflow-hidden shrink-0 border-2 border-primary/5 shadow-md transition-transform group-hover:scale-110 group-hover:rotate-3">
                         <img src={student.photoUrl || 'https://placehold.co/100'} alt="" className="h-full w-full object-cover" />
                       </div>
                       <div className="flex-1 space-y-1">

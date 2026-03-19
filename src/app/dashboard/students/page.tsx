@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -227,7 +226,7 @@ export default function StudentsPage() {
                   filteredStudents.map((student) => (
                     <TableRow key={student.id} className="group hover:bg-muted/5 transition-colors border-b-muted/20">
                       <TableCell className="pl-8 py-5">
-                        <div className="h-12 w-12 rounded-2xl bg-secondary overflow-hidden border-2 border-primary/5 shadow-sm group-hover:scale-110 transition-transform">
+                        <div className="h-12 w-12 rounded-full bg-secondary overflow-hidden border-2 border-primary/5 shadow-sm group-hover:scale-110 transition-transform">
                           <img 
                             src={student.photoUrl || 'https://placehold.co/100'} 
                             alt="" 

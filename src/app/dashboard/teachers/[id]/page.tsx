@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -125,7 +124,7 @@ export default function TeacherDetailPage() {
                 <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 rotate-12 group-hover:scale-110 transition-transform duration-700">
                   <Award className="h-24 w-24 text-white" />
                 </div>
-                <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 h-32 w-32 rounded-3xl border-4 border-white overflow-hidden bg-white shadow-2xl transition-transform duration-500 group-hover:scale-105">
+                <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 h-32 w-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-2xl transition-transform duration-500 group-hover:scale-105">
                   <img src={teacher.photoUrl || 'https://picsum.photos/seed/admin/200/200'} alt={teacher.fullName} className="w-full h-full object-cover" />
                 </div>
               </div>

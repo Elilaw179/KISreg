@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -196,7 +195,7 @@ export default function TeachersPage() {
                   filteredTeachers.map((teacher) => (
                     <TableRow key={teacher.id} className="group transition-colors hover:bg-muted/10 border-b-muted/20">
                       <TableCell className="py-5 pl-8">
-                        <div className="h-10 w-10 rounded-xl bg-secondary overflow-hidden border border-primary/5 shadow-sm group-hover:scale-110 transition-transform">
+                        <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border border-primary/5 shadow-sm group-hover:scale-110 transition-transform">
                           <img 
                             src={teacher.photoUrl || 'https://picsum.photos/seed/admin/200/200'} 
                             alt="" 

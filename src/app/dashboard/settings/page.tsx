@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -223,7 +222,7 @@ export default function SettingsPage() {
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center gap-8">
                 <div className="relative group">
-                  <div className="h-32 w-32 rounded-3xl border-4 border-white/20 overflow-hidden bg-white/10 relative shadow-2xl transition-transform group-hover:scale-105">
+                  <div className="h-32 w-32 rounded-full border-4 border-white/20 overflow-hidden bg-white/10 relative shadow-2xl transition-transform group-hover:scale-105">
                     {profileImage ? (
                       <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
                     ) : (
