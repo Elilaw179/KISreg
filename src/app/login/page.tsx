@@ -36,7 +36,6 @@ export default function LoginPage() {
     setIsLoggingIn(true);
 
     try {
-      // 1. Fetch Dynamic Master Credentials from Firestore
       let targetEmail = DEFAULT_ADMIN_CREDENTIALS.email;
       let targetPassword = DEFAULT_ADMIN_CREDENTIALS.password;
 
@@ -52,25 +51,21 @@ export default function LoginPage() {
         console.warn("Sync delay: Using default master credentials.");
       }
 
-      // 2. Strict Validation against Dynamic or Default credentials
       if (formData.email !== targetEmail || formData.password !== targetPassword) {
         throw new Error("Unauthorized administrative access attempt.");
       }
 
-      // 3. Authenticate with Firebase
       let userCredential: UserCredential;
       try {
         userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
       } catch (error: any) {
-        // Bootstrap account if it's the first time using these credentials
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials' || error.code === 'auth/user-not-found') {
           userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
         } else {
           throw error;
         }
       }
 
-      // 4. Register ID in Admin Registry
       if (userCredential.user) {
         const adminRoleRef = doc(db, 'roles_admin', userCredential.user.uid);
         await setDoc(adminRoleRef, { 
@@ -128,7 +123,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10">
+      <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10 rounded-3xl">
         <CardHeader className="space-y-2 pt-8">
           <CardTitle className="text-2xl text-center font-headline font-black text-primary/90 uppercase tracking-tight">Secured Entry</CardTitle>
           <CardDescription className="text-center text-xs font-bold uppercase text-muted-foreground/60 tracking-widest">
@@ -146,7 +141,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="admin@kourrklys.edu.ng" 
-                  className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl text-sm" 
+                  className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-2xl text-sm" 
                   required 
                 />
               </div>
@@ -164,7 +159,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"} 
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="pl-11 pr-10 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-xl text-sm" 
+                  className="pl-11 pr-10 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-2xl text-sm" 
                   required 
                 />
                 <button
@@ -180,7 +175,7 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col gap-6 p-8 pt-4">
             <Button 
               type="submit" 
-              className="w-full h-12 text-sm font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-xl transition-all rounded-xl"
+              className="w-full h-12 text-sm font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-xl transition-all rounded-2xl"
               disabled={isLoggingIn}
             >
               {isLoggingIn ? (

@@ -62,10 +62,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
       router.push('/login');
     }
     
-    // Automatic Session Calculation
     const year = new Date().getFullYear();
     const month = new Date().getMonth();
-    // Session rolls over in September (month 8)
     if (month >= 8) {
       setCurrentSession(`${year}/${year + 1}`);
     } else {
@@ -89,7 +87,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
       router.push('/dashboard/system-security');
     } else {
       setLogoClicks(nextClicks);
-      // Reset clicks after 3 seconds of inactivity
       setTimeout(() => setLogoClicks(0), 3000);
     }
   };
@@ -218,10 +215,9 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 <p className="text-sm font-black text-primary leading-none">{displayName}</p>
                 <p className="text-[10px] text-muted-foreground font-black tracking-widest uppercase opacity-60">Registrar Office</p>
               </div>
-              <Avatar className="h-11 w-11 border-2 border-primary/10 shadow-xl transition-all hover:scale-110 hover:rotate-3 cursor-pointer ring-offset-background ring-primary/20 hover:ring-2 rounded-full overflow-hidden">
-                <AvatarImage src={photoUrl} alt="Admin" className="rounded-full object-cover" />
-                <AvatarFallback className="bg-primary text-white text-xs font-black rounded-full">AD</AvatarFallback>
-              </Avatar>
+              <div className="h-11 w-11 rounded-full border-2 border-primary/10 shadow-xl transition-all hover:scale-110 hover:rotate-3 cursor-pointer relative overflow-hidden ring-offset-background ring-primary/20 hover:ring-2">
+                <Image src={photoUrl} alt="Admin" fill className="object-cover" />
+              </div>
             </div>
           </div>
         </header>
