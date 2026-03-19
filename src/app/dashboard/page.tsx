@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo } from 'react';
@@ -16,7 +15,6 @@ import {
   Clock,
   BookOpen,
   UserX,
-  Database,
   Award,
   Trophy
 } from 'lucide-react';

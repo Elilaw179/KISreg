@@ -6,8 +6,9 @@ service cloud.firestore {
      * SCHOOL MANAGEMENT SYSTEM - SECURITY RULES
      *
      * CORE PHILOSOPHY:
-     * This ruleset implements a centralized administrative authorization model. 
-     * Access is primarily governed by an "Admin" role.
+     * This ruleset implements a dynamic administrative authorization model. 
+     * Access is governed by an "Admin" role which can be bootstrapped 
+     * via the master email configuration.
      */
 
     // --- Helper Functions ---
@@ -16,14 +17,26 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    /**
+     * @description Fetches the master email from settings to allow dynamic authorization.
+     */
+    function getMasterEmail() {
+      // Allow checking against the dynamic configuration set by the user
+      return get(/databases/$(database)/documents/settings/auth-config).data.masterEmail;
+    }
+
     /** 
      * @description Checks if the user is a registered Admin.
-     * We also explicitly whitelist the master email for initial bootstrapping.
+     * Checks:
+     * 1. If user exists in the roles_admin collection.
+     * 2. If user email matches the original bootstrap email.
+     * 3. If user email matches the dynamic master email set in System Security.
      */
     function isAdmin() {
       return isSignedIn() && (
         exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid)) ||
-        request.auth.token.email == "sunday1elisha179@gmail.com"
+        request.auth.token.email == "sunday1elisha179@gmail.com" ||
+        request.auth.token.email == getMasterEmail()
       );
     }
 
@@ -38,10 +51,13 @@ service cloud.firestore {
     // --- Collection Rules ---
 
     match /roles_admin/{userId} {
-      allow get, list: if isAdmin();
-      allow create: if isAdmin();
-      allow update: if isExistingAdmin(resource);
-      allow delete: if isExistingAdmin(resource);
+      allow get: if isSignedIn();
+      // Allow creation if the user is the master admin (to bootstrap their entry)
+      allow create: if isSignedIn() && (
+        request.auth.token.email == "sunday1elisha179@gmail.com" ||
+        request.auth.token.email == getMasterEmail()
+      );
+      allow list, update, delete: if isAdmin();
     }
 
     match /staffs/{staffId} {
@@ -62,8 +78,8 @@ service cloud.firestore {
     }
 
     match /settings/{settingId} {
-      // Allow public get for the master auth config to facilitate dynamic login checks
-      allow get: if settingId == 'auth-config' || isSignedIn();
+      // Allow unauthenticated get for auth-config to facilitate dynamic login checks
+      allow get: if settingId == 'auth-config' || settingId == 'school-config' || isSignedIn();
       allow list, create, update, delete: if isAdmin();
     }
   }
