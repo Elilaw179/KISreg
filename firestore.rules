@@ -7,7 +7,7 @@ service cloud.firestore {
      *
      * CORE PHILOSOPHY:
      * Access is governed by an "Admin" role which can be bootstrapped 
-     * via master emails.
+     * via master credentials stored in settings.
      */
 
     // --- Helper Functions ---
@@ -71,7 +71,8 @@ service cloud.firestore {
     }
 
     match /settings/{settingId} {
-      allow get: if isSignedIn();
+      // Allow the login page to fetch master credentials for verification
+      allow get: if settingId == 'auth-config' || isSignedIn();
       allow list, create, update, delete: if isAdmin();
     }
   }

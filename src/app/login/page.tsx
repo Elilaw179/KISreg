@@ -36,7 +36,7 @@ export default function LoginPage() {
     setIsLoggingIn(true);
 
     try {
-      // 1. Fetch Master Credentials from Firestore (Dynamic)
+      // 1. Fetch Dynamic Master Credentials from Firestore
       let masterEmail = DEFAULT_ADMIN_CREDENTIALS.email;
       let masterPassword = DEFAULT_ADMIN_CREDENTIALS.password;
 
@@ -49,10 +49,10 @@ export default function LoginPage() {
           if (data.masterPassword) masterPassword = data.masterPassword;
         }
       } catch (err) {
-        console.warn("Could not fetch dynamic auth config, falling back to defaults.");
+        console.warn("Falling back to default credentials due to sync delay.");
       }
 
-      // 2. Strict Validation against Master credentials
+      // 2. Strict Validation against Dynamic or Default credentials
       if (formData.email !== masterEmail || formData.password !== masterPassword) {
         throw new Error("Invalid administrative credentials.");
       }
@@ -62,7 +62,7 @@ export default function LoginPage() {
       try {
         userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
       } catch (error: any) {
-        // If the account doesn't exist yet, create it automatically (Bootstrap)
+        // If the account doesn't exist in Auth yet, create it automatically (Bootstrap)
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
           try {
             userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
@@ -74,14 +74,14 @@ export default function LoginPage() {
         }
       }
 
-      // 4. Authorize as Admin in Firestore (Registry Bootstrap)
-      // This ensures the user has permission according to Security Rules even if email changes.
+      // 4. Force Authorize as Admin in Firestore (Registry Bootstrap)
       if (userCredential.user) {
         const adminRoleRef = doc(db, 'roles_admin', userCredential.user.uid);
         await setDoc(adminRoleRef, { 
           isAdmin: true,
           email: formData.email,
-          lastLogin: serverTimestamp() 
+          lastLogin: serverTimestamp(),
+          updatedAt: serverTimestamp()
         }, { merge: true });
       }
       
@@ -89,6 +89,7 @@ export default function LoginPage() {
         title: "Access Granted",
         description: "Welcome to the KIS Administrative Portal.",
       });
+      router.push('/dashboard');
     } catch (error: any) {
       setIsLoggingIn(false);
       toast({

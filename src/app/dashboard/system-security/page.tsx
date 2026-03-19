@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
   ShieldAlert, 
@@ -66,10 +66,13 @@ export default function SystemSecurityPage() {
 
   const onSubmit = (values: SecurityValues) => {
     if (!configRef) return;
+    
+    // Save to Firestore so the login page can find it dynamically
     setDocumentNonBlocking(configRef, values, { merge: true });
+    
     toast({
-      title: "Security Config Updated",
-      description: "Master credentials have been updated. These will be required for the next login.",
+      title: "Security Config Synchronized",
+      description: "New Master credentials have been saved. These will be required for your next login.",
     });
   };
 
