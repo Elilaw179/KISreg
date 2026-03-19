@@ -24,12 +24,11 @@ export default function ForgotPasswordPage() {
       <div className="mb-8 flex flex-col items-center gap-2">
         <div className="relative w-24 h-24 mb-2">
           <Image 
-            src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
+            src="/logo.png"
             alt="Kourrklys International School Logo"
             fill
             className="object-contain"
             priority
-            data-ai-hint="school logo"
           />
         </div>
         <h1 className="text-2xl font-headline font-extrabold text-primary tracking-tight uppercase">Kourrklys</h1>

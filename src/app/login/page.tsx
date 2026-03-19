@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -118,7 +119,7 @@ export default function LoginPage() {
       <div className="mb-10 flex flex-col items-center gap-4 relative z-10">
         <div className="relative w-32 h-32 mb-2 drop-shadow-2xl">
           <Image 
-            src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
+            src="/logo.png"
             alt="Kourrklys International School Logo"
             fill
             className="object-contain"

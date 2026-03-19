@@ -1,7 +1,8 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+import Link from 'next/navigation';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
@@ -67,6 +68,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     // Automatic Session Calculation
     const year = new Date().getFullYear();
     const month = new Date().getMonth();
+    // Session rolls over in September (month 8)
     if (month >= 8) {
       setCurrentSession(`${year}/${year + 1}`);
     } else {
@@ -127,7 +129,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <SidebarHeader className="p-6 flex flex-row items-center gap-3">
           <div className="bg-white rounded-2xl p-1.5 shrink-0 shadow-xl w-11 h-11 relative overflow-hidden transition-all hover:rotate-3 hover:scale-110">
              <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
+                src="/logo.png"
                 alt="KIS Logo"
                 fill
                 className="object-contain p-1"
@@ -219,9 +221,9 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 <p className="text-sm font-black text-primary leading-none">{displayName}</p>
                 <p className="text-[10px] text-muted-foreground font-black tracking-widest uppercase opacity-60">Registrar Office</p>
               </div>
-              <Avatar className="h-11 w-11 border-2 border-primary/10 shadow-xl transition-all hover:scale-110 hover:rotate-3 cursor-pointer ring-offset-background ring-primary/20 hover:ring-2">
-                <AvatarImage src={photoUrl} alt="Admin" />
-                <AvatarFallback className="bg-primary text-white text-xs font-black">AD</AvatarFallback>
+              <Avatar className="h-11 w-11 border-2 border-primary/10 shadow-xl transition-all hover:scale-110 hover:rotate-3 cursor-pointer ring-offset-background ring-primary/20 hover:ring-2 rounded-full overflow-hidden">
+                <AvatarImage src={photoUrl} alt="Admin" className="rounded-full object-cover" />
+                <AvatarFallback className="bg-primary text-white text-xs font-black rounded-full">AD</AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -241,7 +243,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 onClick={handleLogoClick}
               >
                 <Image 
-                  src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
+                  src="/logo.png"
                   alt="KIS Logo"
                   fill
                   className="object-contain"
