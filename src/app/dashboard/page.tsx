@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo } from 'react';
@@ -15,7 +16,9 @@ import {
   Clock,
   BookOpen,
   UserX,
-  Database
+  Database,
+  Award,
+  Trophy
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -55,17 +58,20 @@ export default function DashboardPage() {
   const { data: staffs, isLoading: staffLoading } = useCollection(staffQuery);
 
   const stats = useMemo(() => {
-    if (!students) return { total: 0, primary: 0, secondary: 0, staff: 0, withdrawn: 0 };
+    if (!students) return { total: 0, primary: 0, secondary: 0, staff: 0, withdrawn: 0, gradPrimary: 0, gradSecondary: 0 };
     
     const activeStudents = students.filter((s: any) => s.status === 'Active');
     const withdrawnStudents = students.filter((s: any) => s.status === 'Withdrawn');
+    const graduatedStudents = students.filter((s: any) => s.status === 'Graduated');
     
     return {
       total: activeStudents.length,
       primary: activeStudents.filter((s: any) => PRIMARY_CLASSES.includes(s.class)).length,
       secondary: activeStudents.filter((s: any) => SECONDARY_CLASSES.includes(s.class)).length,
       staff: staffs?.length || 0,
-      withdrawn: withdrawnStudents.length
+      withdrawn: withdrawnStudents.length,
+      gradPrimary: graduatedStudents.filter((s: any) => PRIMARY_CLASSES.includes(s.class)).length,
+      gradSecondary: graduatedStudents.filter((s: any) => SECONDARY_CLASSES.includes(s.class)).length
     };
   }, [students, staffs]);
 
@@ -136,8 +142,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-          <Card className="hover-lift border-none bg-primary text-primary-foreground overflow-hidden relative group rounded-3xl">
+        <div className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+          <Card className="hover-lift border-none bg-primary text-primary-foreground overflow-hidden relative group rounded-3xl col-span-2 md:col-span-1">
             <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 rotate-12 group-hover:scale-110 transition-transform duration-700">
               <Users className="h-24 w-24" />
             </div>
@@ -180,6 +186,19 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Staff</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
+                <GraduationCap className="h-4 w-4 text-amber-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-black text-amber-600">{stats.staff}</div>
+              <p className="text-[9px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Personnel</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2 text-destructive">
               <CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-70">Withdrawn</CardTitle>
               <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
@@ -188,20 +207,33 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-black text-red-600">{stats.withdrawn}</div>
-              <p className="text-[9px] font-bold text-red-600 mt-2 uppercase tracking-widest">Exited Records</p>
+              <p className="text-[9px] font-bold text-red-600 mt-2 uppercase tracking-widest">Registry Exit</p>
             </CardContent>
           </Card>
 
-          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Faculty</CardTitle>
-              <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
-                <GraduationCap className="h-4 w-4 text-amber-600" />
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card border-l-4 border-l-green-500">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 text-green-600">
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-70">Grad Primary</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
+                <Award className="h-4 w-4 text-green-600" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-black text-amber-600">{stats.staff}</div>
-              <p className="text-[9px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Personnel</p>
+              <div className="text-3xl font-black text-green-600">{stats.gradPrimary}</div>
+              <p className="text-[9px] font-bold text-green-600 mt-2 uppercase tracking-widest">Alumni (Pri)</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card border-l-4 border-l-green-500">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 text-green-600">
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-70">Grad Secondary</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
+                <Trophy className="h-4 w-4 text-green-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-black text-green-600">{stats.gradSecondary}</div>
+              <p className="text-[9px] font-bold text-green-600 mt-2 uppercase tracking-widest">Alumni (Sec)</p>
             </CardContent>
           </Card>
         </div>

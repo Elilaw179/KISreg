@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -10,7 +11,8 @@ import {
   Edit, 
   FileDown,
   Loader2,
-  UserX
+  UserX,
+  Award
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,7 +57,7 @@ export default function StudentsPage() {
     return collection(db, 'students');
   }, [db, user]);
 
-  const { data: students, isLoading: loading } = useCollection(studentsQuery);
+  const { data: students, loading } = useCollection(studentsQuery);
 
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -71,9 +73,8 @@ export default function StudentsPage() {
     });
   }, [students, searchTerm, classFilter, statusFilter]);
 
-  const toggleStatus = (id: string, currentStatus: string) => {
+  const setStatus = (id: string, newStatus: string) => {
     if (!db) return;
-    const newStatus = currentStatus === 'Active' ? 'Withdrawn' : 'Active';
     const docRef = doc(db, 'students', id);
     updateDocumentNonBlocking(docRef, { 
       status: newStatus,
@@ -198,6 +199,7 @@ export default function StudentsPage() {
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="Active">Active</SelectItem>
                 <SelectItem value="Withdrawn">Withdrawn</SelectItem>
+                <SelectItem value="Graduated">Graduated</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -242,7 +244,10 @@ export default function StudentsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={student.status === 'Active' ? 'default' : 'secondary'} className={student.status === 'Active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none px-4' : 'px-4'}>
+                        <Badge 
+                          variant={student.status === 'Active' ? 'default' : student.status === 'Graduated' ? 'outline' : 'secondary'} 
+                          className={student.status === 'Active' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100 border-none px-4' : student.status === 'Graduated' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none px-4' : 'px-4'}
+                        >
                           {student.status}
                         </Badge>
                       </TableCell>
@@ -270,10 +275,27 @@ export default function StudentsPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               className="rounded-xl cursor-pointer"
-                              onClick={() => toggleStatus(student.id, student.status)}
+                              onClick={() => setStatus(student.id, 'Active')}
+                              disabled={student.status === 'Active'}
+                            >
+                              <UserCheck className="mr-2 h-4 w-4 opacity-70" />
+                              Re-Activate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="rounded-xl cursor-pointer text-amber-600 focus:text-amber-600"
+                              onClick={() => setStatus(student.id, 'Withdrawn')}
+                              disabled={student.status === 'Withdrawn'}
                             >
                               <UserX className="mr-2 h-4 w-4 opacity-70" />
-                              {student.status === 'Active' ? 'Withdraw Student' : 'Re-Activate Student'}
+                              Withdraw
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="rounded-xl cursor-pointer text-green-600 focus:text-green-600"
+                              onClick={() => setStatus(student.id, 'Graduated')}
+                              disabled={student.status === 'Graduated'}
+                            >
+                              <Award className="mr-2 h-4 w-4 opacity-70" />
+                              Graduate
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -298,3 +320,5 @@ export default function StudentsPage() {
     </DashboardShell>
   );
 }
+
+import { UserCheck } from 'lucide-react';

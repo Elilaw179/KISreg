@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -21,11 +22,21 @@ import {
   Info,
   Loader2,
   AlertTriangle,
-  UserX
+  UserX,
+  Award,
+  MoreHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Link from 'next/link';
 import { useFirestore, useDoc, useUser, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { doc, serverTimestamp } from 'firebase/firestore';
@@ -45,9 +56,8 @@ export default function StudentDetailPage() {
 
   const { data: student, isLoading: loading } = useDoc(studentRef);
 
-  const toggleStatus = () => {
+  const updateStatus = (newStatus: string) => {
     if (!studentRef || !student) return;
-    const newStatus = student.status === 'Active' ? 'Withdrawn' : 'Active';
     updateDocumentNonBlocking(studentRef, {
       status: newStatus,
       updatedAt: serverTimestamp()
@@ -97,15 +107,43 @@ export default function StudentDetailPage() {
                 Update Record
               </Link>
             </Button>
-            <Button 
-              variant={student.status === 'Active' ? 'secondary' : 'default'} 
-              size="sm" 
-              className="shadow-sm rounded-xl font-bold"
-              onClick={toggleStatus}
-            >
-              <UserX className="mr-2 h-4 w-4" />
-              {student.status === 'Active' ? 'Withdraw student' : 'Re-Activate Student'}
-            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="sm" className="shadow-sm rounded-xl font-bold">
+                  <MoreHorizontal className="mr-2 h-4 w-4" />
+                  Manage Status
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 shadow-2xl border-none">
+                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2">Registry Action</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="rounded-xl cursor-pointer"
+                  onClick={() => updateStatus('Active')}
+                  disabled={student.status === 'Active'}
+                >
+                  <User className="mr-2 h-4 w-4 opacity-70" />
+                  Mark as Active
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="rounded-xl cursor-pointer text-amber-600 focus:text-amber-600"
+                  onClick={() => updateStatus('Withdrawn')}
+                  disabled={student.status === 'Withdrawn'}
+                >
+                  <UserX className="mr-2 h-4 w-4 opacity-70" />
+                  Withdraw Student
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="rounded-xl cursor-pointer text-green-600 focus:text-green-600"
+                  onClick={() => updateStatus('Graduated')}
+                  disabled={student.status === 'Graduated'}
+                >
+                  <Award className="mr-2 h-4 w-4 opacity-70" />
+                  Mark as Graduated
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -124,7 +162,13 @@ export default function StudentDetailPage() {
               <CardHeader className="pt-16 text-center space-y-2">
                 <CardTitle className="text-2xl font-bold">{student.fullName}</CardTitle>
                 <div className="flex items-center justify-center gap-2">
-                  <Badge variant={student.status === 'Active' ? 'default' : 'secondary'} className="px-3">
+                  <Badge 
+                    variant={student.status === 'Active' ? 'default' : student.status === 'Graduated' ? 'outline' : 'secondary'} 
+                    className={cn(
+                      "px-3",
+                      student.status === 'Graduated' && "bg-green-100 text-green-700 border-none"
+                    )}
+                  >
                     {student.status}
                   </Badge>
                   <span className="text-sm font-bold px-2 py-0.5 bg-muted rounded text-primary">
@@ -138,7 +182,7 @@ export default function StudentDetailPage() {
                     <BookOpen className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Current Class</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Registry Class</p>
                     <p className="font-bold text-lg">{student.class}</p>
                   </div>
                 </div>
@@ -318,3 +362,5 @@ export default function StudentDetailPage() {
     </DashboardShell>
   );
 }
+
+import { cn } from "@/lib/utils";

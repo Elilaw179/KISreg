@@ -49,7 +49,7 @@ const studentFormSchema = z.object({
   parentEmail: z.string().email("Invalid email"),
   parentOccupation: z.string().min(2, "Occupation is required"),
   address: z.string().min(10, "Address is required"),
-  status: z.enum(['Active', 'Withdrawn']),
+  status: z.enum(['Active', 'Withdrawn', 'Graduated']),
   bloodGroup: z.string().optional(),
   medicalInfo: z.string().optional(),
   nationality: z.string().min(2, "Nationality required"),
@@ -219,7 +219,11 @@ export default function EditStudentPage() {
                         <FormLabel>Enrollment Status</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                          <SelectContent><SelectItem value="Active">Active</SelectItem><SelectItem value="Withdrawn">Withdrawn</SelectItem></SelectContent>
+                          <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Withdrawn">Withdrawn</SelectItem>
+                            <SelectItem value="Graduated">Graduated</SelectItem>
+                          </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
