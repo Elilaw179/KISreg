@@ -14,7 +14,9 @@ import {
   GraduationCap,
   ClipboardList,
   Loader2,
-  Sparkles
+  Sparkles,
+  ShieldCheck,
+  Heart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -49,7 +51,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
 
-  // Fetch expanded admin profile from Firestore to get higher-res photos
   const adminProfileRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'staffs', user.uid);
@@ -95,7 +96,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
     { name: 'Admission Center', href: '/dashboard/students/new', icon: ClipboardList },
   ];
 
-  // Prefer Firestore data for name and photo, fallback to Auth profile
   const displayName = adminProfile?.fullName || user.displayName || 'Admin User';
   const photoUrl = adminProfile?.photoUrl || user.photoURL || "https://picsum.photos/seed/admin/200/200";
 
@@ -173,8 +173,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
         </SidebarFooter>
       </Sidebar>
       
-      <SidebarInset className="transition-all duration-300">
-        <header className="sticky top-0 z-40 flex h-20 items-center gap-4 border-b bg-background/60 backdrop-blur-xl px-6 md:px-10">
+      <SidebarInset className="transition-all duration-300 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-40 flex h-20 items-center gap-4 border-b bg-background/60 backdrop-blur-xl px-6 md:px-10 shrink-0">
           <SidebarTrigger className="hover:bg-muted h-10 w-10 rounded-xl" />
           <div className="flex-1">
             <div className="relative max-w-sm hidden md:block group">
@@ -204,11 +204,45 @@ export function DashboardShell({ children }: DashboardShellProps) {
             </div>
           </div>
         </header>
+        
         <main className="p-6 md:p-10 flex-1 bg-muted/5">
           <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             {children}
           </div>
         </main>
+
+        <footer className="border-t bg-white py-8 px-6 md:px-10 shrink-0">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 relative opacity-80 grayscale">
+                <Image 
+                  src="https://firebasestorage.googleapis.com/v0/b/firebasestudio.appspot.com/o/image-1741120286819.png?alt=media&token=8d234676-4351-40be-bece-9457635677a2"
+                  alt="KIS Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <p className="text-xs font-black text-primary uppercase tracking-widest leading-none">Kourrklys International School</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Administrative Infrastructure &copy; {new Date().getFullYear()}</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center justify-center gap-8">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Database Sync: Online</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary opacity-40" />
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Secure Entry Terminal</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Session: 2024/2025</span>
+              </div>
+            </div>
+          </div>
+        </footer>
       </SidebarInset>
     </SidebarProvider>
   );

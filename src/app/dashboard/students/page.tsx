@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -8,9 +9,9 @@ import {
   UserPlus, 
   Eye, 
   Edit, 
-  Trash2,
   FileDown,
-  Loader2
+  Loader2,
+  UserX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,26 +39,15 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
-import { useFirestore, useCollection, useMemoFirebase, useUser, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
 
 export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [classFilter, setClassFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const db = useFirestore();
   const { user } = useUser();
 
@@ -82,11 +72,14 @@ export default function StudentsPage() {
     });
   }, [students, searchTerm, classFilter, statusFilter]);
 
-  const confirmDelete = () => {
-    if (!db || !studentToDelete) return;
-    const docRef = doc(db, 'students', studentToDelete);
-    deleteDocumentNonBlocking(docRef);
-    setStudentToDelete(null);
+  const toggleStatus = (id: string, currentStatus: string) => {
+    if (!db) return;
+    const newStatus = currentStatus === 'Active' ? 'Withdrawn' : 'Active';
+    const docRef = doc(db, 'students', id);
+    updateDocumentNonBlocking(docRef, { 
+      status: newStatus,
+      updatedAt: serverTimestamp() 
+    });
   };
 
   const handleExport = () => {
@@ -276,16 +269,12 @@ export default function StudentsPage() {
                                 Edit Record
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="opacity-50" />
                             <DropdownMenuItem 
-                              className="text-destructive font-bold rounded-xl focus:bg-destructive focus:text-white cursor-pointer"
-                              onSelect={() => {
-                                // Remove e.preventDefault() to allow menu to close before dialog opens
-                                setStudentToDelete(student.id);
-                              }}
+                              className="rounded-xl cursor-pointer"
+                              onClick={() => toggleStatus(student.id, student.status)}
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Permanent
+                              <UserX className="mr-2 h-4 w-4 opacity-70" />
+                              {student.status === 'Active' ? 'Withdraw Student' : 'Re-Activate Student'}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -307,28 +296,6 @@ export default function StudentsPage() {
           )}
         </div>
       </div>
-
-      <AlertDialog open={!!studentToDelete} onOpenChange={(open) => !open && setStudentToDelete(null)}>
-        <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-black text-primary">Permanent Registry Deletion</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm font-medium">
-              Are you sure you want to remove this student? This action will permanently erase all bio-data, academic history, and guardian contact details from the KIS database.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="pt-6">
-            <AlertDialogCancel className="rounded-xl font-bold">Abort</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => {
-                confirmDelete();
-              }} 
-              className="bg-destructive text-white hover:bg-destructive/90 rounded-xl font-bold shadow-lg shadow-destructive/20"
-            >
-              Confirm Deletion
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </DashboardShell>
   );
 }

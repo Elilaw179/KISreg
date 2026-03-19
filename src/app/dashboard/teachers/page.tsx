@@ -9,13 +9,12 @@ import {
   MoreHorizontal, 
   Eye, 
   Edit, 
-  Trash2,
-  Mail,
-  Phone,
-  Loader2,
-  UserCheck,
-  UserX,
-  FileDown
+  Mail, 
+  Phone, 
+  Loader2, 
+  UserCheck, 
+  UserX, 
+  FileDown 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,23 +35,12 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import Link from 'next/link';
-import { useFirestore, useCollection, useMemoFirebase, useUser, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 
 export default function TeachersPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [staffToDelete, setStaffToDelete] = useState<string | null>(null);
   const db = useFirestore();
   const { user } = useUser();
 
@@ -84,13 +72,6 @@ export default function TeachersPage() {
     });
   };
 
-  const confirmDelete = () => {
-    if (!db || !staffToDelete) return;
-    const docRef = doc(db, 'staffs', staffToDelete);
-    deleteDocumentNonBlocking(docRef);
-    setStaffToDelete(null);
-  };
-
   const handleExport = () => {
     if (!filteredTeachers || filteredTeachers.length === 0) return;
 
@@ -114,10 +95,8 @@ export default function TeachersPage() {
     
     const escapeCsv = (val: any, forceText = false) => {
       if (val === null || val === undefined) return '""';
-      // Strip line breaks and escape quotes to prevent truncation in Excel
       let str = String(val).replace(/[\r\n]+/g, ' ').replace(/"/g, '""').trim();
       if (forceText) {
-        // Excel literal string formula to preserve leading zeros and prevent scientific notation
         return `="${str}"`;
       }
       return `"${str}"`;
@@ -269,7 +248,7 @@ export default function TeachersPage() {
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              className="rounded-xl"
+                              className="rounded-xl cursor-pointer"
                               onClick={() => toggleStatus(teacher.id, teacher.status || 'Active')}
                             >
                               {teacher.status === 'Inactive' ? (
@@ -277,14 +256,6 @@ export default function TeachersPage() {
                               ) : (
                                 <><UserX className="mr-2 h-4 w-4 text-amber-600" /> Deactivate Staff</>
                               )}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator className="my-1 opacity-50" />
-                            <DropdownMenuItem 
-                              className="text-destructive font-bold rounded-xl focus:bg-destructive focus:text-white"
-                              onClick={() => setStaffToDelete(teacher.id)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Permanent
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -306,23 +277,6 @@ export default function TeachersPage() {
           )}
         </div>
       </div>
-
-      <AlertDialog open={!!staffToDelete} onOpenChange={(open) => !open && setStaffToDelete(null)}>
-        <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-black text-primary">Permanent Registry Deletion</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm font-medium">
-              Are you sure you want to delete this staff record? This action will permanently remove all professional and bio-data from the registry and cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="pt-6">
-            <AlertDialogCancel className="rounded-xl font-bold">Abort</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-white hover:bg-destructive/90 rounded-xl font-bold shadow-lg shadow-destructive/20">
-              Confirm Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </DashboardShell>
   );
 }

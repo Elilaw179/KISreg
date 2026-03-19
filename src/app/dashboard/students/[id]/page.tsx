@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
@@ -13,8 +13,6 @@ import {
   Clock, 
   BookOpen, 
   User, 
-  Trash2, 
-  AlertTriangle, 
   Globe, 
   Stethoscope, 
   Droplet, 
@@ -22,24 +20,16 @@ import {
   Mail, 
   Briefcase, 
   Info,
-  Loader2
+  Loader2,
+  AlertTriangle,
+  UserX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import Link from 'next/link';
-import { useFirestore, useDoc, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useFirestore, useDoc, useUser, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
+import { doc, serverTimestamp } from 'firebase/firestore';
 import { FormattedDate } from '@/components/formatted-date';
 
 export default function StudentDetailPage() {
@@ -48,7 +38,6 @@ export default function StudentDetailPage() {
   const db = useFirestore();
   const { user } = useUser();
   const studentId = params.id as string;
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const studentRef = useMemoFirebase(() => {
     if (!db || !studentId || !user) return null;
@@ -57,10 +46,13 @@ export default function StudentDetailPage() {
 
   const { data: student, isLoading: loading } = useDoc(studentRef);
 
-  const handleDelete = () => {
-    if (!studentRef) return;
-    deleteDocumentNonBlocking(studentRef);
-    router.push('/dashboard/students');
+  const toggleStatus = () => {
+    if (!studentRef || !student) return;
+    const newStatus = student.status === 'Active' ? 'Withdrawn' : 'Active';
+    updateDocumentNonBlocking(studentRef, {
+      status: newStatus,
+      updatedAt: serverTimestamp()
+    });
   };
 
   if (loading) {
@@ -100,27 +92,27 @@ export default function StudentDetailPage() {
             <h2 className="text-3xl font-headline font-bold text-primary">Student Profile</h2>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="shadow-sm" asChild>
+            <Button variant="outline" size="sm" className="shadow-sm rounded-xl font-bold" asChild>
               <Link href={`/dashboard/students/${student.id}/edit`}>
                 <Edit className="mr-2 h-4 w-4" />
                 Update Record
               </Link>
             </Button>
             <Button 
-              variant="destructive" 
+              variant={student.status === 'Active' ? 'secondary' : 'default'} 
               size="sm" 
-              className="shadow-sm" 
-              onClick={() => setIsDeleteDialogOpen(true)}
+              className="shadow-sm rounded-xl font-bold"
+              onClick={toggleStatus}
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              <UserX className="mr-2 h-4 w-4" />
+              {student.status === 'Active' ? 'Withdraw student' : 'Re-Activate Student'}
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
-            <Card className="shadow-md border overflow-hidden">
+            <Card className="shadow-md border overflow-hidden rounded-3xl">
               <div className="bg-primary h-24 relative">
                 <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 h-28 w-28 rounded-2xl border-4 border-white overflow-hidden bg-white shadow-xl">
                   <img 
@@ -181,7 +173,7 @@ export default function StudentDetailPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm border overflow-hidden">
+            <Card className="shadow-sm border overflow-hidden rounded-3xl">
               <CardHeader className="bg-red-50 border-b">
                 <CardTitle className="text-sm font-bold flex items-center gap-2 text-red-900">
                   <Stethoscope className="h-4 w-4" />
@@ -207,7 +199,7 @@ export default function StudentDetailPage() {
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <Card className="shadow-md border">
+            <Card className="shadow-md border rounded-3xl overflow-hidden">
               <CardHeader className="border-b bg-muted/20">
                 <CardTitle className="text-lg flex items-center gap-2">
                    <Phone className="h-5 w-5 text-primary" />
@@ -271,7 +263,7 @@ export default function StudentDetailPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm border">
+            <Card className="shadow-sm border rounded-3xl overflow-hidden">
               <CardHeader className="bg-muted/10 border-b">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <School className="h-5 w-5 text-primary" />
@@ -295,7 +287,7 @@ export default function StudentDetailPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm border">
+            <Card className="shadow-sm border rounded-2xl overflow-hidden">
                <CardHeader className="bg-muted/5 border-b py-3">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Info className="h-4 w-4" />
@@ -324,23 +316,6 @@ export default function StudentDetailPage() {
           </div>
         </div>
       </div>
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete <strong>{student.fullName}</strong>'s record from the KIS database.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Permanently
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </DashboardShell>
   );
 }

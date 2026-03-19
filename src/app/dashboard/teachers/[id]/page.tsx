@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
@@ -14,7 +14,6 @@ import {
   Heart, 
   Globe,
   User,
-  Trash2,
   AlertCircle,
   Award,
   CalendarCheck,
@@ -25,18 +24,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import Link from 'next/link';
-import { useFirestore, useDoc, useUser, useMemoFirebase, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useDoc, useUser, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { doc, serverTimestamp } from 'firebase/firestore';
 
 export default function TeacherDetailPage() {
@@ -45,7 +34,6 @@ export default function TeacherDetailPage() {
   const db = useFirestore();
   const { user } = useUser();
   const teacherId = params.id as string;
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const teacherRef = useMemoFirebase(() => {
     if (!db || !teacherId || !user) return null;
@@ -61,12 +49,6 @@ export default function TeacherDetailPage() {
       status: newStatus,
       updatedAt: serverTimestamp()
     });
-  };
-
-  const handleDelete = () => {
-    if (!teacherRef) return;
-    deleteDocumentNonBlocking(teacherRef);
-    router.push('/dashboard/teachers');
   };
 
   if (loading) {
@@ -132,10 +114,6 @@ export default function TeacherDetailPage() {
               ) : (
                 <><UserX className="mr-2 h-4 w-4" /> Deactivate</>
               )}
-            </Button>
-            <Button variant="destructive" size="sm" className="rounded-xl font-bold shadow-md shadow-destructive/20" onClick={() => setIsDeleteDialogOpen(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Record
             </Button>
           </div>
         </div>
@@ -313,23 +291,6 @@ export default function TeacherDetailPage() {
           </div>
         </div>
       </div>
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete <strong>{teacher.fullName}</strong>'s profile and all associated employment records from the school registry.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Confirm Deletion
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </DashboardShell>
   );
 }
