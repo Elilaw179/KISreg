@@ -6,9 +6,8 @@ service cloud.firestore {
      * SCHOOL MANAGEMENT SYSTEM - SECURITY RULES
      *
      * CORE PHILOSOPHY:
-     * This ruleset implements a dynamic administrative authorization model. 
      * Access is governed by an "Admin" role which can be bootstrapped 
-     * via the master email configuration.
+     * via master emails.
      */
 
     // --- Helper Functions ---
@@ -18,20 +17,21 @@ service cloud.firestore {
     }
 
     /**
-     * @description Fetches the master email from settings with a safe fallback.
+     * @description Fetches the master email from settings with safe fallbacks.
      */
     function getMasterEmail() {
       return exists(/databases/$(database)/documents/settings/auth-config) 
-        ? get(/databases/$(database)/documents/settings/auth-config).data.get('masterEmail', 'sunday1elisha179@gmail.com')
-        : "sunday1elisha179@gmail.com";
+        ? get(/databases/$(database)/documents/settings/auth-config).data.get('masterEmail', 'sundayelisha179@gmail.com')
+        : "sundayelisha179@gmail.com";
     }
 
     /** 
-     * @description Checks if the user is a registered Admin or the Master Bootstrap user.
+     * @description Checks if the user is a registered Admin or a Master Bootstrap user.
      */
     function isAdmin() {
       return isSignedIn() && (
         exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid)) ||
+        request.auth.token.email == "sundayelisha179@gmail.com" ||
         request.auth.token.email == "sunday1elisha179@gmail.com" ||
         request.auth.token.email == getMasterEmail()
       );
@@ -45,8 +45,8 @@ service cloud.firestore {
 
     match /roles_admin/{userId} {
       allow get: if isSignedIn();
-      // Allow creation/update if the user is the master admin (to bootstrap their entry)
       allow create, update: if isSignedIn() && (
+        request.auth.token.email == "sundayelisha179@gmail.com" ||
         request.auth.token.email == "sunday1elisha179@gmail.com" ||
         request.auth.token.email == getMasterEmail()
       );
@@ -56,7 +56,7 @@ service cloud.firestore {
     match /staffs/{staffId} {
       allow get: if isOwner(staffId) || isAdmin();
       allow list, create, update: if isAdmin();
-      allow delete: if false; // Permanent registry protection
+      allow delete: if false; 
     }
 
     match /classes/{classId} {
@@ -67,11 +67,10 @@ service cloud.firestore {
 
     match /students/{studentId} {
       allow get, list, create, update: if isAdmin();
-      allow delete: if false; // Permanent registry protection
+      allow delete: if false;
     }
 
     match /settings/{settingId} {
-      // Allow authenticated get for configs to facilitate dynamic login checks
       allow get: if isSignedIn();
       allow list, create, update, delete: if isAdmin();
     }
