@@ -59,7 +59,7 @@ export default function LoginPage() {
       try {
         userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
       } catch (error: any) {
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials' || error.code === 'auth/user-not-found') {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
           userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
         } else {
           throw error;
