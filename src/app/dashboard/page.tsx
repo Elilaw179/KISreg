@@ -5,7 +5,7 @@ import { DashboardShell } from '@/components/dashboard-shell';
 import { 
   Users, 
   UserCheck, 
-  UserX, 
+  GraduationCap, 
   School,
   Loader2,
   TrendingUp,
@@ -13,7 +13,7 @@ import {
   BadgeCheck,
   Zap,
   Clock,
-  Layers,
+  BookOpen,
   Database
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,22 +45,32 @@ export default function DashboardPage() {
     return collection(db, 'students');
   }, [db, user]);
 
-  const { data: students, isLoading: loading } = useCollection(studentsQuery);
+  const staffQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return collection(db, 'staffs');
+  }, [db, user]);
+
+  const { data: students, isLoading: studentsLoading } = useCollection(studentsQuery);
+  const { data: staffs, isLoading: staffLoading } = useCollection(staffQuery);
 
   const stats = useMemo(() => {
-    if (!students) return { total: 0, active: 0, withdrawn: 0 };
+    if (!students) return { total: 0, primary: 0, secondary: 0, staff: 0 };
+    
+    const activeStudents = students.filter((s: any) => s.status === 'Active');
+    
     return {
-      total: students.length,
-      active: students.filter((s: any) => s.status === 'Active').length,
-      withdrawn: students.filter((s: any) => s.status === 'Withdrawn').length,
+      total: activeStudents.length,
+      primary: activeStudents.filter((s: any) => PRIMARY_CLASSES.includes(s.class)).length,
+      secondary: activeStudents.filter((s: any) => SECONDARY_CLASSES.includes(s.class)).length,
+      staff: staffs?.length || 0
     };
-  }, [students]);
+  }, [students, staffs]);
 
   const secondaryClassData = useMemo(() => {
     if (!students) return [];
     return SECONDARY_CLASSES.map(className => ({
       name: className,
-      count: students.filter((s: any) => s.class === className).length
+      count: students.filter((s: any) => s.class === className && s.status === 'Active').length
     }));
   }, [students]);
 
@@ -69,7 +79,7 @@ export default function DashboardPage() {
     return PRIMARY_CLASSES.map(className => ({
       name: className.replace('Grade ', 'G'),
       fullName: className,
-      count: students.filter((s: any) => s.class === className).length
+      count: students.filter((s: any) => s.class === className && s.status === 'Active').length
     }));
   }, [students]);
 
@@ -87,7 +97,7 @@ export default function DashboardPage() {
     }).slice(0, 5);
   }, [students]);
 
-  if (loading) {
+  if (studentsLoading || staffLoading) {
     return (
       <DashboardShell>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-6">
@@ -108,7 +118,7 @@ export default function DashboardPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
                <span className="h-2 w-2 rounded-full bg-primary animate-ping" />
-               <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">System Live</p>
+               <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Registry Terminal Live</p>
             </div>
             <h2 className="text-5xl font-headline font-black tracking-tight text-primary leading-tight">Overview</h2>
             <p className="text-muted-foreground font-medium max-w-md">Real-time enrollment diagnostics and registry oversight for Kourrklys International School.</p>
@@ -129,47 +139,53 @@ export default function DashboardPage() {
               <Users className="h-24 w-24" />
             </div>
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-white/70">Enrollment</CardTitle>
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-white/70">Total Students</CardTitle>
             </CardHeader>
             <CardContent className="relative z-10">
               <div className="text-5xl font-black">{stats.total}</div>
               <div className="flex items-center gap-2 mt-2 text-white/80">
                 <TrendingUp className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Active Registry</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">Active Enrollment</span>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verified Students</CardTitle>
-              <UserCheck className="h-5 w-5 text-green-500" />
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Primary Level</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
+                <School className="h-4 w-4 text-blue-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-black text-primary">{stats.active}</div>
-              <p className="text-[10px] font-bold text-green-600 mt-2 uppercase tracking-widest">Enrollment Confirmed</p>
+              <div className="text-4xl font-black text-primary">{stats.primary}</div>
+              <p className="text-[10px] font-bold text-blue-600 mt-2 uppercase tracking-widest">Basic Education</p>
             </CardContent>
           </Card>
 
-          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Withdrawn</CardTitle>
-              <UserX className="h-5 w-5 text-destructive" />
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Secondary Level</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center">
+                <BookOpen className="h-4 w-4 text-indigo-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-black text-destructive/80">{stats.withdrawn}</div>
-              <p className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">Registry Archived</p>
+              <div className="text-4xl font-black text-primary">{stats.secondary}</div>
+              <p className="text-[10px] font-bold text-indigo-600 mt-2 uppercase tracking-widest">Higher Institution Prep</p>
             </CardContent>
           </Card>
 
-          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
+          <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Registry Integrity</CardTitle>
-              <Database className="h-5 w-5 text-amber-500" />
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Faculty & Staff</CardTitle>
+              <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
+                <GraduationCap className="h-4 w-4 text-amber-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-black text-amber-600">100%</div>
-              <p className="text-[10px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Database Sync</p>
+              <div className="text-4xl font-black text-amber-600">{stats.staff}</div>
+              <p className="text-[10px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Active Personnel</p>
             </CardContent>
           </Card>
         </div>
