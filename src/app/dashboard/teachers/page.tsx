@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -35,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useFirestore, useCollection, useMemoFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 
@@ -195,11 +197,12 @@ export default function TeachersPage() {
                   filteredTeachers.map((teacher) => (
                     <TableRow key={teacher.id} className="group transition-colors hover:bg-muted/10 border-b-muted/20">
                       <TableCell className="py-5 pl-8">
-                        <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border border-primary/5 shadow-sm group-hover:scale-110 transition-transform">
-                          <img 
+                        <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border border-primary/5 shadow-sm group-hover:scale-110 transition-transform relative">
+                          <Image 
                             src={teacher.photoUrl || 'https://picsum.photos/seed/admin/200/200'} 
                             alt="" 
-                            className="h-full w-full object-cover" 
+                            fill
+                            className="object-cover"
                           />
                         </div>
                       </TableCell>

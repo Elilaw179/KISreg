@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -42,6 +43,7 @@ import {
 } from '@/components/ui/select';
 import { CLASSES } from '@/lib/mock-data';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useFirestore, useCollection, useMemoFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 
@@ -228,11 +230,12 @@ export default function StudentsPage() {
                   filteredStudents.map((student) => (
                     <TableRow key={student.id} className="group hover:bg-muted/5 transition-colors border-b-muted/20">
                       <TableCell className="pl-8 py-5">
-                        <div className="h-12 w-12 rounded-full bg-secondary overflow-hidden border-2 border-primary/5 shadow-sm group-hover:scale-110 transition-transform">
-                          <img 
-                            src={student.photoUrl || 'https://placehold.co/100'} 
+                        <div className="h-12 w-12 rounded-full bg-secondary overflow-hidden border-2 border-primary/5 shadow-sm group-hover:scale-110 transition-transform relative">
+                          <Image 
+                            src={student.photoUrl || 'https://picsum.photos/seed/student/100/100'} 
                             alt="" 
-                            className="h-full w-full object-cover" 
+                            fill
+                            className="object-cover"
                           />
                         </div>
                       </TableCell>
