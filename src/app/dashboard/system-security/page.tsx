@@ -111,7 +111,7 @@ export default function SystemSecurityPage() {
           </Button>
         </div>
 
-        <Card className="border-none shadow-2xl shadow-destructive/5 rounded-3xl overflow-hidden bg-white border-l-4 border-l-destructive">
+        <Card className="border-none shadow-2xl shadow-destructive/5 rounded-3xl overflow-hidden bg-background border-l-4 border-l-destructive">
           <CardHeader className="bg-destructive/5 py-6 px-8">
             <div className="flex items-center gap-3 text-destructive">
               <AlertTriangle className="h-5 w-5" />
@@ -129,7 +129,7 @@ export default function SystemSecurityPage() {
                   <div className="relative group">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white pl-11" 
+                      className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 pl-11" 
                       placeholder="admin@kourrklys.edu.ng"
                       {...form.register('masterEmail')}
                     />
@@ -143,7 +143,7 @@ export default function SystemSecurityPage() {
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
                       type="password"
-                      className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white pl-11" 
+                      className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 pl-11" 
                       {...form.register('masterPassword')}
                     />
                   </div>

@@ -249,7 +249,7 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-white/70">Registrar Display Name</Label>
                     <Input 
-                      className="h-12 rounded-xl bg-white/10 border-white/10 text-white placeholder:text-white/30 focus:bg-white/20" 
+                      className="h-12 rounded-xl bg-white/10 border-white/10 text-white placeholder:text-white/30 focus:bg-white/20 focus:ring-2 focus:ring-white/20" 
                       value={profileName}
                       onChange={(e) => setProfileName(e.target.value)}
                       placeholder="e.g. Dr. Jane Doe"
@@ -284,27 +284,27 @@ export default function SettingsPage() {
               <CardContent className="grid md:grid-cols-2 gap-8 pt-10 px-8 pb-10">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Official School Name</Label>
-                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolName')} />
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20" {...form.register('schoolName')} />
                   {form.formState.errors.schoolName && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolName.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Acronym / Abbreviation</Label>
-                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white uppercase" {...form.register('schoolAbbr')} />
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 uppercase" {...form.register('schoolAbbr')} />
                   {form.formState.errors.schoolAbbr && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolAbbr.message}</p>}
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Corporate Address</Label>
-                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolAddress')} />
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20" {...form.register('schoolAddress')} />
                   {form.formState.errors.schoolAddress && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolAddress.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Administrative Email</Label>
-                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" type="email" {...form.register('schoolEmail')} />
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20" type="email" {...form.register('schoolEmail')} />
                   {form.formState.errors.schoolEmail && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolEmail.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Contact Phone</Label>
-                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-white" {...form.register('schoolPhone')} />
+                  <Input className="h-12 rounded-xl bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20" {...form.register('schoolPhone')} />
                   {form.formState.errors.schoolPhone && <p className="text-[10px] font-bold text-destructive uppercase">{form.formState.errors.schoolPhone.message}</p>}
                 </div>
               </CardContent>
@@ -323,7 +323,7 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Active Academic Session (Type In)</Label>
                   <Input 
-                    className="h-12 rounded-xl bg-white border-primary/20 focus:ring-primary/30" 
+                    className="h-12 rounded-xl bg-background border-primary/20 focus:ring-primary/30" 
                     placeholder="e.g. 2024/2025"
                     {...form.register('activeSession')} 
                   />
@@ -335,7 +335,7 @@ export default function SettingsPage() {
                     onValueChange={(val) => form.setValue('currentTerm', val)} 
                     value={form.watch('currentTerm')}
                   >
-                    <SelectTrigger className="h-12 rounded-xl bg-white border-primary/20">
+                    <SelectTrigger className="h-12 rounded-xl bg-background border-primary/20">
                       <SelectValue placeholder="Select Term" />
                     </SelectTrigger>
                     <SelectContent>

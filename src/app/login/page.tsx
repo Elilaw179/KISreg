@@ -141,7 +141,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="admin@kourrklys.edu.ng" 
-                  className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-2xl text-sm" 
+                  className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-2xl text-sm" 
                   required 
                 />
               </div>
@@ -159,7 +159,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"} 
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="pl-11 pr-10 h-12 bg-muted/20 border-transparent focus:bg-white focus:border-primary/20 transition-all rounded-2xl text-sm" 
+                  className="pl-11 pr-10 h-12 bg-muted/20 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-2xl text-sm" 
                   required 
                 />
                 <button
