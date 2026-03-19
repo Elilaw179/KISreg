@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -41,6 +40,7 @@ import Link from 'next/link';
 import { useFirestore, useDoc, useUser, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { FormattedDate } from '@/components/formatted-date';
+import { cn } from "@/lib/utils";
 
 export default function StudentDetailPage() {
   const params = useParams();
@@ -362,5 +362,3 @@ export default function StudentDetailPage() {
     </DashboardShell>
   );
 }
-
-import { cn } from "@/lib/utils";

@@ -18,19 +18,16 @@ service cloud.firestore {
     }
 
     /**
-     * @description Fetches the master email from settings to allow dynamic authorization.
+     * @description Fetches the master email from settings with a safe fallback.
      */
     function getMasterEmail() {
-      // Allow checking against the dynamic configuration set by the user
-      return get(/databases/$(database)/documents/settings/auth-config).data.masterEmail;
+      return exists(/databases/$(database)/documents/settings/auth-config) 
+        ? get(/databases/$(database)/documents/settings/auth-config).data.get('masterEmail', 'sunday1elisha179@gmail.com')
+        : "sunday1elisha179@gmail.com";
     }
 
     /** 
-     * @description Checks if the user is a registered Admin.
-     * Checks:
-     * 1. If user exists in the roles_admin collection.
-     * 2. If user email matches the original bootstrap email.
-     * 3. If user email matches the dynamic master email set in System Security.
+     * @description Checks if the user is a registered Admin or the Master Bootstrap user.
      */
     function isAdmin() {
       return isSignedIn() && (
@@ -44,42 +41,38 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isExistingAdmin(docResource) {
-      return docResource != null && isAdmin();
-    }
-
     // --- Collection Rules ---
 
     match /roles_admin/{userId} {
       allow get: if isSignedIn();
-      // Allow creation if the user is the master admin (to bootstrap their entry)
-      allow create: if isSignedIn() && (
+      // Allow creation/update if the user is the master admin (to bootstrap their entry)
+      allow create, update: if isSignedIn() && (
         request.auth.token.email == "sunday1elisha179@gmail.com" ||
         request.auth.token.email == getMasterEmail()
       );
-      allow list, update, delete: if isAdmin();
+      allow list, delete: if isAdmin();
     }
 
     match /staffs/{staffId} {
       allow get: if isOwner(staffId) || isAdmin();
-      allow list, create: if isAdmin();
-      allow update, delete: if isExistingAdmin(resource);
+      allow list, create, update: if isAdmin();
+      allow delete: if false; // Permanent registry protection
     }
 
     match /classes/{classId} {
       allow get, list: if isSignedIn();
-      allow create: if isAdmin();
-      allow update, delete: if isExistingAdmin(resource);
+      allow create, update: if isAdmin();
+      allow delete: if false;
     }
 
     match /students/{studentId} {
-      allow get, list, create: if isAdmin();
-      allow update, delete: if isExistingAdmin(resource);
+      allow get, list, create, update: if isAdmin();
+      allow delete: if false; // Permanent registry protection
     }
 
     match /settings/{settingId} {
-      // Allow unauthenticated get for auth-config to facilitate dynamic login checks
-      allow get: if settingId == 'auth-config' || settingId == 'school-config' || isSignedIn();
+      // Allow authenticated get for configs to facilitate dynamic login checks
+      allow get: if isSignedIn();
       allow list, create, update, delete: if isAdmin();
     }
   }

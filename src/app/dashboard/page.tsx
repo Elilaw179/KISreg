@@ -4,7 +4,6 @@ import React, { useMemo } from 'react';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { 
   Users, 
-  UserCheck, 
   GraduationCap, 
   School,
   Loader2,

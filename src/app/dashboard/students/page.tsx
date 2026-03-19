@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -12,7 +11,8 @@ import {
   FileDown,
   Loader2,
   UserX,
-  Award
+  Award,
+  UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,7 +57,7 @@ export default function StudentsPage() {
     return collection(db, 'students');
   }, [db, user]);
 
-  const { data: students, loading } = useCollection(studentsQuery);
+  const { data: students, isLoading: loading } = useCollection(studentsQuery);
 
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -320,5 +320,3 @@ export default function StudentsPage() {
     </DashboardShell>
   );
 }
-
-import { UserCheck } from 'lucide-react';
