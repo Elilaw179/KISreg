@@ -164,18 +164,18 @@ export default function DashboardPage() {
 
           <Card className="hover-lift border-none shadow-xl shadow-muted/50 overflow-hidden relative group rounded-3xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">School Stats</CardTitle>
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Attendance</CardTitle>
               <School className="h-5 w-5 text-amber-500" />
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-black text-amber-600">98%</div>
-              <p className="text-[10px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Attendance Metric</p>
+              <p className="text-[10px] font-bold text-amber-700 mt-2 uppercase tracking-widest">Session Average</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-white">
+        <div className="grid gap-8 grid-cols-1 lg:grid-cols-7">
+          <Card className="lg:col-span-4 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-white">
             <CardHeader className="p-8 border-b bg-muted/5">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -184,11 +184,11 @@ export default function DashboardPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-8">
+            <CardContent className="p-6 md:p-8">
               <Tabs defaultValue="secondary" className="space-y-8">
-                <TabsList className="bg-muted/50 p-1 h-12 rounded-2xl">
-                  <TabsTrigger value="secondary" className="rounded-xl px-6 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Secondary Levels</TabsTrigger>
-                  <TabsTrigger value="primary" className="rounded-xl px-6 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Primary Levels</TabsTrigger>
+                <TabsList className="bg-muted/50 p-1 h-12 rounded-2xl w-full md:w-auto">
+                  <TabsTrigger value="secondary" className="flex-1 md:flex-none rounded-xl px-6 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Secondary</TabsTrigger>
+                  <TabsTrigger value="primary" className="flex-1 md:flex-none rounded-xl px-6 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Primary</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="secondary" className="mt-0">
@@ -231,19 +231,19 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="col-span-3 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-white">
+          <Card className="lg:col-span-3 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-white">
             <CardHeader className="p-8 border-b bg-muted/5">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="font-headline font-black text-2xl text-primary">Recently Admitted</CardTitle>
-                  <CardDescription className="font-bold text-muted-foreground mt-1">Latest entries in system</CardDescription>
+                  <CardDescription className="font-bold text-muted-foreground mt-1">Latest registry entries</CardDescription>
                 </div>
                 <Button variant="ghost" size="sm" className="rounded-xl font-bold text-primary" asChild>
                   <Link href="/dashboard/students">View All <ArrowUpRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-8">
+            <CardContent className="p-6 md:p-8">
               <div className="space-y-6">
                 {recentStudents.length > 0 ? (
                   recentStudents.map((student: any) => (
@@ -252,10 +252,10 @@ export default function DashboardPage() {
                         <img src={student.photoUrl || 'https://placehold.co/100'} alt="" className="h-full w-full object-cover" />
                       </div>
                       <div className="flex-1 space-y-1">
-                        <p className="text-base font-black text-primary group-hover:text-blue-600 transition-colors">{student.fullName}</p>
+                        <p className="text-base font-black text-primary group-hover:text-blue-600 transition-colors line-clamp-1">{student.fullName}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2 py-0.5 bg-muted rounded-md">{student.class}</span>
-                          <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{student.admissionNumber}</span>
+                          <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest truncate max-w-[80px]">{student.admissionNumber}</span>
                         </div>
                         <div className="flex items-center gap-1 text-muted-foreground/60 text-[9px] font-bold">
                            <Clock className="h-3 w-3" />
