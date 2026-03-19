@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -50,6 +50,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const db = useFirestore();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const [currentSession, setCurrentSession] = useState("");
 
   const adminProfileRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -62,6 +63,10 @@ export function DashboardShell({ children }: DashboardShellProps) {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
+    
+    // Automatic Session Calculation
+    const year = new Date().getFullYear();
+    setCurrentSession(`${year - 1}/${year}`);
   }, [user, isUserLoading, router]);
 
   const handleLogout = async () => {
@@ -211,7 +216,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           </div>
         </main>
 
-        <footer className="border-t bg-white py-8 px-6 md:px-10 shrink-0">
+        <footer className="border-t bg-card py-8 px-6 md:px-10 shrink-0">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 relative opacity-80 grayscale">
@@ -238,7 +243,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Secure Entry Terminal</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Session: 2024/2025</span>
+                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Session: {currentSession || 'Calculating...'}</span>
               </div>
             </div>
           </div>

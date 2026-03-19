@@ -26,7 +26,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,7 +35,6 @@ import {
   useMemoFirebase, 
   setDocumentNonBlocking, 
   useUser, 
-  updateDocumentNonBlocking 
 } from '@/firebase';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -87,8 +85,8 @@ export default function SettingsPage() {
       schoolAddress: '12 Victoria Island, Lagos, Nigeria',
       schoolEmail: 'admin@kourrklys.edu.ng',
       schoolPhone: '+234 801 234 5678',
-      activeSession: '2023/2024',
-      currentTerm: '2nd',
+      activeSession: `${new Date().getFullYear() - 1}/${new Date().getFullYear()}`,
+      currentTerm: '1st',
       twoFactorEnabled: false,
     },
   });
@@ -101,7 +99,7 @@ export default function SettingsPage() {
         schoolAddress: remoteSettings.schoolAddress || '',
         schoolEmail: remoteSettings.schoolEmail || '',
         schoolPhone: remoteSettings.schoolPhone || '',
-        activeSession: remoteSettings.activeSession || '',
+        activeSession: remoteSettings.activeSession || `${new Date().getFullYear() - 1}/${new Date().getFullYear()}`,
         currentTerm: remoteSettings.currentTerm || '1st',
         twoFactorEnabled: !!remoteSettings.twoFactorEnabled,
       });
