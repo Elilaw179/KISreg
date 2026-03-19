@@ -66,7 +66,13 @@ export function DashboardShell({ children }: DashboardShellProps) {
     
     // Automatic Session Calculation
     const year = new Date().getFullYear();
-    setCurrentSession(`${year - 1}/${year}`);
+    const month = new Date().getMonth();
+    // Academic sessions usually start in September (Month 8 in JS)
+    if (month >= 8) {
+      setCurrentSession(`${year}/${year + 1}`);
+    } else {
+      setCurrentSession(`${year - 1}/${year}`);
+    }
   }, [user, isUserLoading, router]);
 
   const handleLogout = async () => {
@@ -233,17 +239,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
               </div>
             </div>
             
-            <div className="flex flex-wrap items-center justify-center gap-8">
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Database Sync: Online</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary opacity-40" />
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Secure Entry Terminal</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Session: {currentSession || 'Calculating...'}</span>
+                <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                  Academic Session: {currentSession || 'Calculating...'}
+                </span>
               </div>
             </div>
           </div>
