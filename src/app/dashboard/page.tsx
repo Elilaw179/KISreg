@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo } from 'react';
@@ -124,7 +123,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="hover-lift border-none bg-primary text-white overflow-hidden relative group rounded-3xl">
+          <Card className="hover-lift border-none bg-primary text-primary-foreground overflow-hidden relative group rounded-3xl">
             <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 rotate-12 group-hover:scale-110 transition-transform duration-700">
               <Users className="h-24 w-24" />
             </div>
@@ -174,8 +173,8 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <div className="grid gap-8 grid-cols-1 lg:grid-cols-7">
-          <Card className="lg:col-span-4 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-white">
+        <div className="grid gap-8 grid-cols-1 lg:grid-cols-7 w-full">
+          <Card className="lg:col-span-4 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-card w-full">
             <CardHeader className="p-8 border-b bg-muted/5">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -231,7 +230,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-3 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-white">
+          <Card className="lg:col-span-3 border-none shadow-2xl shadow-muted/50 rounded-3xl overflow-hidden bg-card w-full">
             <CardHeader className="p-8 border-b bg-muted/5">
               <div className="flex items-center justify-between">
                 <div>

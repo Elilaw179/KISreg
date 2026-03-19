@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -212,7 +211,7 @@ export default function StudentsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-2xl shadow-muted/50 border-none overflow-hidden">
+        <div className="bg-card rounded-3xl shadow-2xl shadow-muted/50 border-none overflow-hidden">
           {loading ? (
             <div className="flex flex-col items-center justify-center h-80 gap-4">
               <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
@@ -279,8 +278,11 @@ export default function StudentsPage() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="opacity-50" />
                             <DropdownMenuItem 
-                              className="text-destructive font-bold rounded-xl focus:bg-destructive focus:text-white"
-                              onSelect={() => setStudentToDelete(student.id)}
+                              className="text-destructive font-bold rounded-xl focus:bg-destructive focus:text-white cursor-pointer"
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                setStudentToDelete(student.id);
+                              }}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete Permanent
