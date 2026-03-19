@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -37,65 +38,60 @@ export default function LoginPage() {
 
     try {
       // 1. Fetch Dynamic Master Credentials from Firestore
-      let masterEmail = DEFAULT_ADMIN_CREDENTIALS.email;
-      let masterPassword = DEFAULT_ADMIN_CREDENTIALS.password;
+      let targetEmail = DEFAULT_ADMIN_CREDENTIALS.email;
+      let targetPassword = DEFAULT_ADMIN_CREDENTIALS.password;
 
       try {
         const configRef = doc(db, 'settings', 'auth-config');
         const configSnap = await getDoc(configRef);
         if (configSnap.exists()) {
           const data = configSnap.data();
-          if (data.masterEmail) masterEmail = data.masterEmail;
-          if (data.masterPassword) masterPassword = data.masterPassword;
+          if (data.masterEmail) targetEmail = data.masterEmail;
+          if (data.masterPassword) targetPassword = data.masterPassword;
         }
       } catch (err) {
-        console.warn("Falling back to default credentials due to sync delay.");
+        console.warn("Sync delay: Using default master credentials.");
       }
 
       // 2. Strict Validation against Dynamic or Default credentials
-      if (formData.email !== masterEmail || formData.password !== masterPassword) {
-        throw new Error("Invalid administrative credentials.");
+      if (formData.email !== targetEmail || formData.password !== targetPassword) {
+        throw new Error("Unauthorized administrative access attempt.");
       }
 
-      // 3. Real Firebase Authentication with Bootstrap Logic
+      // 3. Authenticate with Firebase
       let userCredential: UserCredential;
       try {
         userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
       } catch (error: any) {
-        // If the account doesn't exist in Auth yet, create it automatically (Bootstrap)
+        // Bootstrap account if it's the first time using these credentials
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
-          try {
-            userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-          } catch (createError) {
-            throw error;
-          }
+          userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
         } else {
           throw error;
         }
       }
 
-      // 4. Force Authorize as Admin in Firestore (Registry Bootstrap)
+      // 4. Register ID in Admin Registry
       if (userCredential.user) {
         const adminRoleRef = doc(db, 'roles_admin', userCredential.user.uid);
         await setDoc(adminRoleRef, { 
           isAdmin: true,
           email: formData.email,
-          lastLogin: serverTimestamp(),
-          updatedAt: serverTimestamp()
+          lastLogin: serverTimestamp()
         }, { merge: true });
       }
       
       toast({
-        title: "Access Granted",
-        description: "Welcome to the KIS Administrative Portal.",
+        title: "Registry Authorized",
+        description: "Welcome to the KIS Administrative Interface.",
       });
       router.push('/dashboard');
     } catch (error: any) {
       setIsLoggingIn(false);
       toast({
         variant: "destructive",
-        title: "Authentication Failed",
-        description: error.message || "Could not verify credentials.",
+        title: "Access Denied",
+        description: error.message || "Credential verification failed.",
       });
     }
   };
@@ -116,10 +112,10 @@ export default function LoginPage() {
       </div>
 
       <div className="mb-10 flex flex-col items-center gap-4 relative z-10">
-        <div className="relative w-32 h-32 mb-2 drop-shadow-2xl">
+        <div className="relative w-32 h-32 mb-2">
           <Image 
             src="/logokis.png"
-            alt="Kourrklys International School Logo"
+            alt="KIS Logo"
             fill
             className="object-contain"
             priority
@@ -211,7 +207,7 @@ export default function LoginPage() {
       </Card>
 
       <footer className="mt-16 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40">
-        &copy; {new Date().getFullYear()} Kourrklys Int. School • Admin Infrastructure
+        &copy; {new Date().getFullYear()} Kourrklys Int. School • Administrative Infrastructure
       </footer>
     </div>
   );

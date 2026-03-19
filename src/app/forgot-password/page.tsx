@@ -15,7 +15,6 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate password reset request
     setIsSubmitted(true);
   };
 
@@ -25,20 +24,20 @@ export default function ForgotPasswordPage() {
         <div className="relative w-24 h-24 mb-2">
           <Image 
             src="/logokis.png"
-            alt="Kourrklys International School Logo"
+            alt="KIS Logo"
             fill
             className="object-contain"
             priority
           />
         </div>
-        <h1 className="text-2xl font-headline font-extrabold text-primary tracking-tight uppercase">Kourrklys</h1>
+        <h1 className="text-2xl font-headline font-black text-primary tracking-tight uppercase">KOURRKLYS</h1>
       </div>
 
       <Card className="w-full max-w-md shadow-2xl border-none">
         {!isSubmitted ? (
           <>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center font-headline font-bold">Reset Password</CardTitle>
+              <CardTitle className="text-2xl text-center font-headline font-bold">Reset Access Key</CardTitle>
               <CardDescription className="text-center">
                 Enter your official email to receive a reset link.
               </CardDescription>
@@ -46,24 +45,24 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Official Email Address</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80">Official Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
                       id="email" 
                       type="email"
-                      placeholder="staffname@kourrklys.edu.ng" 
-                      className="pl-10 h-11" 
+                      placeholder="registrar@kourrklys.edu.ng" 
+                      className="pl-10 h-11 rounded-xl" 
                       required 
                     />
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button type="submit" className="w-full h-12 text-base font-semibold shadow-md">
-                  Send Reset Instructions
+                <Button type="submit" className="w-full h-12 text-sm font-black uppercase tracking-widest shadow-md rounded-xl">
+                  Send Instructions
                 </Button>
-                <Button variant="ghost" asChild className="w-full">
+                <Button variant="ghost" asChild className="w-full rounded-xl">
                   <Link href="/login">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to login
@@ -77,12 +76,12 @@ export default function ForgotPasswordPage() {
             <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
               <CheckCircle2 className="h-10 w-10" />
             </div>
-            <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
+            <CardTitle className="text-2xl font-black">Check your inbox</CardTitle>
             <CardDescription className="text-base max-w-[280px]">
-              We've sent password reset instructions to your email address.
+              If the email matches a registered admin account, you will receive instructions shortly.
             </CardDescription>
             <div className="pt-6 w-full">
-              <Button asChild className="w-full h-11 font-bold shadow-md">
+              <Button asChild className="w-full h-11 font-black uppercase tracking-widest shadow-md rounded-xl">
                 <Link href="/login">Return to Login</Link>
               </Button>
             </div>
@@ -90,7 +89,7 @@ export default function ForgotPasswordPage() {
         )}
       </Card>
 
-      <footer className="mt-12 text-sm text-muted-foreground">
+      <footer className="mt-12 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40">
         &copy; {new Date().getFullYear()} Kourrklys International School.
       </footer>
     </div>

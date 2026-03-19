@@ -8,6 +8,11 @@ import { ThemeProvider } from '@/components/theme-provider';
 export const metadata: Metadata = {
   title: 'Kourrklys International School | Admin Portal',
   description: 'Management System for Kourrklys International School (KIS)',
+  icons: {
+    icon: '/logokis.png',
+    shortcut: '/logokis.png',
+    apple: '/logokis.png',
+  },
 };
 
 export default function RootLayout({
