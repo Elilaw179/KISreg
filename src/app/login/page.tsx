@@ -12,8 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { DEFAULT_ADMIN_CREDENTIALS } from '@/lib/auth-config';
 import Image from 'next/image';
 import { useAuth, useUser, useFirestore } from '@/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential } from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,19 +58,31 @@ export default function LoginPage() {
       }
 
       // 3. Real Firebase Authentication with Bootstrap Logic
+      let userCredential: UserCredential;
       try {
-        await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
       } catch (error: any) {
         // If the account doesn't exist yet, create it automatically (Bootstrap)
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
           try {
-            await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+            userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
           } catch (createError) {
             throw error;
           }
         } else {
           throw error;
         }
+      }
+
+      // 4. Authorize as Admin in Firestore (Registry Bootstrap)
+      // This ensures the user has permission according to Security Rules even if email changes.
+      if (userCredential.user) {
+        const adminRoleRef = doc(db, 'roles_admin', userCredential.user.uid);
+        await setDoc(adminRoleRef, { 
+          isAdmin: true,
+          email: formData.email,
+          lastLogin: serverTimestamp() 
+        }, { merge: true });
       }
       
       toast({
