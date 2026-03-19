@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
       <div className="mb-8 flex flex-col items-center gap-2">
         <div className="relative w-24 h-24 mb-2">
           <Image 
-            src="/logo.png"
+            src="/logokis.png"
             alt="Kourrklys International School Logo"
             fill
             className="object-contain"

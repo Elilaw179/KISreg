@@ -14,9 +14,7 @@ import {
   GraduationCap,
   ClipboardList,
   Loader2,
-  Sparkles,
-  ShieldCheck,
-  Heart
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -129,7 +127,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <SidebarHeader className="p-6 flex flex-row items-center gap-3">
           <div className="bg-white rounded-2xl p-1.5 shrink-0 shadow-xl w-11 h-11 relative overflow-hidden transition-all hover:rotate-3 hover:scale-110">
              <Image 
-                src="/logo.png"
+                src="/logokis.png"
                 alt="KIS Logo"
                 fill
                 className="object-contain p-1"
@@ -243,7 +241,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 onClick={handleLogoClick}
               >
                 <Image 
-                  src="/logo.png"
+                  src="/logokis.png"
                   alt="KIS Logo"
                   fill
                   className="object-contain"

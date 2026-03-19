@@ -119,7 +119,7 @@ export default function LoginPage() {
       <div className="mb-10 flex flex-col items-center gap-4 relative z-10">
         <div className="relative w-32 h-32 mb-2 drop-shadow-2xl">
           <Image 
-            src="/logo.png"
+            src="/logokis.png"
             alt="Kourrklys International School Logo"
             fill
             className="object-contain"
