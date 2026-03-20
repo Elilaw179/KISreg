@@ -23,7 +23,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/Table';
+} from '@/components/ui/table';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -139,7 +139,7 @@ export default function StudentsPage() {
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `kis_students_report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `kourklys_students_report_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -153,7 +153,7 @@ export default function StudentsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-4xl font-headline font-black text-primary tracking-tight">Student Directory</h2>
-            <p className="text-muted-foreground font-medium">Manage and view all student records in the system.</p>
+            <p className="text-muted-foreground font-medium">Manage and view all student records in the KOURKLYS registry.</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="rounded-xl font-bold border-2" onClick={handleExport} disabled={!filteredStudents.length}>

@@ -24,7 +24,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/Table';
+} from '@/components/ui/table';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -130,7 +130,7 @@ export default function TeachersPage() {
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `kis_staff_report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `kourklys_staff_report_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -144,7 +144,7 @@ export default function TeachersPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-4xl font-headline font-black text-primary tracking-tight">Staff Management</h2>
-            <p className="text-muted-foreground font-medium text-sm">Oversee teaching and administrative personnel records.</p>
+            <p className="text-muted-foreground font-medium text-sm">Oversee KOURKLYS teaching and administrative personnel records.</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="rounded-xl font-bold border-2" onClick={handleExport} disabled={!filteredTeachers.length}>

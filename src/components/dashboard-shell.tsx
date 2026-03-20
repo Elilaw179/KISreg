@@ -123,7 +123,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           <div className="bg-white rounded-2xl p-1.5 shrink-0 shadow-xl w-11 h-11 relative overflow-hidden transition-all hover:rotate-3 hover:scale-110">
              <Image 
                 src="/logokis.png"
-                alt="KIS Logo"
+                alt="KOURKLYS Logo"
                 fill
                 className="object-contain p-1"
                 priority
@@ -215,7 +215,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 <p className="text-[10px] text-muted-foreground font-black tracking-widest uppercase opacity-60">Registrar Office</p>
               </div>
               <div className="h-11 w-11 rounded-full border-2 border-primary/10 shadow-xl transition-all hover:scale-110 hover:rotate-3 cursor-pointer relative overflow-hidden ring-offset-background ring-primary/20 hover:ring-2">
-                <Image src={photoUrl} alt="Admin" fill className="object-cover" />
+                <Image src={photoUrl} alt="Admin" fill className="object-cover rounded-full" />
               </div>
             </div>
           </div>
@@ -236,13 +236,13 @@ export function DashboardShell({ children }: DashboardShellProps) {
               >
                 <Image 
                   src="/logokis.png"
-                  alt="KIS Logo"
+                  alt="KOURKLYS Logo"
                   fill
                   className="object-contain p-1"
                 />
               </div>
               <div>
-                <p className="text-xs font-black text-primary uppercase tracking-widest leading-none">Kourklys International School</p>
+                <p className="text-xs font-black text-primary uppercase tracking-widest leading-none">KOURKLYS International School</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Administrative Infrastructure &copy; {new Date().getFullYear()}</p>
               </div>
             </div>
