@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -175,7 +174,7 @@ export default function StudentsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name or admission number..."
-              className="pl-12 h-12 rounded-2xl bg-muted/30 border-transparent focus:bg-white focus:border-primary/20 transition-all"
+              className="pl-12 h-12 rounded-2xl bg-muted/30 border-transparent focus:bg-background focus:border-primary/20 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

@@ -199,7 +199,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
               <Input
                 type="search"
                 placeholder="Find records, staff or events..."
-                className="pl-12 bg-muted/50 border-transparent ring-0 focus-visible:ring-primary/20 focus-visible:bg-white transition-all rounded-2xl h-11 text-sm"
+                className="pl-12 bg-muted/50 border-transparent ring-0 focus-visible:ring-primary/20 focus-visible:bg-background transition-all rounded-2xl h-11 text-sm"
               />
             </div>
           </div>

@@ -249,7 +249,7 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-white/70">Registrar Display Name</Label>
                     <Input 
-                      className="h-12 rounded-xl bg-white/10 border-white/10 text-white placeholder:text-white/30 focus:bg-white/20 focus:ring-2 focus:ring-white/20" 
+                      className="h-12 rounded-xl bg-white/10 border-white/10 text-white placeholder:text-white/30 focus:bg-background focus:ring-2 focus:ring-white/20" 
                       value={profileName}
                       onChange={(e) => setProfileName(e.target.value)}
                       placeholder="e.g. Dr. Jane Doe"
