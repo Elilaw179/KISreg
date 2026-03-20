@@ -106,12 +106,12 @@ export default function LoginPage() {
       </div>
 
       <div className="mb-10 flex flex-col items-center gap-4 relative z-10">
-        <div className="relative w-32 h-32 mb-2">
+        <div className="bg-white rounded-3xl p-2 shrink-0 shadow-2xl w-32 h-32 relative overflow-hidden transition-all hover:rotate-3 hover:scale-105 border-4 border-primary/5">
           <Image 
             src="/logokis.png"
             alt="KIS Logo"
             fill
-            className="object-contain"
+            className="object-contain p-2"
             priority
           />
         </div>

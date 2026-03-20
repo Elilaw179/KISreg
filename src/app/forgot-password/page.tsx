@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -21,19 +20,19 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="relative w-24 h-24 mb-2">
+        <div className="bg-white rounded-3xl p-2 shrink-0 shadow-2xl w-24 h-24 relative overflow-hidden transition-all hover:rotate-3 hover:scale-110 border-2 border-primary/5 mb-2">
           <Image 
             src="/logokis.png"
             alt="KIS Logo"
             fill
-            className="object-contain"
+            className="object-contain p-2"
             priority
           />
         </div>
         <h1 className="text-2xl font-headline font-black text-primary tracking-tight uppercase">KOURRKLYS</h1>
       </div>
 
-      <Card className="w-full max-w-md shadow-2xl border-none">
+      <Card className="w-full max-w-md shadow-2xl border-none rounded-3xl">
         {!isSubmitted ? (
           <>
             <CardHeader className="space-y-1">
@@ -52,7 +51,7 @@ export default function ForgotPasswordPage() {
                       id="email" 
                       type="email"
                       placeholder="registrar@kourrklys.edu.ng" 
-                      className="pl-10 h-11 rounded-xl" 
+                      className="pl-10 h-11 rounded-xl bg-muted/20 border-transparent focus:bg-background transition-all" 
                       required 
                     />
                   </div>
