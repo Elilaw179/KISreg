@@ -24,7 +24,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/components/ui/table';
+} from '@/Table';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -165,7 +165,7 @@ export default function TeachersPage() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name, ID or department..."
-              className="pl-9 h-10 rounded-lg bg-muted/20 border-transparent focus:bg-background focus:border-primary/20 transition-all"
+              className="pl-9 h-10 rounded-lg bg-muted/20 border-transparent focus:bg-background transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -179,102 +179,104 @@ export default function TeachersPage() {
               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">Accessing Records...</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader className="bg-muted/30 border-none">
-                <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="w-[80px] font-black text-[10px] uppercase tracking-widest py-5 pl-8">Photo</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Full Name</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Staff ID</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Designation</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Status</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Contact</TableHead>
-                  <TableHead className="text-right font-black text-[10px] uppercase tracking-widest pr-8">Manage</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTeachers.length > 0 ? (
-                  filteredTeachers.map((teacher) => (
-                    <TableRow key={teacher.id} className="group transition-colors hover:bg-muted/10 border-b-muted/20">
-                      <TableCell className="py-5 pl-8">
-                        <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border border-primary/5 shadow-sm group-hover:scale-110 transition-transform relative">
-                          <Image 
-                            src={teacher.photoUrl || 'https://picsum.photos/seed/admin/200/200'} 
-                            alt="" 
-                            fill
-                            className="object-cover"
-                          />
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-muted/30 border-none">
+                  <TableRow className="hover:bg-transparent border-none">
+                    <TableHead className="w-[80px] font-black text-[10px] uppercase tracking-widest py-5 pl-8">Photo</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Full Name</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Staff ID</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Designation</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Status</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Contact</TableHead>
+                    <TableHead className="text-right font-black text-[10px] uppercase tracking-widest pr-8">Manage</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredTeachers.length > 0 ? (
+                    filteredTeachers.map((teacher) => (
+                      <TableRow key={teacher.id} className="group transition-colors hover:bg-muted/10 border-b-muted/20">
+                        <TableCell className="py-5 pl-8">
+                          <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden border border-primary/5 shadow-sm group-hover:scale-110 transition-transform relative">
+                            <Image 
+                              src={teacher.photoUrl || 'https://picsum.photos/seed/admin/200/200'} 
+                              alt="" 
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-bold text-primary text-base whitespace-nowrap">{teacher.fullName}</TableCell>
+                        <TableCell className="text-[11px] font-black text-muted-foreground uppercase whitespace-nowrap">{teacher.staffId}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 font-bold px-3">
+                            {teacher.designation || 'Staff'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <Badge 
+                            variant={teacher.status === 'Active' ? 'default' : 'secondary'} 
+                            className={teacher.status === 'Active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none px-4' : 'px-4 opacity-60'}
+                          >
+                            {teacher.status || 'Active'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[10px] font-medium flex items-center gap-1"><Mail className="h-3 w-3 opacity-50" /> {teacher.email}</span>
+                            <span className="text-[10px] font-medium flex items-center gap-1"><Phone className="h-3 w-3 opacity-50" /> {teacher.phone}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right pr-8 whitespace-nowrap">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 rounded-2xl shadow-2xl border-none p-2">
+                              <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2 py-1">Record Management</DropdownMenuLabel>
+                              <DropdownMenuSeparator className="my-1 opacity-50" />
+                              <DropdownMenuItem asChild className="rounded-xl">
+                                <Link href={`/dashboard/teachers/${teacher.id}`}>
+                                  <Eye className="mr-2 h-4 w-4 opacity-70" />
+                                  View Profile
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild className="rounded-xl">
+                                <Link href={`/dashboard/teachers/${teacher.id}/edit`}>
+                                  <Edit className="mr-2 h-4 w-4 opacity-70" />
+                                  Edit Record
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="rounded-xl cursor-pointer"
+                                onClick={() => toggleStatus(teacher.id, teacher.status || 'Active')}
+                              >
+                                {teacher.status === 'Inactive' ? (
+                                  <><UserCheck className="mr-2 h-4 w-4 text-green-600" /> Activate Staff</>
+                                ) : (
+                                  <><UserX className="mr-2 h-4 w-4 text-amber-600" /> Deactivate Staff</>
+                                )}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-64 text-center text-muted-foreground">
+                        <div className="flex flex-col items-center gap-4">
+                          <Search className="h-12 w-12 opacity-10" />
+                          <p className="text-[10px] font-black uppercase tracking-[0.3em]">No matching staff records found</p>
                         </div>
-                      </TableCell>
-                      <TableCell className="font-bold text-primary text-base">{teacher.fullName}</TableCell>
-                      <TableCell className="text-[11px] font-black text-muted-foreground uppercase">{teacher.staffId}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 font-bold px-3">
-                          {teacher.designation || 'Staff'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={teacher.status === 'Active' ? 'default' : 'secondary'} 
-                          className={teacher.status === 'Active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none px-4' : 'px-4 opacity-60'}
-                        >
-                          {teacher.status || 'Active'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-[10px] font-medium flex items-center gap-1"><Mail className="h-3 w-3 opacity-50" /> {teacher.email}</span>
-                          <span className="text-[10px] font-medium flex items-center gap-1"><Phone className="h-3 w-3 opacity-50" /> {teacher.phone}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right pr-8">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl shadow-2xl border-none p-2">
-                            <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2 py-1">Record Management</DropdownMenuLabel>
-                            <DropdownMenuSeparator className="my-1 opacity-50" />
-                            <DropdownMenuItem asChild className="rounded-xl">
-                              <Link href={`/dashboard/teachers/${teacher.id}`}>
-                                <Eye className="mr-2 h-4 w-4 opacity-70" />
-                                View Profile
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild className="rounded-xl">
-                              <Link href={`/dashboard/teachers/${teacher.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4 opacity-70" />
-                                Edit Record
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="rounded-xl cursor-pointer"
-                              onClick={() => toggleStatus(teacher.id, teacher.status || 'Active')}
-                            >
-                              {teacher.status === 'Inactive' ? (
-                                <><UserCheck className="mr-2 h-4 w-4 text-green-600" /> Activate Staff</>
-                              ) : (
-                                <><UserX className="mr-2 h-4 w-4 text-amber-600" /> Deactivate Staff</>
-                              )}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="h-64 text-center text-muted-foreground">
-                      <div className="flex flex-col items-center gap-4">
-                        <Search className="h-12 w-12 opacity-10" />
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No matching staff records found</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>

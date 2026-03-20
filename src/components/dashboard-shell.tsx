@@ -129,8 +129,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 priority
              />
           </div>
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden">
-            <span className="font-headline font-black text-xl text-white leading-tight tracking-tight">KOURRKLYS</span>
+          <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden text-white">
+            <span className="font-headline font-black text-xl leading-tight tracking-tight uppercase">KOURKLYS</span>
             <span className="text-[10px] text-white/50 font-bold tracking-[0.2em] uppercase">Int. School</span>
           </div>
         </SidebarHeader>
@@ -242,7 +242,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 />
               </div>
               <div>
-                <p className="text-xs font-black text-primary uppercase tracking-widest leading-none">Kourrklys International School</p>
+                <p className="text-xs font-black text-primary uppercase tracking-widest leading-none">Kourklys International School</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Administrative Infrastructure &copy; {new Date().getFullYear()}</p>
               </div>
             </div>

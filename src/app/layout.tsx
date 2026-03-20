@@ -5,8 +5,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'Kourrklys International School | Admin Portal',
-  description: 'Management System for Kourrklys International School (KIS)',
+  title: 'Kourklys International School | Admin Portal',
+  description: 'Management System for Kourklys International School (KIS)',
   icons: {
     icon: '/logokis.png',
     shortcut: '/logokis.png',

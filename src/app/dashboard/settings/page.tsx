@@ -79,10 +79,10 @@ export default function SettingsPage() {
   const form = useForm<SettingsValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      schoolName: 'Kourrklys International School',
+      schoolName: 'Kourklys International School',
       schoolAbbr: 'KIS',
       schoolAddress: '12 Victoria Island, Lagos, Nigeria',
-      schoolEmail: 'admin@kourrklys.edu.ng',
+      schoolEmail: 'admin@kourklys.edu.ng',
       schoolPhone: '+234 801 234 5678',
       activeSession: `${new Date().getFullYear() - 1}/${new Date().getFullYear()}`,
       currentTerm: '1st',

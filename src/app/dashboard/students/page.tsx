@@ -23,7 +23,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/components/ui/table';
+} from '@/Table';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -174,7 +174,7 @@ export default function StudentsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name or admission number..."
-              className="pl-12 h-12 rounded-2xl bg-muted/30 border-transparent focus:bg-background focus:border-primary/20 transition-all"
+              className="pl-12 h-12 rounded-2xl bg-muted/30 border-transparent focus:bg-background transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -213,109 +213,111 @@ export default function StudentsPage() {
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground animate-pulse">Syncing Directory</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader className="bg-muted/30 border-none">
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[100px] font-black text-[10px] uppercase tracking-widest pl-8 py-5">Photo</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Full Name</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Adm. Number</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Class</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest">Status</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-8">Manage</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStudents.length > 0 ? (
-                  filteredStudents.map((student) => (
-                    <TableRow key={student.id} className="group hover:bg-muted/5 transition-colors border-b-muted/20">
-                      <TableCell className="pl-8 py-5">
-                        <div className="h-12 w-12 rounded-full bg-secondary overflow-hidden border-2 border-primary/5 shadow-sm group-hover:scale-110 transition-transform relative">
-                          <Image 
-                            src={student.photoUrl || 'https://picsum.photos/seed/student/100/100'} 
-                            alt="" 
-                            fill
-                            className="object-cover"
-                          />
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-muted/30 border-none">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-[100px] font-black text-[10px] uppercase tracking-widest pl-8 py-5">Photo</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Full Name</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Adm. Number</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Class</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest">Status</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-8">Manage</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredStudents.length > 0 ? (
+                    filteredStudents.map((student) => (
+                      <TableRow key={student.id} className="group hover:bg-muted/5 transition-colors border-b-muted/20">
+                        <TableCell className="pl-8 py-5">
+                          <div className="h-12 w-12 rounded-full bg-secondary overflow-hidden border-2 border-primary/5 shadow-sm group-hover:scale-110 transition-transform relative">
+                            <Image 
+                              src={student.photoUrl || 'https://picsum.photos/seed/student/100/100'} 
+                              alt="" 
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-black text-primary text-base whitespace-nowrap">{student.fullName}</TableCell>
+                        <TableCell className="text-muted-foreground font-bold text-xs whitespace-nowrap">{student.admissionNumber}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 font-bold px-3">
+                            {student.class}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <Badge 
+                            variant={student.status === 'Active' ? 'default' : student.status === 'Graduated' ? 'outline' : 'secondary'} 
+                            className={student.status === 'Active' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100 border-none px-4' : student.status === 'Graduated' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none px-4' : 'px-4'}
+                          >
+                            {student.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right pr-8 whitespace-nowrap">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5">
+                                <MoreHorizontal className="h-5 w-5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 rounded-2xl shadow-2xl border-none p-2">
+                              <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground p-2">Registry Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator className="opacity-50" />
+                              <DropdownMenuItem asChild className="rounded-xl">
+                                <Link href={`/dashboard/students/${student.id}`}>
+                                  <Eye className="mr-2 h-4 w-4 opacity-70" />
+                                  View Profile
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild className="rounded-xl">
+                                <Link href={`/dashboard/students/${student.id}/edit`}>
+                                  <Edit className="mr-2 h-4 w-4 opacity-70" />
+                                  Edit Record
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="rounded-xl cursor-pointer"
+                                onClick={() => setStatus(student.id, 'Active')}
+                                disabled={student.status === 'Active'}
+                              >
+                                <UserCheck className="mr-2 h-4 w-4 opacity-70" />
+                                Re-Activate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="rounded-xl cursor-pointer text-amber-600 focus:text-amber-600"
+                                onClick={() => setStatus(student.id, 'Withdrawn')}
+                                disabled={student.status === 'Withdrawn'}
+                              >
+                                <UserX className="mr-2 h-4 w-4 opacity-70" />
+                                Withdraw
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="rounded-xl cursor-pointer text-green-600 focus:text-green-600"
+                                onClick={() => setStatus(student.id, 'Graduated')}
+                                disabled={student.status === 'Graduated'}
+                              >
+                                <Award className="mr-2 h-4 w-4 opacity-70" />
+                                Graduate
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-64 text-center">
+                        <div className="flex flex-col items-center gap-4 text-muted-foreground">
+                          <Search className="h-12 w-12 opacity-10" />
+                          <p className="text-[10px] font-black uppercase tracking-[0.3em]">No matching student records found</p>
                         </div>
                       </TableCell>
-                      <TableCell className="font-black text-primary text-base">{student.fullName}</TableCell>
-                      <TableCell className="text-muted-foreground font-bold text-xs">{student.admissionNumber}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 font-bold px-3">
-                          {student.class}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={student.status === 'Active' ? 'default' : student.status === 'Graduated' ? 'outline' : 'secondary'} 
-                          className={student.status === 'Active' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100 border-none px-4' : student.status === 'Graduated' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-none px-4' : 'px-4'}
-                        >
-                          {student.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right pr-8">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/5">
-                              <MoreHorizontal className="h-5 w-5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl shadow-2xl border-none p-2">
-                            <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground p-2">Registry Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator className="opacity-50" />
-                            <DropdownMenuItem asChild className="rounded-xl">
-                              <Link href={`/dashboard/students/${student.id}`}>
-                                <Eye className="mr-2 h-4 w-4 opacity-70" />
-                                View Profile
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild className="rounded-xl">
-                              <Link href={`/dashboard/students/${student.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4 opacity-70" />
-                                Edit Record
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="rounded-xl cursor-pointer"
-                              onClick={() => setStatus(student.id, 'Active')}
-                              disabled={student.status === 'Active'}
-                            >
-                              <UserCheck className="mr-2 h-4 w-4 opacity-70" />
-                              Re-Activate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="rounded-xl cursor-pointer text-amber-600 focus:text-amber-600"
-                              onClick={() => setStatus(student.id, 'Withdrawn')}
-                              disabled={student.status === 'Withdrawn'}
-                            >
-                              <UserX className="mr-2 h-4 w-4 opacity-70" />
-                              Withdraw
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="rounded-xl cursor-pointer text-green-600 focus:text-green-600"
-                              onClick={() => setStatus(student.id, 'Graduated')}
-                              disabled={student.status === 'Graduated'}
-                            >
-                              <Award className="mr-2 h-4 w-4 opacity-70" />
-                              Graduate
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-64 text-center">
-                      <div className="flex flex-col items-center gap-4 text-muted-foreground">
-                        <Search className="h-12 w-12 opacity-10" />
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No matching student records found</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>

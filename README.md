@@ -1,6 +1,6 @@
-# Kourrklys International School (KIS) - Admin Portal
+# Kourklys International School (KIS) - Admin Portal
 
-A high-performance, professional management system designed for Kourrklys International School to handle student registration, staff records, and administrative oversight.
+A high-performance, professional management system designed for Kourklys International School to handle student registration, staff records, and administrative oversight.
 
 ## 🚀 Tech Stack
 
@@ -56,4 +56,4 @@ src/
 6. **Real-Time Analytics**: Live enrollment distribution charts for both Primary and Secondary levels using a tabbed distribution interface.
 
 ---
-*Developed for Kourrklys International School Administrative Infrastructure.*
+*Developed for Kourklys International School Administrative Infrastructure.*

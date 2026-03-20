@@ -35,10 +35,10 @@
     --sidebar-ring: 199 89% 48%;
   }
   .dark {
-    /* Lovely Professional Midnight Oxford Blue */
+    /* Professional Midnight Oxford Blue */
     --background: 222 47% 7%;
     --foreground: 213 31% 91%;
-    --card: 222 47% 10%;
+    --card: 222 47% 11%;
     --card-foreground: 213 31% 91%;
     --popover: 222 47% 10%;
     --popover-foreground: 213 31% 91%;

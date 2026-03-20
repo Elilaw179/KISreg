@@ -128,7 +128,7 @@ export default function DashboardPage() {
                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Registry Terminal Live</p>
             </div>
             <h2 className="text-5xl font-headline font-black tracking-tight text-primary leading-tight">Overview</h2>
-            <p className="text-muted-foreground font-medium max-w-md">Real-time enrollment diagnostics and registry oversight for Kourrklys International School.</p>
+            <p className="text-muted-foreground font-medium max-w-md">Real-time enrollment diagnostics and registry oversight for Kourklys International School.</p>
           </div>
           <div className="flex gap-3">
             <Button size="lg" variant="outline" className="h-12 rounded-2xl font-black uppercase text-[10px] tracking-widest border-2 hover:bg-muted" asChild>

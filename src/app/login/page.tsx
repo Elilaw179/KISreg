@@ -77,7 +77,7 @@ export default function LoginPage() {
       
       toast({
         title: "Registry Authorized",
-        description: "Welcome to the KIS Administrative Interface.",
+        description: "Welcome to the Kourklys Administrative Interface.",
       });
       router.push('/dashboard');
     } catch (error: any) {
@@ -116,14 +116,14 @@ export default function LoginPage() {
           />
         </div>
         <div className="text-center space-y-1">
-          <h1 className="text-4xl font-headline font-black text-primary tracking-tight uppercase">KOURRKLYS</h1>
+          <h1 className="text-4xl font-headline font-black text-primary tracking-tight uppercase">KOURKLYS</h1>
           <p className="text-muted-foreground font-bold tracking-[0.2em] uppercase text-[10px]">
             International School Admin Portal
           </p>
         </div>
       </div>
 
-      <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10 rounded-3xl">
+      <Card className="w-full max-w-md shadow-2xl border-none glass-card relative z-10 rounded-3xl overflow-hidden">
         <CardHeader className="space-y-2 pt-8">
           <CardTitle className="text-2xl text-center font-headline font-black text-primary/90 uppercase tracking-tight">Secured Entry</CardTitle>
           <CardDescription className="text-center text-xs font-bold uppercase text-muted-foreground/60 tracking-widest">
@@ -140,7 +140,7 @@ export default function LoginPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="admin@kourrklys.edu.ng" 
+                  placeholder="admin@kourklys.edu.ng" 
                   className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-2xl text-sm" 
                   required 
                 />
@@ -201,7 +201,7 @@ export default function LoginPage() {
       </Card>
 
       <footer className="mt-16 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40">
-        &copy; {new Date().getFullYear()} Kourrklys Int. School • Administrative Infrastructure
+        &copy; {new Date().getFullYear()} Kourklys Int. School • Administrative Infrastructure
       </footer>
     </div>
   );
