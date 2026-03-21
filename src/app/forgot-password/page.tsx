@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -23,7 +24,7 @@ export default function ForgotPasswordPage() {
         <div className="bg-white rounded-3xl p-2 shrink-0 shadow-2xl w-24 h-24 relative overflow-hidden transition-all hover:rotate-3 hover:scale-110 border-2 border-primary/5 mb-2">
           <Image 
             src="/logokis.png"
-            alt="KIS Logo"
+            alt="KOURKLYS Logo"
             fill
             className="object-contain p-2"
             priority
@@ -89,7 +90,7 @@ export default function ForgotPasswordPage() {
       </Card>
 
       <footer className="mt-12 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40">
-        &copy; {new Date().getFullYear()} Kourklys International School.
+        &copy; {new Date().getFullYear()} KOURKLYS International School.
       </footer>
     </div>
   );

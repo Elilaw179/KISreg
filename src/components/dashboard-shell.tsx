@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -199,7 +200,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
               <Input
                 type="search"
                 placeholder="Find records, staff or events..."
-                className="pl-12 bg-muted/50 border-transparent ring-0 focus-visible:ring-primary/20 focus-visible:bg-background transition-all rounded-2xl h-11 text-sm"
+                className="pl-12 bg-muted/30 border-transparent ring-0 focus-visible:ring-primary/20 focus-visible:bg-background transition-all rounded-2xl h-11 text-sm"
               />
             </div>
           </div>
@@ -221,7 +222,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           </div>
         </header>
         
-        <main className="p-6 md:p-10 flex-1 bg-muted/5">
+        <main className="p-6 md:p-10 flex-1 bg-muted/5 overflow-hidden">
           <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             {children}
           </div>

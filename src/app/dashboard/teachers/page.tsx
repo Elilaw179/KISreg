@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -172,14 +173,14 @@ export default function TeachersPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-2xl shadow-muted/50 border-none overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl shadow-muted/50 border-none overflow-hidden max-w-full">
           {loading ? (
             <div className="flex flex-col items-center justify-center h-64 gap-4">
               <Loader2 className="h-8 w-8 animate-spin text-primary opacity-50" />
               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">Accessing Records...</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto w-full">
               <Table>
                 <TableHeader className="bg-muted/30 border-none">
                   <TableRow className="hover:bg-transparent border-none">

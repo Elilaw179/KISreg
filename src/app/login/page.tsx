@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -77,7 +78,7 @@ export default function LoginPage() {
       
       toast({
         title: "Registry Authorized",
-        description: "Welcome to the Kourklys Administrative Interface.",
+        description: "Welcome to the KOURKLYS Administrative Interface.",
       });
       router.push('/dashboard');
     } catch (error: any) {
@@ -109,7 +110,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-3xl p-2 shrink-0 shadow-2xl w-32 h-32 relative overflow-hidden transition-all hover:rotate-3 hover:scale-105 border-4 border-primary/5">
           <Image 
             src="/logokis.png"
-            alt="KIS Logo"
+            alt="KOURKLYS Logo"
             fill
             className="object-contain p-2"
             priority
@@ -141,7 +142,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="admin@kourklys.edu.ng" 
-                  className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-2xl text-sm" 
+                  className="pl-11 h-12 bg-muted/20 border-transparent focus:bg-background transition-all rounded-2xl text-sm" 
                   required 
                 />
               </div>
@@ -159,7 +160,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"} 
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="pl-11 pr-10 h-12 bg-muted/20 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-2xl text-sm" 
+                  className="pl-11 pr-10 h-12 bg-muted/20 border-transparent focus:bg-background transition-all rounded-2xl text-sm" 
                   required 
                 />
                 <button
@@ -201,7 +202,7 @@ export default function LoginPage() {
       </Card>
 
       <footer className="mt-16 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40">
-        &copy; {new Date().getFullYear()} Kourklys Int. School • Administrative Infrastructure
+        &copy; {new Date().getFullYear()} KOURKLYS Int. School • Administrative Infrastructure
       </footer>
     </div>
   );
